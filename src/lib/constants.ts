@@ -138,8 +138,39 @@ export const PROTEGE_EMAIL_DOMAIN = EMAIL_DOMINIO_PERMITIDO;
 export const ROTAS = {
   formulario: '/',
   sucesso: '/sucesso',
+  login: '/login',
+  cadastro: '/cadastro',
+  verificarEmail: '/verificar-email',
   adminLogin: '/admin/login',
   adminDashboard: '/admin/dashboard',
   adminSolicitacoes: '/admin/solicitacoes',
   adminDetalhe: (id: string) => `/admin/solicitacoes/${id}`,
 } as const;
+
+// -----------------------------------------------------------------------------
+// Opcoes locais do formulario publico
+// -----------------------------------------------------------------------------
+
+export const SETORES_OPCOES = [
+  { id: 'administrativo', nome: 'Administrativo' },
+  { id: 'atendimento', nome: 'Atendimento' },
+  { id: 'financeiro', nome: 'Financeiro' },
+  { id: 'faturamento', nome: 'Faturamento' },
+  { id: 'operacional', nome: 'Operacional' },
+  { id: 'recursos-humanos', nome: 'Recursos Humanos' },
+  { id: 'tecnologia', nome: 'Tecnologia' },
+  { id: 'qualidade', nome: 'Qualidade' },
+  { id: 'outro', nome: 'Outro' },
+] as const;
+
+export const CARGOS_OPCOES = [
+  { id: 'auxiliar', nome: 'Auxiliar' },
+  { id: 'assistente', nome: 'Assistente' },
+  { id: 'analista', nome: 'Analista' },
+  { id: 'tecnico', nome: 'Tecnico' },
+  { id: 'coordenador', nome: 'Coordenador' },
+  { id: 'supervisor', nome: 'Supervisor' },
+  { id: 'gerente', nome: 'Gerente' },
+  { id: 'diretor', nome: 'Diretor' },
+  { id: 'outro', nome: 'Outro' },
+] as const;
