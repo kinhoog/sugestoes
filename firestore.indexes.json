@@ -1,0 +1,30 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "solicitacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "created_by", "order": "ASCENDING" },
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "data_criacao", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "solicitacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deleted_at", "order": "ASCENDING" },
+        { "fieldPath": "data_criacao", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "historico_status",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "solicitacao_id", "order": "ASCENDING" },
+        { "fieldPath": "data_alteracao", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

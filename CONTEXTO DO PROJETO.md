@@ -11,20 +11,20 @@ O Portal de Oportunidades de Melhoria é um sistema interno projetado para mapea
 * Validar a adesão e engajamento dos colaboradores da base.
 * Mensurar o volume de desperdício de tempo e falhas operacionais por setor por meio de métricas quantificáveis.
 * Ranquear automaticamente as dores mais críticas da empresa para triagem eficiente.
-* Manter a arquitetura o mais simples possível (Sem autenticação no fluxo do colaborador).
+* Manter a arquitetura o mais simples possível, com autenticação Firebase obrigatória para todos os usuários.
 
 ## 3. Stack Tecnológica e Arquitetura
 * **Frontend:** React, TypeScript, Vite, HTML5, CSS3.
-* **Banco de Dados:** PostgreSQL hospedado no Supabase.
-* **Armazenamento de Arquivos:** Supabase Storage.
+* **Banco de Dados:** Cloud Firestore.
+* **Armazenamento de Arquivos:** Firebase Storage.
 * **Hospedagem:** GitHub Pages (Build estático como Single Page Application - SPA).
-* **Arquitetura:** Aplicação sem autenticação para o colaborador. Comunicação direta com o Supabase.
+* **Arquitetura:** Aplicação com Firebase Auth para colaborador e administrador. Comunicação direta com Firebase.
 
 ## 4. Estrutura Organizacional, Governança e Regras Gerais
 
 ### Comitê de Triagem e Perfis
-* **Perfil Colaborador:** Qualquer pessoa com e-mail finalizado estritamente em `@protege.med.br`. Acesso livre ao formulário.
-* **Perfil Administrador (Comitê):** Fábio, Erick e Abner. Controle total do sistema, inserção de pareceres e encerramento de processos. O acesso ao Dashboard não faz parte do fluxo do colaborador (autenticação a ser definida na arquitetura).
+* **Perfil Colaborador:** Qualquer pessoa autenticada com e-mail verificado e finalizado estritamente em `@protege.med.br`.
+* **Perfil Administrador (Comitê):** Fábio, Erick e Abner. Controle total do sistema, inserção de pareceres e encerramento de processos. O acesso ao Dashboard não faz parte do fluxo do colaborador.
 * **Regra de Negócio Exclusiva:** Somente membros do Comitê de Triagem podem alterar o status das solicitações.
 
 ### Regra de Exclusão e Auditoria (Soft Delete)
@@ -47,7 +47,7 @@ O sistema registra automaticamente o histórico de evolução e captura carimbos
 * **Tempo Médio até Decisão:** `data_decisao` - `data_criacao`.
 * **Tempo Médio até Conclusão:** `data_fechamento` - `data_criacao`.
 
-## 6. Dicionário de Dados (PostgreSQL)
+## 6. Dicionário de Dados (Cloud Firestore)
 
 ### Tabela Principal: `solicitacoes`
 | Campo                          | Tipo        | Observação                                  |
@@ -91,7 +91,7 @@ O sistema registra automaticamente o histórico de evolução e captura carimbos
 | id              | uuid        | Primary Key                            |
 | solicitacao_id  | uuid        | Foreign Key -> solicitacoes.id         |
 | nome_arquivo    | varchar     | Nome original do arquivo               |
-| caminho_storage | varchar     | Path de referência no Supabase Storage |
+| caminho_storage | varchar     | Path de referência no Firebase Storage |
 | tamanho_bytes   | bigint      | Controle de limite de tamanho          |
 | data_upload     | timestamptz |                                        |
 | deleted_at      | timestamptz | Controle de Soft Delete                |
@@ -159,7 +159,7 @@ O sistema registra automaticamente o histórico de evolução e captura carimbos
 Decisões Arquiteturais Definidas
 Autenticação Administrativa
 
-Será utilizado Supabase Auth.
+Será utilizado Firebase Authentication.
 
 Usuários autorizados:
 
@@ -169,7 +169,7 @@ esocial@protege.med.br
 
 Somente esses usuários poderão acessar o Dashboard Administrativo.
 
-O colaborador não realiza autenticação.
+O colaborador realiza autenticação e precisa ter e-mail verificado.
 
 Design System
 Área do Colaborador

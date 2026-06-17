@@ -28,7 +28,7 @@ export function AdminDashboardPage() {
       <div className="mt-6">
         <PlaceholderPanel
           title="Fila de gestao"
-          description="Na fase de Supabase, esta area passara a escutar solicitacoes em tempo real, com filtros, status e historico de auditoria."
+          description="Na fase de dashboard, esta area passara a escutar solicitacoes em tempo real pelo Firestore, com filtros, status e historico de auditoria."
         />
       </div>
     </AdminShell>

@@ -1,0 +1,163 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function verifiedCorporateUser() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('^[^@]+@protege\\.med\\.br$');
+    }
+
+    function isAdmin() {
+      return verifiedCorporateUser()
+        && request.auth.token.email in [
+          'fabio@protege.med.br',
+          'abner@protege.med.br',
+          'esocial@protege.med.br'
+        ];
+    }
+
+    function isOwner(uid) {
+      return verifiedCorporateUser() && request.auth.uid == uid;
+    }
+
+    function onlyChanged(allowedFields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
+    }
+
+    function validProtocol() {
+      return request.resource.data.protocolo is string
+        && request.resource.data.protocolo.matches('^PRO-[0-9]{4}-[0-9]{4,}$');
+    }
+
+    match /usuarios/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(uid)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && (
+          request.resource.data.perfil == 'colaborador'
+          || (isAdmin() && request.resource.data.perfil == 'admin')
+        );
+      allow update: if isOwner(uid)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.perfil == resource.data.perfil;
+      allow delete: if false;
+    }
+
+    match /setores/{setorId} {
+      allow read: if verifiedCorporateUser();
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /cargos/{cargoId} {
+      allow read: if verifiedCorporateUser();
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /contadores/{contadorId} {
+      allow read: if verifiedCorporateUser();
+      allow create: if verifiedCorporateUser()
+        && request.resource.data.keys().hasOnly(['ano', 'ultimo_numero', 'updated_at'])
+        && request.resource.data.ultimo_numero == 1;
+      allow update: if verifiedCorporateUser()
+        && request.resource.data.keys().hasOnly(['ano', 'ultimo_numero', 'updated_at'])
+        && request.resource.data.ano == resource.data.ano
+        && request.resource.data.ultimo_numero == resource.data.ultimo_numero + 1;
+      allow delete: if false;
+    }
+
+    match /solicitacoes/{solicitacaoId} {
+      allow get: if isAdmin() || isOwner(resource.data.created_by);
+      allow list: if isAdmin() || isOwner(resource.data.created_by);
+
+      allow create: if verifiedCorporateUser()
+        && request.resource.data.created_by == request.auth.uid
+        && request.resource.data.created_by_email == request.auth.token.email
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'Nova'
+        && request.resource.data.deleted_at == null
+        && validProtocol()
+        && request.resource.data.keys().hasAll([
+          'protocolo',
+          'nome_completo',
+          'email',
+          'setor_id',
+          'cargo_id',
+          'processo_alvo',
+          'funcionamento_atual',
+          'frequencia',
+          'impacto_operacional',
+          'pessoas_impactadas',
+          'tempo_perdido',
+          'usa_planilha',
+          'usa_email',
+          'atividade_repetitiva',
+          'dependencia_pessoa',
+          'resultado_ideal',
+          'urgencia',
+          'score',
+          'prioridade_calculada',
+          'status',
+          'created_by',
+          'created_by_email',
+          'data_criacao',
+          'deleted_at'
+        ])
+        && request.resource.data.parecer_tecnico == null
+        && request.resource.data.observacao_interna == null;
+
+      allow update: if isAdmin()
+        && request.resource.data.protocolo == resource.data.protocolo
+        && request.resource.data.created_by == resource.data.created_by
+        && request.resource.data.score == resource.data.score
+        && request.resource.data.prioridade_calculada == resource.data.prioridade_calculada
+        && onlyChanged([
+          'status',
+          'parecer_tecnico',
+          'observacao_interna',
+          'data_inicio_analise',
+          'data_decisao',
+          'data_fechamento',
+          'updated_at',
+          'deleted_at'
+        ]);
+
+      allow delete: if false;
+    }
+
+    match /anexos/{anexoId} {
+      allow get: if isAdmin() || isOwner(resource.data.created_by);
+      allow list: if isAdmin() || isOwner(resource.data.created_by);
+      allow create: if verifiedCorporateUser()
+        && request.resource.data.created_by == request.auth.uid
+        && request.resource.data.deleted_at == null
+        && request.resource.data.tamanho_bytes <= 10 * 1024 * 1024;
+      allow update: if isAdmin() && onlyChanged(['deleted_at', 'updated_at']);
+      allow delete: if false;
+    }
+
+    match /historico_status/{historicoId} {
+      allow get: if isAdmin()
+        || isOwner(get(/databases/$(database)/documents/solicitacoes/$(resource.data.solicitacao_id)).data.created_by);
+      allow list: if isAdmin()
+        || isOwner(get(/databases/$(database)/documents/solicitacoes/$(resource.data.solicitacao_id)).data.created_by);
+      allow create: if isAdmin()
+        || (
+          verifiedCorporateUser()
+          && request.resource.data.usuario_id == request.auth.uid
+          && request.resource.data.status_anterior == null
+          && request.resource.data.status_novo == 'Nova'
+        );
+      allow update, delete: if false;
+    }
+  }
+}
