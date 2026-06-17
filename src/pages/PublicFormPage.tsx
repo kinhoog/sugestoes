@@ -8,7 +8,7 @@ export function PublicFormPage() {
       <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
         <PlaceholderPanel
           title="Registrar oportunidade de melhoria"
-          description="Nesta primeira fase, a aplicacao ja esta organizada em React, Vite e rotas. O formulario real entra na proxima fase, conectado as validacoes, prioridade e Supabase."
+          description="Nesta fase, a aplicacao ja esta organizada em React, Vite, rotas e Firebase. O formulario real entra na proxima fase, conectado as validacoes, prioridade e Firestore."
         >
           <div className="grid gap-4 rounded-md border border-dashed border-brand-200 bg-brand-50 p-4 text-sm text-slate-600 sm:grid-cols-2">
             <div>

@@ -1,8 +1,9 @@
 /**
  * Utilitários do protocolo `PRO-YYYY-XXXX` (ARQUITETURA §8).
  *
- * A geração é feita nativamente no PostgreSQL (trigger). No frontend usamos
- * apenas para validação e formatação de exibição.
+ * A geração do número sequencial é coordenada por transação Firestore sobre
+ * `contadores/protocolos_YYYY`. No frontend usamos este helper para formatar
+ * e validar a máscara pública do protocolo.
  */
 export const PROTOCOLO_PREFIXO = 'PRO';
 

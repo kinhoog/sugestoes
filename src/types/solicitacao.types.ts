@@ -21,16 +21,16 @@ export type StatusSolicitacao = (typeof STATUS_SOLICITACAO)[number];
 export type PrioridadeNivel = (typeof PRIORIDADE_NIVEIS)[number];
 
 export interface Setor {
-  id: number;
+  id: string;
   nome: string;
-  deleted_at: string | null;
+  deleted_at: unknown | null;
 }
 
 export interface Cargo {
-  id: number;
-  setor_id: number;
+  id: string;
+  setor_id: string;
   nome: string;
-  deleted_at: string | null;
+  deleted_at: unknown | null;
 }
 
 export interface Solicitacao {
@@ -38,8 +38,8 @@ export interface Solicitacao {
   protocolo: string;
   nome_completo: string;
   email: string;
-  setor_id: number;
-  cargo_id: number;
+  setor_id: string;
+  cargo_id: string;
   processo_alvo: string;
   funcionamento_atual: string;
   frequencia: Frequencia;
@@ -62,11 +62,14 @@ export interface Solicitacao {
   status: StatusSolicitacao;
   parecer_tecnico: string | null;
   observacao_interna: string | null;
-  data_criacao: string;
-  data_inicio_analise: string | null;
-  data_decisao: string | null;
-  data_fechamento: string | null;
-  deleted_at: string | null;
+  created_by: string;
+  created_by_email: string;
+  data_criacao: unknown;
+  data_inicio_analise: unknown | null;
+  data_decisao: unknown | null;
+  data_fechamento: unknown | null;
+  deleted_at: unknown | null;
+  updated_at?: unknown;
 }
 
 export interface Anexo {
@@ -75,8 +78,10 @@ export interface Anexo {
   nome_arquivo: string;
   caminho_storage: string;
   tamanho_bytes: number;
-  data_upload: string;
-  deleted_at: string | null;
+  content_type?: string;
+  created_by: string;
+  data_upload: unknown;
+  deleted_at: unknown | null;
 }
 
 export interface HistoricoStatus {
@@ -84,16 +89,16 @@ export interface HistoricoStatus {
   solicitacao_id: string;
   status_anterior: StatusSolicitacao | null;
   status_novo: StatusSolicitacao;
-  usuario_comite_id: string | null;
-  usuario_comite: string | null;
-  data_alteracao: string;
+  usuario_id: string | null;
+  usuario_email: string | null;
+  data_alteracao: unknown;
 }
 
 export interface NovaSolicitacaoPayload {
   nome_completo: string;
   email: string;
-  setor_id: number;
-  cargo_id: number;
+  setor_id: string;
+  cargo_id: string;
   processo_alvo: string;
   funcionamento_atual: string;
   frequencia: Frequencia;
@@ -119,6 +124,7 @@ export interface AnexoPayload {
   nome_arquivo: string;
   caminho_storage: string;
   tamanho_bytes: number;
+  content_type?: string;
 }
 
 export interface CriarSolicitacaoResult {

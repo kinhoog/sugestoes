@@ -3,7 +3,7 @@
  *
  * Centraliza opções de seleção, pontuações da engine de prioridade, máquina de
  * estados, cores de status e limites operacionais. Os valores (`value`) devem
- * espelhar as constraints de domínio em `supabase/migrations/0001_schema_inicial.sql`.
+ * espelhar os contratos validados por `firebase.rules`.
  */
 
 /** Opção de seleção genérica, com pontuação opcional usada pela engine de prioridade. */
@@ -135,8 +135,9 @@ export const PROTEGE_EMAIL_DOMAIN = EMAIL_DOMINIO_PERMITIDO;
 // Storage / anexos
 // -----------------------------------------------------------------------------
 
-export const BUCKET_ANEXOS = 'anexos-solicitacoes';
-export const STORAGE_BUCKET = BUCKET_ANEXOS;
+export const STORAGE_ANEXOS_ROOT = 'solicitacoes';
+export const BUCKET_ANEXOS = STORAGE_ANEXOS_ROOT;
+export const STORAGE_BUCKET = STORAGE_ANEXOS_ROOT;
 export const MAX_ANEXOS = 5;
 export const MAX_TAMANHO_ANEXO_BYTES = 10 * 1024 * 1024;
 

@@ -15,7 +15,7 @@ export function AdminLoginPage() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-slate-950">Acesso administrativo</h1>
-              <p className="text-sm text-slate-500">Login via Supabase Auth.</p>
+              <p className="text-sm text-slate-500">Login via Firebase Auth.</p>
             </div>
           </div>
 

@@ -4,9 +4,9 @@
 
 ## 0. CONTEXTO DO PROJETO
 Sistema interno focado estritamente na captura, análise e triagem de gargalos operacionais (foco na dor/problema, não na proposição de soluções).
-- **Padrão Arquitetural:** SPA (Frontend) + Supabase (BaaS).
-- **Backend Customizado:** NÃO EXISTE. Toda inteligência de dados reside em triggers, RLS e no client-side.
-- **Sincronização:** Realtime obrigatório para visualizações administrativas.
+- **Padrão Arquitetural:** SPA (Frontend) + Firebase (BaaS).
+- **Backend Customizado:** NÃO EXISTE. Toda inteligência de dados reside em Firebase Security Rules, transações Firestore e client-side.
+- **Sincronização:** Firestore realtime listeners obrigatórios para visualizações administrativas.
 
 ---
 
@@ -18,15 +18,15 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
 - Vite
 - TailwindCSS
 - React Router DOM
-- TUDO dentro de um index.html
+- Código-fonte modular com build estático final gerado pelo Vite.
 
 ### Backend as a Service (BaaS)
-- **Supabase Core:**
-  - Auth (Email/Senha)
-  - PostgreSQL (Database)
-  - Storage (Bucket de Anexos)
-  - Realtime (Subscriptions)
-  - API Supabase vai realizar tudo isso.
+- **Firebase Core:**
+  - Firebase Authentication (Email/Senha)
+  - Cloud Firestore
+  - Firebase Storage
+  - Firebase Security Rules
+  - Firestore realtime listeners
 
 ### Deploy
 - GitHub Pages
@@ -38,18 +38,20 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
 ### 2.1. Fluxo do Colaborador (Público)
 
 1. Acessa a rota raiz `/`.
-2. Preenche o formulário estruturado de dores operacionais.
+2. Realiza cadastro/login com Firebase Auth.
+3. Confirma e-mail corporativo.
+4. Preenche o formulário estruturado de dores operacionais.
 3. **Validações síncronas de Entrada:**
 * O campo de e-mail deve obrigatoriamente terminar com o sufixo `@protege.med.br`.
 * Todos os campos mandatórios devem ser preenchidos antes do envio.
 
 
-4. Upload de arquivos anexos para o bucket (opcional).
-5. **Cálculo de Prioridade:** Processado no frontend (`/lib/priority.ts`) gerando score e classificação.
-6. **Inserção no Banco (Transaction/Batch):**
-* Executa `INSERT` na tabela `solicitacoes`.
-* O protocolo único é gerado automaticamente via trigger no PostgreSQL.
-* Executa `INSERT` na tabela `anexos` vinculando os IDs dos arquivos ao ID da solicitação (se aplicável).
+5. Upload de arquivos anexos para Firebase Storage (opcional).
+6. **Cálculo de Prioridade:** Processado no frontend (`/lib/priority.ts`) gerando score e classificação.
+7. **Persistência no Firestore (Transaction/Batch):**
+* Executa transação Firestore para incrementar contador anual e criar documento em `solicitacoes`.
+* O protocolo único é gerado na transação Firestore, não manualmente fora dela.
+* Cria documentos em `anexos` vinculando os metadados dos arquivos à solicitação (se aplicável).
 
 
 7. Redireciona imediatamente para `/sucesso`.
@@ -58,7 +60,7 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
 
 1. Realiza autenticação com e-mail e senha
 2. Redireciona para o painel consolidado
-3. Monitoramento de eventos em tempo real via Supabase Realtime (sem refresh).
+3. Monitoramento de eventos em tempo real via Firestore realtime listeners (sem refresh).
 4. Gerenciamento do ciclo de vida
 * Transição assistida de Status (aderente à State Machine).
 * Inserção obrigatória de parecer técnico.
@@ -69,11 +71,11 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
 
 ---
 
-## 3. AUTENTICAÇÃO E POLÍTICAS DE ACESSO (SUPABASE AUTH)
+## 3. AUTENTICAÇÃO E POLÍTICAS DE ACESSO (FIREBASE AUTH)
 
 ### Whitelist Estrita de Administradores
 
-Apenas as credenciais explicitadas abaixo possuem permissão para gerar sessões administrativas no Supabase Auth:
+Apenas as credenciais explicitadas abaixo possuem permissão administrativa no Firebase Auth:
 
 * `fabio@protege.med.br`
 * `abner@protege.med.br`
@@ -83,13 +85,15 @@ Apenas as credenciais explicitadas abaixo possuem permissão para gerar sessões
 
 ## 4. MODELO DE DADOS RELACIONAL
 
-O esquema do banco de dados PostgreSQL no Supabase é composto pelas seguintes tabelas:
+O modelo do Cloud Firestore é composto pelas seguintes coleções:
 
+* `usuarios`: Perfil mínimo do usuário autenticado.
 * `solicitacoes`: Registro principal das dores reportadas e metadados associados.
 * `anexos`: Caminhos de referência e metadados dos arquivos salvos no storage.
 * `historico_status`: Linha do tempo cumulativa e imutável das transições de estados.
-* `setores`: Tabela auxiliar para categorização estruturada das áreas da empresa.
-* `cargos`: Tabela auxiliar contendo os cargos operacionais mapeados.
+* `setores`: Coleção auxiliar para categorização estruturada das áreas da empresa.
+* `cargos`: Coleção auxiliar contendo os cargos operacionais mapeados.
+* `contadores`: Metadados de contador anual para protocolo.
 
 Me ajude a elaborar melhor caso tenha outra ideia/rota.
 
@@ -117,7 +121,7 @@ As transições de ciclo de vida das solicitações devem seguir estritamente o 
 
 * Apenas usuários administradores autenticados podem alterar estados de uma solicitação.
 * Toda e qualquer alteração de status gera obrigatoriamente um registro
-* Transições de estado que violem a lógica visualizada acima devem ser barradas programaticamente na interface e garantidas via constraints/triggers no banco de dados.
+* Transições de estado que violem a lógica visualizada acima devem ser barradas programaticamente na interface e protegidas por Firebase Security Rules.
 
 ---
 
@@ -196,32 +200,32 @@ O padrão identificador deve seguir rigorosamente a máscara: `PRO-YYYY-XXXX`
 
 ### Diretriz de Engenharia
 
-A geração sequencial do número incremental do protocolo deve ser gerenciada de forma nativa no PostgreSQL através de uma `SEQUENCE` e associada via `BEFORE INSERT TRIGGER`. Isso previne problemas de concorrência e garante unicidade absoluta.
+A geração sequencial do número incremental do protocolo deve ser gerenciada por transação Firestore sobre a coleção `contadores`, incrementando o contador anual e criando a solicitação na mesma operação lógica. Sem backend próprio, essa é a opção mais segura disponível no MVP.
 
 ---
 
-## 8. POLÍTICAS DE ROW LEVEL SECURITY (RLS)
+## 8. POLÍTICAS DE SEGURANÇA (FIREBASE SECURITY RULES)
 
-A tabela abaixo dita a configuração exata das políticas de segurança que devem ser executadas no banco de dados do Supabase:
+A tabela abaixo dita a configuração esperada das políticas de segurança no Firestore:
 
 | Tabela | Operação `SELECT` | Operação `INSERT` | Operação `UPDATE` | Operação `DELETE` |
 | --- | --- | --- | --- | --- |
-| `solicitacoes` | Apenas Admin | Permitido Anônimo | Apenas Admin | Negado Geral |
-| `anexos` | Apenas Admin | Permitido Anônimo | Apenas Admin | Negado Geral |
-| `historico_status` | Apenas Admin | Apenas Admin | Negado Geral | Negado Geral |
-| `setores` | Permitido Público | Apenas Admin | Apenas Admin | Negado Geral |
-| `cargos` | Permitido Público | Apenas Admin | Apenas Admin | Negado Geral |
+| `solicitacoes` | Admin ou dono | Usuário autenticado, e-mail verificado e domínio válido | Apenas Admin | Negado Geral |
+| `anexos` | Admin ou dono | Usuário autenticado, e-mail verificado e domínio válido | Apenas Admin para soft delete | Negado Geral |
+| `historico_status` | Admin ou dono da solicitação | Admin; colaborador apenas log inicial | Negado Geral | Negado Geral |
+| `setores` | Usuário autenticado/verificado | Apenas Admin | Apenas Admin | Negado Geral |
+| `cargos` | Usuário autenticado/verificado | Apenas Admin | Apenas Admin | Negado Geral |
 
 ---
 
 ## 9. SINCRONIZAÇÃO EM TEMPO REAL (REALTIME)
 
-O sistema deve escutar ativamente o canal de replicação de dados do Supabase para atualizar de forma dinâmica a interface do usuário nas views administrativas.
+O sistema deve escutar ativamente Firestore realtime listeners para atualizar de forma dinâmica a interface do usuário nas views administrativas.
 
 ### Eventos Sob Escuta Obrigatória
 
-* `solicitacoes`: Capturar `INSERT` e `UPDATE`.
-* `historico_status`: Capturar `INSERT`.
+* `solicitacoes`: Capturar novos documentos e atualizações.
+* `historico_status`: Capturar novos documentos.
 
 ### Telas Afetadas pela Reatividade
 
@@ -235,7 +239,7 @@ O sistema deve escutar ativamente o canal de replicação de dados do Supabase p
 
 ## 10. POLÍTICAS DE ARMAZENAMENTO (STORAGE)
 
-* **Nome Corporativo do Bucket:** `anexos-solicitacoes`
+* **Firebase Storage path base:** `solicitacoes/{solicitacaoId}/{arquivo}`
 * **Gargalos e Travas de Validação:**
 * Quantidade limite: Máximo de **5 arquivos** associados por solicitação.
 * Peso limite: Limite máximo individual de **10MB** por arquivo enviado.
@@ -276,10 +280,10 @@ Faça o UI do jeito que achar melhor...
 
 ### O que é Terminantemente PROIBIDO (❌)
 
-1. **DELETE Físico:** Executar comandos SQL `DELETE` ou chamadas `.delete()` pelo SDK do Supabase. A remoção de registros em ambiente de banco de dados deve ser obrigatoriamente virtualizada.
+1. **DELETE Físico:** Executar chamadas de exclusão física pelo SDK Firebase. A remoção de registros deve ser virtualizada por `deleted_at`.
 2. **Manipulação de Prioridade:** Permitir inputs de input de formulário ou botões manuais na tela do administrador que sobrescrevam o score calculado pela engine local.
 3. **Bypass Operacional:** Mudar status da solicitação sem registrar de forma atômica o respectivo log na tabela de históricos.
-4. **Mutação Direta:** Realizar inserções ou alterações nas tabelas críticas que contornem as regras nativas de Row Level Security.
+4. **Mutação Direta:** Realizar inserções ou alterações nas coleções críticas que contornem as Firebase Security Rules.
 
 ### O que é OBRIGATÓRIO (✔)
 
@@ -287,6 +291,6 @@ Faça o UI do jeito que achar melhor...
 2. **Atomicidade de Auditoria:** Toda transição de estado da máquina deve obrigatoriamente gerar um payload de log associado ao UUID do admin executor.
 3. **Unicidade de Protocolos:** A estrutura do banco de dados deve garantir a unicidade de chaves primárias e formatos de protocolos de ponta a ponta.
 
-Bom, não sei de nada, me ajude a estruturar. A ideia é verificar se é viável tudo dentro de um index.html com API do Supabase como banco de dados e autenticação.
+Bom, não sei de nada, me ajude a estruturar. A ideia atual aprovada é usar React + Vite modular com Firebase como BaaS.
 
 Verifique se é necessário o backend.

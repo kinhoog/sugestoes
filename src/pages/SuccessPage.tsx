@@ -10,7 +10,7 @@ export function SuccessPage() {
       <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
         <PlaceholderPanel
           title="Solicitacao registrada"
-          description="Esta tela exibira o protocolo gerado pelo Supabase apos o envio do formulario."
+          description="Esta tela exibira o protocolo gerado pela transacao Firestore apos o envio do formulario."
         >
           <Link
             to="/"
