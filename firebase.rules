@@ -34,6 +34,12 @@ service cloud.firestore {
         && request.resource.data.protocolo.matches('^PRO-[0-9]{4}-[0-9]{4,}$');
     }
 
+    function validReferenciaEvidencia() {
+      return !request.resource.data.keys().hasAny(['referencia_evidencia'])
+        || request.resource.data.referencia_evidencia == null
+        || request.resource.data.referencia_evidencia is string;
+    }
+
     match /usuarios/{uid} {
       allow get: if isOwner(uid) || isAdmin();
       allow list: if isAdmin();
@@ -86,6 +92,7 @@ service cloud.firestore {
         && request.resource.data.status == 'Nova'
         && request.resource.data.deleted_at == null
         && validProtocol()
+        && validReferenciaEvidencia()
         && request.resource.data.keys().hasAll([
           'protocolo',
           'nome_completo',
@@ -131,17 +138,6 @@ service cloud.firestore {
           'deleted_at'
         ]);
 
-      allow delete: if false;
-    }
-
-    match /anexos/{anexoId} {
-      allow get: if isAdmin() || isOwner(resource.data.created_by);
-      allow list: if isAdmin() || isOwner(resource.data.created_by);
-      allow create: if verifiedCorporateUser()
-        && request.resource.data.created_by == request.auth.uid
-        && request.resource.data.deleted_at == null
-        && request.resource.data.tamanho_bytes <= 10 * 1024 * 1024;
-      allow update: if isAdmin() && onlyChanged(['deleted_at', 'updated_at']);
       allow delete: if false;
     }
 

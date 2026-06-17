@@ -24,7 +24,6 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
 - **Firebase Core:**
   - Firebase Authentication (Email/Senha)
   - Cloud Firestore
-  - Firebase Storage
   - Firebase Security Rules
   - Firestore realtime listeners
 
@@ -46,12 +45,12 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
 * Todos os campos mandatórios devem ser preenchidos antes do envio.
 
 
-5. Upload de arquivos anexos para Firebase Storage (opcional).
+5. Informa referência textual de evidência, se houver (opcional).
 6. **Cálculo de Prioridade:** Processado no frontend (`/lib/priority.ts`) gerando score e classificação.
 7. **Persistência no Firestore (Transaction/Batch):**
 * Executa transação Firestore para incrementar contador anual e criar documento em `solicitacoes`.
 * O protocolo único é gerado na transação Firestore, não manualmente fora dela.
-* Cria documentos em `anexos` vinculando os metadados dos arquivos à solicitação (se aplicável).
+* Não há upload de arquivos/anexos físicos no MVP.
 
 
 7. Redireciona imediatamente para `/sucesso`.
@@ -89,7 +88,6 @@ O modelo do Cloud Firestore é composto pelas seguintes coleções:
 
 * `usuarios`: Perfil mínimo do usuário autenticado.
 * `solicitacoes`: Registro principal das dores reportadas e metadados associados.
-* `anexos`: Caminhos de referência e metadados dos arquivos salvos no storage.
 * `historico_status`: Linha do tempo cumulativa e imutável das transições de estados.
 * `setores`: Coleção auxiliar para categorização estruturada das áreas da empresa.
 * `cargos`: Coleção auxiliar contendo os cargos operacionais mapeados.
@@ -211,7 +209,6 @@ A tabela abaixo dita a configuração esperada das políticas de segurança no F
 | Tabela | Operação `SELECT` | Operação `INSERT` | Operação `UPDATE` | Operação `DELETE` |
 | --- | --- | --- | --- | --- |
 | `solicitacoes` | Admin ou dono | Usuário autenticado, e-mail verificado e domínio válido | Apenas Admin | Negado Geral |
-| `anexos` | Admin ou dono | Usuário autenticado, e-mail verificado e domínio válido | Apenas Admin para soft delete | Negado Geral |
 | `historico_status` | Admin ou dono da solicitação | Admin; colaborador apenas log inicial | Negado Geral | Negado Geral |
 | `setores` | Usuário autenticado/verificado | Apenas Admin | Apenas Admin | Negado Geral |
 | `cargos` | Usuário autenticado/verificado | Apenas Admin | Apenas Admin | Negado Geral |
@@ -237,15 +234,13 @@ O sistema deve escutar ativamente Firestore realtime listeners para atualizar de
 
 ---
 
-## 10. POLÍTICAS DE ARMAZENAMENTO (STORAGE)
+## 10. EVIDÊNCIAS NO MVP
 
-* **Firebase Storage path base:** `solicitacoes/{solicitacaoId}/{arquivo}`
-* **Gargalos e Travas de Validação:**
-* Quantidade limite: Máximo de **5 arquivos** associados por solicitação.
-* Peso limite: Limite máximo individual de **10MB** por arquivo enviado.
+O MVP não possui anexos físicos nem Firebase Storage.
 
+Para evidências, usar campo textual opcional `referencia_evidencia`, aceitando link, caminho interno, observação, referência de documento ou informação complementar.
 
-* **Segurança de Dados:** É vetada a remoção ou deleção física de arquivos do bucket sem uma rotina explícita homologada. Aplica-se apenas a remoção lógica da referência via banco.
+Anexos físicos ficam para versão futura.
 
 ---
 

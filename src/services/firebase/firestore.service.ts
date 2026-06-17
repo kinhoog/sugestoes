@@ -12,13 +12,12 @@ import {
   type FirestoreError,
   type QueryDocumentSnapshot,
   type Unsubscribe,
-} from 'firebase/firestore';
-import type { User as FirebaseUser } from 'firebase/auth';
+} from '@firebase/firestore';
+import type { User as FirebaseUser } from '@firebase/auth';
 
 import { formatarProtocolo } from '../../lib/protocol';
 import { ADMIN_EMAILS } from '../../lib/constants';
 import type {
-  AnexoPayload,
   HistoricoStatus,
   NovaSolicitacaoPayload,
   Solicitacao,
@@ -29,7 +28,6 @@ import { requireFirestore } from './client';
 export const FIRESTORE_COLLECTIONS = {
   usuarios: 'usuarios',
   solicitacoes: 'solicitacoes',
-  anexos: 'anexos',
   historicoStatus: 'historico_status',
   setores: 'setores',
   cargos: 'cargos',
@@ -74,7 +72,6 @@ export async function criarOuAtualizarPerfilUsuario(
 
 interface CriarSolicitacaoComProtocoloInput {
   payload: NovaSolicitacaoPayload;
-  anexos?: readonly AnexoPayload[];
   uid: string;
   email: string;
 }
@@ -86,7 +83,6 @@ export interface CriarSolicitacaoComProtocoloResult {
 
 export async function criarSolicitacaoComProtocolo({
   payload,
-  anexos = [],
   uid,
   email,
 }: CriarSolicitacaoComProtocoloInput): Promise<CriarSolicitacaoComProtocoloResult> {
@@ -129,17 +125,6 @@ export async function criarSolicitacaoComProtocolo({
       deleted_at: null,
       updated_at: serverTimestamp(),
     });
-
-    for (const anexo of anexos) {
-      const anexoRef = doc(collection(db, FIRESTORE_COLLECTIONS.anexos));
-      transaction.set(anexoRef, {
-        ...anexo,
-        solicitacao_id: solicitacaoRef.id,
-        created_by: uid,
-        data_upload: serverTimestamp(),
-        deleted_at: null,
-      });
-    }
 
     const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
     transaction.set(historicoRef, {
