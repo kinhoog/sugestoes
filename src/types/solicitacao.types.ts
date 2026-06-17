@@ -47,6 +47,7 @@ export interface Solicitacao {
   pessoas_impactadas: PessoasImpactadas;
   tempo_perdido: TempoPerdido;
   informacoes_complementares: string | null;
+  referencia_evidencia: string | null;
   usa_planilha: boolean;
   descricao_planilha: string | null;
   usa_email: boolean;
@@ -72,18 +73,6 @@ export interface Solicitacao {
   updated_at?: unknown;
 }
 
-export interface Anexo {
-  id: string;
-  solicitacao_id: string;
-  nome_arquivo: string;
-  caminho_storage: string;
-  tamanho_bytes: number;
-  content_type?: string;
-  created_by: string;
-  data_upload: unknown;
-  deleted_at: unknown | null;
-}
-
 export interface HistoricoStatus {
   id: string;
   solicitacao_id: string;
@@ -106,6 +95,7 @@ export interface NovaSolicitacaoPayload {
   pessoas_impactadas: PessoasImpactadas;
   tempo_perdido: TempoPerdido;
   informacoes_complementares?: string | null;
+  referencia_evidencia?: string | null;
   usa_planilha: boolean;
   descricao_planilha?: string | null;
   usa_email: boolean;
@@ -118,13 +108,6 @@ export interface NovaSolicitacaoPayload {
   urgencia: Urgencia;
   score: number;
   prioridade_calculada: PrioridadeNivel;
-}
-
-export interface AnexoPayload {
-  nome_arquivo: string;
-  caminho_storage: string;
-  tamanho_bytes: number;
-  content_type?: string;
 }
 
 export interface CriarSolicitacaoResult {

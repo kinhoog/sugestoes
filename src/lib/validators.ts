@@ -1,11 +1,7 @@
 /**
  * Validações síncronas reutilizáveis (frontend).
  */
-import {
-  EMAIL_DOMINIO_PERMITIDO,
-  MAX_ANEXOS,
-  MAX_TAMANHO_ANEXO_BYTES,
-} from './constants';
+import { EMAIL_DOMINIO_PERMITIDO } from './constants';
 
 /** Valida formato básico de e-mail. */
 const EMAIL_FORMATO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -24,22 +20,7 @@ export function isPreenchido(valor: string | null | undefined): boolean {
   return typeof valor === 'string' && valor.trim().length > 0;
 }
 
-export interface ValidacaoAnexos {
-  valido: boolean;
-  erro?: string;
-}
-
-/** Valida quantidade e tamanho dos anexos (ARQUITETURA §11). */
-export function validarAnexos(arquivos: readonly File[]): ValidacaoAnexos {
-  if (arquivos.length > MAX_ANEXOS) {
-    return { valido: false, erro: `Máximo de ${MAX_ANEXOS} arquivos por solicitação.` };
-  }
-  const excede = arquivos.find((f) => f.size > MAX_TAMANHO_ANEXO_BYTES);
-  if (excede) {
-    return {
-      valido: false,
-      erro: `O arquivo "${excede.name}" excede o limite de 10 MB.`,
-    };
-  }
-  return { valido: true };
+export function normalizarReferenciaEvidencia(valor: string | null | undefined): string | null {
+  const normalizado = valor?.trim();
+  return normalizado ? normalizado : null;
 }

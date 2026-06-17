@@ -7,7 +7,7 @@ import {
   updateProfile,
   type User,
   type Unsubscribe,
-} from 'firebase/auth';
+} from '@firebase/auth';
 
 import { ADMIN_EMAILS, PROTEGE_EMAIL_DOMAIN } from '../../lib/constants';
 import { requireFirebaseAuth } from './client';

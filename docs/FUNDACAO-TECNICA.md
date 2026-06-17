@@ -6,7 +6,7 @@ Documento de engenharia da **Fase 2** após a mudança aprovada de arquitetura p
 
 | Tema | Decisão |
 |---|---|
-| Backend/BaaS | Firebase Authentication, Cloud Firestore, Firebase Storage, Firebase Security Rules e Firestore realtime listeners. |
+| Backend/BaaS | Firebase Authentication, Cloud Firestore, Firebase Security Rules e Firestore realtime listeners. |
 | Hospedagem | GitHub Pages continua publicando o build estático do Vite. |
 | Autenticação | Todos os usuários fazem cadastro/login. O colaborador não é mais anônimo. |
 | Domínio | Apenas e-mails `@protege.med.br`, com e-mail verificado, podem operar o sistema. |
@@ -20,7 +20,6 @@ Coleções:
 
 - `usuarios`: perfil mínimo por `uid`, e-mail, nome, perfil lógico e status de verificação.
 - `solicitacoes`: registro principal da dor operacional, protocolo, status, prioridade, SLA, soft delete e vínculo com `created_by`.
-- `anexos`: metadados dos arquivos no Firebase Storage.
 - `historico_status`: histórico append-only das mudanças de status.
 - `setores`: catálogo de setores.
 - `cargos`: catálogo de cargos vinculados a setores.
@@ -33,6 +32,7 @@ Campos de auditoria e controle:
 - `data_criacao`
 - `updated_at`
 - `deleted_at`
+- `referencia_evidencia`
 - `data_inicio_analise`
 - `data_decisao`
 - `data_fechamento`
@@ -42,7 +42,6 @@ Campos de auditoria e controle:
 As regras estão versionadas em:
 
 - `firebase.rules`
-- `storage.rules`
 
 Garantias previstas:
 
@@ -58,6 +57,7 @@ Garantias previstas:
 - `score`, `prioridade_calculada`, `created_by` e `protocolo` não podem ser alterados em update;
 - delete físico bloqueado nas rules;
 - histórico sem update/delete.
+- sem Firebase Storage no MVP.
 
 ## 4. Protocolo
 
@@ -77,7 +77,25 @@ Estratégia no frontend:
 
 Limitação técnica: sem backend/Cloud Functions, as rules não conseguem provar sozinhas que o protocolo sempre corresponde ao contador correto. A transação reduz risco de concorrência e colisão, mas uma garantia absoluta exigiria lógica server-side, fora do escopo atual.
 
-## 5. Realtime
+## 5. Evidências
+
+O MVP gratuito não usa anexos físicos nem Firebase Storage. Em vez disso, a solicitação pode receber o campo opcional:
+
+```text
+referencia_evidencia
+```
+
+Uso esperado:
+
+- link;
+- caminho interno;
+- observação;
+- referência de documento;
+- informação complementar.
+
+Anexos físicos ficam para versão futura, caso o projeto aceite Firebase Storage ou outra solução homologada.
+
+## 6. Realtime
 
 O realtime será feito com Firestore listeners:
 
@@ -85,21 +103,6 @@ O realtime será feito com Firestore listeners:
 - `onSnapshot` em `historico_status` para novos registros de histórico.
 
 Sem polling.
-
-## 6. Storage
-
-Arquivos ficam em:
-
-```text
-solicitacoes/{solicitacaoId}/{arquivo}
-```
-
-Regras:
-
-- máximo de 10 MB por arquivo nas rules;
-- máximo de 5 anexos validado no frontend/service;
-- leitura administrativa protegida;
-- sem delete físico.
 
 ## 7. Camada de domínio
 
@@ -110,23 +113,20 @@ Regras:
 - `src/services/firebase/client.ts`: inicialização Firebase.
 - `src/services/firebase/auth.service.ts`: Auth e domínio corporativo.
 - `src/services/firebase/firestore.service.ts`: transações/listeners Firestore.
-- `src/services/firebase/storage.service.ts`: upload/download Storage.
 
 ## 8. Como aplicar
 
 1. Criar projeto Firebase.
 2. Ativar Authentication com Email/Password.
 3. Ativar Cloud Firestore.
-4. Ativar Firebase Storage.
-5. Publicar `firebase.rules`.
-6. Publicar `storage.rules`.
-7. Publicar `firestore.indexes.json`, se necessário.
-8. Preencher `.env` com variáveis `VITE_FIREBASE_*`.
+4. Publicar `firebase.rules` na aba Regras do Cloud Firestore.
+5. Publicar `firestore.indexes.json`, se necessário.
+6. Preencher `.env` com variáveis `VITE_FIREBASE_*`.
 
 Guia operacional detalhado: [`docs/FIREBASE.md`](FIREBASE.md).
 
 ## 9. Próximas fases
 
-- **Fase 3 — Formulário público autenticado:** cadastro/login, formulário, criação de solicitação, upload de anexos e sucesso.
+- **Fase 3 — Formulário público autenticado:** cadastro/login, formulário, criação de solicitação, referência textual de evidência e sucesso.
 - **Fase 4 — Admin:** login, dashboard, fila, detalhes, status, parecer, observação interna e histórico.
 - **Fase 5 — Deploy:** GitHub Pages e configuração final do ambiente Firebase.

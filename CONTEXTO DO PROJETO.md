@@ -16,7 +16,6 @@ O Portal de Oportunidades de Melhoria é um sistema interno projetado para mapea
 ## 3. Stack Tecnológica e Arquitetura
 * **Frontend:** React, TypeScript, Vite, HTML5, CSS3.
 * **Banco de Dados:** Cloud Firestore.
-* **Armazenamento de Arquivos:** Firebase Storage.
 * **Hospedagem:** GitHub Pages (Build estático como Single Page Application - SPA).
 * **Arquitetura:** Aplicação com Firebase Auth para colaborador e administrador. Comunicação direta com Firebase.
 
@@ -85,16 +84,8 @@ O sistema registra automaticamente o histórico de evolução e captura carimbos
 | data_fechamento                | timestamptz | Timestamp alteração status                  |
 | deleted_at                     | timestamptz | Controle de Soft Delete                     |
 
-### Tabela: `anexos`
-| Campo           | Tipo        | Observação                             |
-| --------------- | ----------- | -------------------------------------- |
-| id              | uuid        | Primary Key                            |
-| solicitacao_id  | uuid        | Foreign Key -> solicitacoes.id         |
-| nome_arquivo    | varchar     | Nome original do arquivo               |
-| caminho_storage | varchar     | Path de referência no Firebase Storage |
-| tamanho_bytes   | bigint      | Controle de limite de tamanho          |
-| data_upload     | timestamptz |                                        |
-| deleted_at      | timestamptz | Controle de Soft Delete                |
+### Evidências
+O MVP não terá anexos físicos. A solicitação poderá conter `referencia_evidencia` como texto opcional para link, caminho interno, observação ou referência de documento.
 
 ### Tabela: `historico_status`
 | Campo           | Tipo        | Observação                     |
@@ -142,8 +133,8 @@ O sistema registra automaticamente o histórico de evolução e captura carimbos
 **Bloco 4: Cenário Esperado**
 * Resultado Ideal e Nível de Urgência Percebida.
 
-**Bloco 5: Anexos**
-* Máximo de 5 arquivos por solicitação (Até 10 MB cada).
+**Bloco 5: Evidência textual opcional**
+* Link, caminho interno, observação ou referência de documento.
 
 ## 8. Interfaces do Sistema (Frontend)
 * **Tela 1: Formulário Público:** Submissão livre. Dropdowns dinâmicos.

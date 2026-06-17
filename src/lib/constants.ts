@@ -132,16 +132,6 @@ export const EMAIL_DOMINIO_PERMITIDO = '@protege.med.br';
 export const PROTEGE_EMAIL_DOMAIN = EMAIL_DOMINIO_PERMITIDO;
 
 // -----------------------------------------------------------------------------
-// Storage / anexos
-// -----------------------------------------------------------------------------
-
-export const STORAGE_ANEXOS_ROOT = 'solicitacoes';
-export const BUCKET_ANEXOS = STORAGE_ANEXOS_ROOT;
-export const STORAGE_BUCKET = STORAGE_ANEXOS_ROOT;
-export const MAX_ANEXOS = 5;
-export const MAX_TAMANHO_ANEXO_BYTES = 10 * 1024 * 1024;
-
-// -----------------------------------------------------------------------------
 // Rotas
 // -----------------------------------------------------------------------------
 

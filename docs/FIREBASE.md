@@ -1,6 +1,6 @@
 # Configuração Firebase — Portal de Oportunidades de Melhoria
 
-Este guia documenta a fundação Firebase da Fase 2: Authentication, Cloud Firestore, Storage, Security Rules, realtime listeners e variáveis de ambiente.
+Este guia documenta a fundação Firebase da Fase 2: Authentication, Cloud Firestore, Security Rules, realtime listeners e variáveis de ambiente.
 
 ## 1. Criar o projeto
 
@@ -13,7 +13,6 @@ Este guia documenta a fundação Firebase da Fase 2: Authentication, Cloud Fires
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 VITE_BASE=/sugestoes/
@@ -45,13 +44,20 @@ Coleções planejadas:
 
 - `usuarios`
 - `solicitacoes`
-- `anexos`
 - `historico_status`
 - `setores`
 - `cargos`
 - `contadores`
 
 As collections `setores` e `cargos` devem ser populadas com a estrutura real da empresa antes do formulário final.
+
+O MVP não terá anexos físicos nem Firebase Storage. Quando o colaborador precisar indicar evidências, o documento de solicitação poderá receber o campo opcional:
+
+```text
+referencia_evidencia
+```
+
+Esse campo pode conter link, caminho interno, observação, referência de documento ou informação complementar.
 
 ## 4. Protocolo
 
@@ -70,23 +76,7 @@ Sem backend/Cloud Functions, o protocolo não deve ser gerado por contador em me
 
 Limitação: Security Rules conseguem validar autenticação, domínio, campos imutáveis e parte do formato, mas não provam sozinhas toda a relação contador/protocolo. A transação reduz risco de colisão e concorrência, mas uma garantia absoluta de sequência sem lacunas exigiria lógica server-side, como Cloud Functions, que está fora do MVP aprovado.
 
-## 5. Storage
-
-Ative Firebase Storage e publique `storage.rules`.
-
-Padrão de path:
-
-```text
-solicitacoes/{solicitacaoId}/{arquivo}
-```
-
-Limites:
-
-- até 10 MB por arquivo nas rules;
-- até 5 anexos por solicitação no frontend/service;
-- sem delete físico pelas rules.
-
-## 6. Realtime
+## 5. Realtime
 
 O realtime administrativo será feito por Firestore listeners:
 
@@ -95,11 +85,11 @@ O realtime administrativo será feito por Firestore listeners:
 
 Não será usado polling.
 
-## 7. Deploy GitHub Pages
+## 6. Deploy GitHub Pages
 
 O deploy do frontend continua via GitHub Pages. Configure `VITE_BASE=/sugestoes/` no build.
 
-## 8. Comandos úteis
+## 7. Comandos úteis
 
 ```bash
 npm install
@@ -111,14 +101,15 @@ npm run build
 Se usar Firebase CLI:
 
 ```bash
-firebase deploy --only firestore:rules,firestore:indexes,storage
+firebase deploy --only firestore:rules,firestore:indexes
 ```
 
-## 9. Segurança
+## 8. Segurança
 
 - Não usar service account no frontend.
 - Não usar token manual.
 - Não commitar `.env`.
+- Não ativar Firebase Storage no MVP.
 - Não permitir dashboard para colaborador.
 - Não permitir alteração de status por colaborador.
 - Não permitir leitura global de solicitações por colaborador.
