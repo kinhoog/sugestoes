@@ -3,6 +3,8 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { Loader2, LogOut, MailCheck, RefreshCw, Send } from 'lucide-react';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
+import { Alert } from '../components/ui/Alert';
+import { Button } from '../components/ui/Button';
 import { ROTAS } from '../lib/constants';
 import { getFriendlyFirebaseError } from '../lib/firebase-errors';
 import { reenviarVerificacaoEmail } from '../services/firebase/auth.service';
@@ -37,7 +39,7 @@ export function VerifyEmailPage() {
         return;
       }
 
-      setNotice('Ainda nao identificamos a verificacao. Confira seu e-mail e tente novamente.');
+      setNotice('Ainda não identificamos a verificação. Confira seu e-mail e tente novamente.');
     } catch (refreshError) {
       setError(getFriendlyFirebaseError(refreshError));
     } finally {
@@ -50,7 +52,7 @@ export function VerifyEmailPage() {
     setNotice(null);
 
     if (!user) {
-      setError('Sessao invalida. Entre novamente.');
+      setError('Sessão inválida. Entre novamente.');
       return;
     }
 
@@ -58,7 +60,7 @@ export function VerifyEmailPage() {
 
     try {
       await reenviarVerificacaoEmail(user);
-      setNotice('Enviamos um novo link de verificacao.');
+      setNotice('Enviamos um novo link de verificação.');
     } catch (resendError) {
       setError(getFriendlyFirebaseError(resendError));
     } finally {
@@ -69,56 +71,49 @@ export function VerifyEmailPage() {
   return (
     <AuthLayout
       title="Verifique seu e-mail"
-      description="Antes de acessar o formulario, confirme o link enviado pelo Firebase para sua caixa de entrada."
+      description="Antes de acessar o formulário, confirme o link enviado para sua caixa de entrada."
     >
-      <div className="rounded-md border border-brand-100 bg-brand-50 p-4">
+      <div className="rounded-2xl border border-brand-100 bg-brand-50/80 p-4 shadow-[0_14px_36px_rgba(21,120,194,0.08)]">
         <div className="flex items-start gap-3">
-          <MailCheck className="mt-0.5 h-5 w-5 text-brand-700" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-[0_10px_28px_rgba(21,120,194,0.14)]">
+            <MailCheck className="h-5 w-5" />
+          </div>
           <div>
             <p className="text-sm font-medium text-slate-900">{email}</p>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              Apos clicar no link recebido por e-mail, volte aqui e atualize a validacao.
+              Após clicar no link recebido por e-mail, volte aqui e atualize a validação.
             </p>
           </div>
         </div>
       </div>
 
-      {error ? (
-        <p className="mt-4 rounded-md border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
-      ) : null}
-      {notice ? (
-        <p className="mt-4 rounded-md border border-amber-100 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-          {notice}
-        </p>
-      ) : null}
+      {error ? <Alert tone="error" className="mt-4">{error}</Alert> : null}
+      {notice ? <Alert tone="info" className="mt-4">{notice}</Alert> : null}
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <button
+        <Button
           type="button"
           onClick={() => void handleRefresh()}
           disabled={checking}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-70"
+          icon={checking ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw size={16} />}
         >
-          {checking ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw size={16} />}
-          Ja verifiquei
-        </button>
-        <button
+          Já verifiquei
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
           onClick={() => void handleResend()}
           disabled={sending}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-brand-200 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
+          icon={sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
         >
-          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
           Reenviar
-        </button>
+        </Button>
       </div>
 
       <button
         type="button"
         onClick={() => void logout()}
-        className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+        className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
       >
         <LogOut size={15} />
         Sair desta conta

@@ -3,6 +3,9 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Loader2, UserPlus } from 'lucide-react';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
+import { Alert } from '../components/ui/Alert';
+import { Button } from '../components/ui/Button';
+import { InputField } from '../components/ui/Field';
 import { ROTAS } from '../lib/constants';
 import { getFriendlyFirebaseError } from '../lib/firebase-errors';
 import { isEmailCorporativoValido, isPreenchido } from '../lib/validators';
@@ -43,7 +46,7 @@ export function RegisterPage() {
     }
 
     if (senha !== confirmacaoSenha) {
-      setError('A confirmacao de senha nao confere.');
+      setError('A confirmação de senha não confere.');
       return;
     }
 
@@ -62,72 +65,57 @@ export function RegisterPage() {
   return (
     <AuthLayout
       title="Criar cadastro"
-      description="Cadastre-se com seu e-mail corporativo para acessar o formulario."
+      description="Crie seu acesso corporativo para registrar oportunidades reais de melhoria."
     >
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Nome completo</span>
-          <input
-            type="text"
-            value={nomeCompleto}
-            onChange={(event) => setNomeCompleto(event.target.value)}
-            autoComplete="name"
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-          />
-        </label>
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <InputField
+          label="Nome completo"
+          type="text"
+          value={nomeCompleto}
+          onChange={(event) => setNomeCompleto(event.target.value)}
+          autoComplete="name"
+        />
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">E-mail corporativo</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
-            placeholder="seu.nome@protege.med.br"
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-          />
-        </label>
+        <InputField
+          label="E-mail corporativo"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          autoComplete="email"
+          placeholder="seu.nome@protege.med.br"
+        />
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Senha</span>
-          <input
-            type="password"
-            value={senha}
-            onChange={(event) => setSenha(event.target.value)}
-            autoComplete="new-password"
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-          />
-        </label>
+        <InputField
+          label="Senha"
+          type="password"
+          value={senha}
+          onChange={(event) => setSenha(event.target.value)}
+          autoComplete="new-password"
+          helper="Use pelo menos 6 caracteres."
+        />
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Confirmar senha</span>
-          <input
-            type="password"
-            value={confirmacaoSenha}
-            onChange={(event) => setConfirmacaoSenha(event.target.value)}
-            autoComplete="new-password"
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-          />
-        </label>
+        <InputField
+          label="Confirmar senha"
+          type="password"
+          value={confirmacaoSenha}
+          onChange={(event) => setConfirmacaoSenha(event.target.value)}
+          autoComplete="new-password"
+        />
 
-        {error ? (
-          <p className="rounded-md border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        ) : null}
+        {error ? <Alert tone="error">{error}</Alert> : null}
 
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full"
+          icon={loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus size={16} />}
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus size={16} />}
           Criar cadastro
-        </button>
+        </Button>
       </form>
 
       <p className="mt-5 text-sm text-slate-600">
-        Ja tem cadastro?{' '}
+        Já tem cadastro?{' '}
         <Link to={ROTAS.login} className="font-medium text-brand-700 hover:text-brand-800">
           Entrar
         </Link>

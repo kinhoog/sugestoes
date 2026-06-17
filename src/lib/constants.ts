@@ -152,25 +152,36 @@ export const ROTAS = {
 // -----------------------------------------------------------------------------
 
 export const SETORES_OPCOES = [
+  { id: 'recepcao', nome: 'Recepção' },
   { id: 'administrativo', nome: 'Administrativo' },
-  { id: 'atendimento', nome: 'Atendimento' },
+  { id: 'enfermagem', nome: 'Enfermagem' },
   { id: 'financeiro', nome: 'Financeiro' },
-  { id: 'faturamento', nome: 'Faturamento' },
-  { id: 'operacional', nome: 'Operacional' },
-  { id: 'recursos-humanos', nome: 'Recursos Humanos' },
-  { id: 'tecnologia', nome: 'Tecnologia' },
-  { id: 'qualidade', nome: 'Qualidade' },
-  { id: 'outro', nome: 'Outro' },
+  { id: 'seguranca-do-trabalho', nome: 'Segurança do Trabalho' },
 ] as const;
 
-export const CARGOS_OPCOES = [
-  { id: 'auxiliar', nome: 'Auxiliar' },
-  { id: 'assistente', nome: 'Assistente' },
-  { id: 'analista', nome: 'Analista' },
-  { id: 'tecnico', nome: 'Tecnico' },
-  { id: 'coordenador', nome: 'Coordenador' },
-  { id: 'supervisor', nome: 'Supervisor' },
-  { id: 'gerente', nome: 'Gerente' },
-  { id: 'diretor', nome: 'Diretor' },
-  { id: 'outro', nome: 'Outro' },
-] as const;
+export type SetorOpcaoId = (typeof SETORES_OPCOES)[number]['id'];
+
+export const CARGOS_POR_SETOR = {
+  recepcao: [
+    { id: 'lider-recepcao-atendimento', nome: 'Líder de Recepção e Atendimento' },
+    { id: 'atendente-saude-ocupacional', nome: 'Atendente de Saúde Ocupacional' },
+    { id: 'estagiario-recepcao', nome: 'Estagiário(a)' },
+  ],
+  administrativo: [
+    { id: 'gerente-administrativo', nome: 'Gerente Administrativo(a)' },
+    { id: 'assistente-administrativo', nome: 'Assistente Administrativo' },
+    { id: 'assistente-sistemas', nome: 'Assistente de Sistemas' },
+  ],
+  enfermagem: [
+    { id: 'auxiliar-enfermagem', nome: 'Auxiliar de Enfermagem' },
+    { id: 'tecnica-enfermagem-trabalho', nome: 'Técnica de Enfermagem do Trabalho' },
+  ],
+  financeiro: [{ id: 'assistente-financeiro', nome: 'Assistente Financeiro' }],
+  'seguranca-do-trabalho': [
+    { id: 'tecnico-seguranca-trabalho', nome: 'Técnico(a) de Segurança do Trabalho' },
+    { id: 'engenheira-seguranca-trabalho', nome: 'Engenheira de Segurança do Trabalho' },
+    { id: 'estagiario-seguranca-trabalho', nome: 'Estagiário(a)' },
+  ],
+} as const satisfies Record<SetorOpcaoId, readonly { id: string; nome: string }[]>;
+
+export const CARGOS_OPCOES = Object.values(CARGOS_POR_SETOR).flat();

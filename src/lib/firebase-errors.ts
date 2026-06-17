@@ -12,19 +12,19 @@ export function getFriendlyFirebaseError(error: unknown): string {
 
   switch (code) {
     case 'auth/email-already-in-use':
-      return 'Este e-mail ja possui cadastro. Tente entrar ou recuperar a senha.';
+      return 'Este e-mail já possui cadastro. Tente entrar ou recuperar a senha.';
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
     case 'auth/user-not-found':
-      return 'E-mail ou senha invalidos.';
+      return 'E-mail ou senha inválidos.';
     case 'auth/weak-password':
       return 'A senha deve ter pelo menos 6 caracteres.';
     case 'auth/too-many-requests':
-      return 'Muitas tentativas em sequencia. Aguarde alguns minutos e tente novamente.';
+      return 'Muitas tentativas em sequência. Aguarde alguns minutos e tente novamente.';
     case 'auth/invalid-email':
-      return 'Informe um e-mail valido.';
+      return 'Informe um e-mail válido.';
     case 'permission-denied':
-      return 'A operacao foi bloqueada pelas regras de seguranca. Confirme login, dominio e verificacao de e-mail.';
+      return 'A operação foi bloqueada pelas regras de segurança. Confirme login, domínio e verificação de e-mail.';
     case 'unavailable':
       return 'O Firebase ficou indisponivel por instantes. Tente novamente.';
     default:
@@ -32,6 +32,6 @@ export function getFriendlyFirebaseError(error: unknown): string {
         return error.message;
       }
 
-      return 'Nao foi possivel concluir a operacao. Tente novamente.';
+      return 'Não foi possível concluir a operação. Tente novamente.';
   }
 }

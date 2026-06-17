@@ -26,3 +26,95 @@ select,
 textarea {
   font: inherit;
 }
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notice-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes success-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.page-enter {
+  animation: page-enter 260ms ease-out both;
+}
+
+.step-enter {
+  animation: step-enter 240ms ease-out both;
+}
+
+.notice-enter {
+  animation: notice-enter 180ms ease-out both;
+}
+
+.floating-card {
+  animation: page-enter 280ms ease-out both, float-soft 6s ease-in-out infinite;
+}
+
+.success-check {
+  animation: success-pop 320ms ease-out both;
+}
+
+.app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(139, 208, 255, 0.28), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 30rem),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f8fafc 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}

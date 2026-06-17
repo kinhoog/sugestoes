@@ -1,8 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { CheckCircle2, Plus } from 'lucide-react';
+import { Check, CheckCircle2, LogOut, Plus } from 'lucide-react';
 
 import { BrandHeader } from '../components/BrandHeader';
+import { Button } from '../components/ui/Button';
+import { ButtonLink } from '../components/ui/Button';
 import { ROTAS } from '../lib/constants';
+import { useAuth } from '../hooks/useAuth';
 
 interface SuccessLocationState {
   protocolo?: string;
@@ -11,43 +14,81 @@ interface SuccessLocationState {
 
 export function SuccessPage() {
   const location = useLocation();
+  const { logout } = useAuth();
   const state = location.state as SuccessLocationState | null;
   const protocolo = state?.protocolo ?? null;
 
   return (
-    <div className="min-h-screen bg-brand-50">
+    <div className="app-backdrop min-h-screen">
       <BrandHeader />
-      <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-2xl items-center px-4 py-8 sm:px-6">
-        <section className="w-full rounded-lg border border-slate-200 bg-white p-6 text-center shadow-soft">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-            <CheckCircle2 size={28} />
-          </div>
-          <h1 className="mt-5 text-2xl font-semibold text-slate-950">Solicitacao registrada</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            Sua oportunidade de melhoria foi enviada para avaliacao.
-          </p>
+      <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-4xl items-center px-4 py-8 sm:px-6">
+        <section className="page-enter relative w-full overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-6 text-center shadow-[0_34px_100px_rgba(15,23,42,0.16)] backdrop-blur sm:p-10">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-cyan-200/30 blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 bottom-0 h-60 w-60 rounded-full bg-emerald-200/25 blur-3xl" />
 
-          {protocolo ? (
-            <div className="mx-auto mt-5 max-w-sm rounded-md border border-brand-100 bg-brand-50 px-4 py-3">
-              <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
-                Protocolo
-              </p>
-              <p className="mt-1 text-2xl font-semibold text-brand-900">{protocolo}</p>
+          <div className="relative">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 shadow-[0_18px_44px_rgba(16,185,129,0.22)]">
+              <CheckCircle2 size={34} className="success-check" />
             </div>
-          ) : (
-            <p className="mt-5 rounded-md border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Protocolo nao encontrado nesta navegacao. Envie uma nova solicitacao para gerar um
-              protocolo.
-            </p>
-          )}
 
-          <Link
-            to={ROTAS.formulario}
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-md bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800"
-          >
-            <Plus size={16} />
-            Enviar outra solicitacao
-          </Link>
+            <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-brand-600">
+              Solicitação registrada
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+              Obrigado por contribuir com a melhoria da operação.
+            </h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+              Sua solicitação foi recebida e será analisada pelo comitê interno. Use o protocolo
+              abaixo para acompanhar ou mencionar este registro.
+            </p>
+
+            {protocolo ? (
+              <div className="step-enter mx-auto mt-7 max-w-md rounded-[1.5rem] border border-brand-100 bg-gradient-to-br from-brand-50 to-white px-6 py-5 shadow-[0_24px_70px_rgba(21,120,194,0.14)]">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-700">
+                  Protocolo
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-brand-950">{protocolo}</p>
+              </div>
+            ) : (
+              <div className="mx-auto mt-7 max-w-md rounded-2xl border border-amber-100 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-800">
+                Protocolo não encontrado nesta navegação. Envie uma nova solicitação para gerar um
+                protocolo.
+              </div>
+            )}
+
+            <div className="mx-auto mt-7 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
+              {['Análise inicial', 'Priorização interna', 'Retorno pelo comitê'].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-2xl border border-slate-200 bg-white/85 p-4 shadow-[0_12px_32px_rgba(15,23,42,0.05)]"
+                >
+                  <Check size={16} className="text-emerald-600" />
+                  <p className="mt-2 text-sm font-semibold text-slate-800">{item}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+              <ButtonLink to={ROTAS.formulario} icon={<Plus size={16} />}>
+                Registrar nova solicitação
+              </ButtonLink>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => void logout()}
+                icon={<LogOut size={16} />}
+              >
+                Sair
+              </Button>
+            </div>
+
+            <Link
+              to={ROTAS.formulario}
+              className="mt-5 inline-block text-sm font-semibold text-brand-700 transition hover:text-brand-900"
+            >
+              Voltar ao formulário
+            </Link>
+          </div>
         </section>
       </main>
     </div>

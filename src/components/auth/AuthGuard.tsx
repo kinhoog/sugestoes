@@ -17,12 +17,12 @@ export function AuthGuard({ children, requireVerifiedEmail = false }: AuthGuardP
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="app-backdrop min-h-screen">
         <BrandHeader showAdminLink={false} />
         <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-md items-center justify-center px-4">
-          <div className="flex items-center gap-3 rounded-md border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-soft">
+          <div className="page-enter flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 px-5 py-4 text-sm font-medium text-slate-600 shadow-[0_24px_70px_rgba(15,23,42,0.12)] backdrop-blur">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Validando sessao
+            Validando sessão
           </div>
         </main>
       </div>
@@ -35,19 +35,19 @@ export function AuthGuard({ children, requireVerifiedEmail = false }: AuthGuardP
 
   if (!isCorporateEmail) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="app-backdrop min-h-screen">
         <BrandHeader showAdminLink={false} />
         <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-md items-center px-4 py-8">
-          <section className="w-full rounded-lg border border-red-100 bg-white p-6 shadow-soft">
-            <h1 className="text-xl font-semibold text-slate-950">E-mail nao autorizado</h1>
+          <section className="page-enter w-full rounded-[1.5rem] border border-red-100 bg-white/90 p-6 shadow-[0_28px_80px_rgba(15,23,42,0.12)] backdrop-blur">
+            <h1 className="text-xl font-semibold text-slate-950">E-mail não autorizado</h1>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Use uma conta com dominio @protege.med.br para acessar o portal.
+              Use uma conta com domínio @protege.med.br para acessar o portal.
             </p>
             {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
             <button
               type="button"
               onClick={() => void logout()}
-              className="mt-5 inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-700 motion-reduce:transition-none"
             >
               <LogOut size={16} />
               Sair
