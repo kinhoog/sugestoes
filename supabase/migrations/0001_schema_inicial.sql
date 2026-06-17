@@ -10,6 +10,7 @@
 --   3. INSERT do colaborador anônimo via RPC `criar_solicitacao` (SECURITY DEFINER),
 --      que devolve o protocolo gerado sem abrir SELECT para o papel anon.
 --   4. `historico_status` gravado automaticamente por triggers (e-mail + UUID do admin).
+--   5. Protocolo gerado por PostgreSQL SEQUENCE + BEFORE INSERT TRIGGER.
 --
 -- Não-negociáveis honrados: Soft Delete (deleted_at), RLS em 100% das tabelas,
 -- proibição de DELETE físico, protocolo único nativo, imutabilidade de score/prioridade.
@@ -47,7 +48,11 @@ $$;
 -- Whitelist administrativa (config). Apenas estes e-mails são tratados como Comitê.
 create table if not exists public.admins (
   email      varchar(160) primary key,
-  created_at timestamptz  not null default now()
+  created_at timestamptz  not null default now(),
+  constraint chk_admin_email_normalizado check (
+    email = lower(email)
+    and email ~* '@protege\.med\.br$'
+  )
 );
 
 create table if not exists public.setores (
@@ -63,29 +68,30 @@ create table if not exists public.cargos (
   nome       varchar(120) not null,
   created_at timestamptz  not null default now(),
   deleted_at timestamptz,
+  unique (id, setor_id),
   unique (setor_id, nome)
 );
 
--- Contador atômico por ano para o sequencial do protocolo (PRO-YYYY-XXXX).
--- Substitui uma SEQUENCE global para permitir reinício por ano mantendo
--- segurança de concorrência via lock de linha no UPSERT.
-create table if not exists public.protocolo_contadores (
-  ano           smallint primary key,
-  ultimo_numero integer  not null default 0
-);
+-- Sequencial atômico para o protocolo (PRO-YYYY-XXXX), conforme ARQUITETURA §7.
+create sequence if not exists public.protocolo_solicitacoes_seq
+  as bigint
+  start with 1
+  increment by 1
+  minvalue 1
+  cache 1;
 
 -- -----------------------------------------------------------------------------
 -- 3. TABELA PRINCIPAL: solicitacoes
 -- -----------------------------------------------------------------------------
 create table if not exists public.solicitacoes (
   id                              uuid primary key default gen_random_uuid(),
-  protocolo                       varchar(20) unique,            -- preenchido por trigger
+  protocolo                       varchar(32) not null unique,   -- preenchido por trigger
 
   -- Bloco 1 — Identificação
   nome_completo                   varchar(160) not null,
   email                           varchar(160) not null,
   setor_id                        bigint       not null references public.setores(id),
-  cargo_id                        bigint       not null references public.cargos(id),
+  cargo_id                        bigint       not null,
 
   -- Bloco 2 — O problema atual
   processo_alvo                   text         not null,
@@ -136,10 +142,13 @@ create table if not exists public.solicitacoes (
   constraint chk_tempo           check (tempo_perdido in ('<30min','30min-2h','2-5h','5-10h','10h+')),
   constraint chk_urgencia        check (urgencia in ('Baixa','Média','Alta','Imediata')),
   constraint chk_score           check (score between 0 and 100),
+  constraint chk_protocolo       check (protocolo ~ '^PRO-[0-9]{4}-[0-9]{4,}$'),
   constraint chk_desc_planilha   check (not usa_planilha or descricao_planilha is not null),
   constraint chk_desc_email      check (not usa_email or descricao_email is not null),
   constraint chk_desc_atividade  check (not atividade_repetitiva or descricao_atividade_repetitiva is not null),
-  constraint chk_desc_dependenc  check (not dependencia_pessoa or descricao_dependencia_pessoa is not null)
+  constraint chk_desc_dependenc  check (not dependencia_pessoa or descricao_dependencia_pessoa is not null),
+  constraint fk_solicitacoes_cargo_setor
+    foreign key (cargo_id, setor_id) references public.cargos(id, setor_id)
 );
 
 create index if not exists idx_solicitacoes_status     on public.solicitacoes (status);
@@ -159,7 +168,8 @@ create table if not exists public.anexos (
   tamanho_bytes   bigint       not null,
   data_upload     timestamptz  not null default now(),
   deleted_at      timestamptz,
-  constraint chk_anexo_tamanho check (tamanho_bytes <= 10485760) -- 10 MB
+  constraint chk_anexo_tamanho check (tamanho_bytes <= 10485760), -- 10 MB
+  constraint anexos_caminho_storage_unique unique (caminho_storage)
 );
 
 create index if not exists idx_anexos_solicitacao on public.anexos (solicitacao_id);
@@ -172,7 +182,7 @@ create table if not exists public.historico_status (
   solicitacao_id    uuid         not null references public.solicitacoes(id),
   status_anterior   public.solicitacao_status,                 -- nulo no primeiro log
   status_novo       public.solicitacao_status not null,
-  usuario_comite_id uuid         references auth.users(id),     -- UUID do admin (ARQUITETURA §14)
+  usuario_comite_id uuid         references auth.users(id),     -- UUID do admin executor
   usuario_comite    varchar(160),                              -- e-mail legível (CONTEXTO §6)
   data_alteracao    timestamptz  not null default now()
 );
@@ -194,7 +204,7 @@ set search_path = public, auth
 as $$
   select exists (
     select 1 from public.admins a
-    where a.email = (auth.jwt() ->> 'email')
+    where a.email = lower(auth.jwt() ->> 'email')
   );
 $$;
 
@@ -207,18 +217,13 @@ set search_path = public
 as $$
 declare
   v_ano smallint := extract(year from now())::smallint;
-  v_seq integer;
+  v_seq bigint;
 begin
   if new.protocolo is not null then
     return new; -- nunca sobrescreve um protocolo já definido
   end if;
 
-  insert into public.protocolo_contadores as c (ano, ultimo_numero)
-       values (v_ano, 1)
-  on conflict (ano)
-       do update set ultimo_numero = c.ultimo_numero + 1
-    returning ultimo_numero into v_seq;
-
+  v_seq := nextval('public.protocolo_solicitacoes_seq'::regclass);
   new.protocolo := 'PRO-' || v_ano::text || '-' || lpad(v_seq::text, 4, '0');
   return new;
 end;
@@ -255,7 +260,34 @@ create trigger trg_proteger_campos_imutaveis
 before update on public.solicitacoes
 for each row execute function public.fn_proteger_campos_imutaveis();
 
--- 6.4 — Validação da máquina de estados + carimbos de SLA (BEFORE UPDATE OF status).
+-- 6.4 — Bloqueio defensivo de DELETE físico. A regra oficial é soft delete.
+create or replace function public.fn_bloquear_delete_fisico()
+returns trigger
+language plpgsql
+as $$
+begin
+  raise exception 'DELETE físico não é permitido. Use soft delete via deleted_at.'
+    using errcode = 'restrict_violation';
+end;
+$$;
+
+create trigger trg_bloquear_delete_solicitacoes
+before delete on public.solicitacoes
+for each row execute function public.fn_bloquear_delete_fisico();
+
+create trigger trg_bloquear_delete_anexos
+before delete on public.anexos
+for each row execute function public.fn_bloquear_delete_fisico();
+
+create trigger trg_bloquear_delete_setores
+before delete on public.setores
+for each row execute function public.fn_bloquear_delete_fisico();
+
+create trigger trg_bloquear_delete_cargos
+before delete on public.cargos
+for each row execute function public.fn_bloquear_delete_fisico();
+
+-- 6.5 — Validação da máquina de estados + carimbos de SLA (BEFORE UPDATE OF status).
 create or replace function public.fn_validar_transicao_status()
 returns trigger
 language plpgsql
@@ -301,7 +333,7 @@ create trigger trg_validar_transicao_status
 before update of status on public.solicitacoes
 for each row execute function public.fn_validar_transicao_status();
 
--- 6.5 — Registro automático e imutável do histórico de status.
+-- 6.6 — Registro automático e imutável do histórico de status.
 create or replace function public.fn_registrar_historico_status()
 returns trigger
 language plpgsql
@@ -323,7 +355,7 @@ create trigger trg_registrar_historico_status
 after update of status on public.solicitacoes
 for each row execute function public.fn_registrar_historico_status();
 
--- 6.6 — Log inicial na criação (status_anterior nulo).
+-- 6.7 — Log inicial na criação (status_anterior nulo).
 create or replace function public.fn_registrar_historico_inicial()
 returns trigger
 language plpgsql
@@ -343,7 +375,26 @@ create trigger trg_registrar_historico_inicial
 after insert on public.solicitacoes
 for each row execute function public.fn_registrar_historico_inicial();
 
--- 6.7 — RPC de criação pública (colaborador anônimo).
+-- 6.8 — Histórico é append-only.
+create or replace function public.fn_bloquear_mutacao_historico()
+returns trigger
+language plpgsql
+as $$
+begin
+  raise exception 'historico_status é imutável.'
+    using errcode = 'restrict_violation';
+end;
+$$;
+
+create trigger trg_bloquear_update_historico
+before update on public.historico_status
+for each row execute function public.fn_bloquear_mutacao_historico();
+
+create trigger trg_bloquear_delete_historico
+before delete on public.historico_status
+for each row execute function public.fn_bloquear_mutacao_historico();
+
+-- 6.9 — RPC de criação pública (colaborador anônimo).
 -- Insere a solicitação + anexos atomicamente e retorna o protocolo gerado.
 -- NÃO calcula prioridade: recebe score/prioridade já calculados no frontend.
 create or replace function public.criar_solicitacao(
@@ -357,7 +408,7 @@ set search_path = public
 as $$
 declare
   v_id        uuid;
-  v_protocolo varchar(20);
+  v_protocolo varchar(32);
   v_anexo     jsonb;
 begin
   if jsonb_array_length(coalesce(p_anexos, '[]'::jsonb)) > 5 then
@@ -425,7 +476,6 @@ alter table public.cargos              enable row level security;
 alter table public.solicitacoes        enable row level security;
 alter table public.anexos              enable row level security;
 alter table public.historico_status    enable row level security;
-alter table public.protocolo_contadores enable row level security;
 
 -- admins: leitura apenas para o próprio Comitê; escrita só via service_role/SQL.
 create policy admins_select_admin on public.admins
@@ -465,8 +515,8 @@ create policy anexos_update_admin on public.anexos
 create policy historico_select_admin on public.historico_status
   for select to authenticated using (public.is_admin());
 
--- protocolo_contadores: nenhuma policy de acesso direto (manipulado apenas pelas
--- funções SECURITY DEFINER). RLS ativo => sem acesso via API.
+-- protocolo_solicitacoes_seq: sem grant direto para anon/authenticated; manipulada
+-- apenas pela trigger SECURITY DEFINER `fn_gerar_protocolo`.
 
 -- =============================================================================
 -- 8. GRANTS (o acesso efetivo continua governado pela RLS acima)
@@ -488,21 +538,41 @@ grant execute on function public.criar_solicitacao(jsonb, jsonb) to anon, authen
 -- =============================================================================
 do $$
 begin
-  if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+  alter table public.solicitacoes replica identity full;
+  alter table public.historico_status replica identity full;
+
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1
+       from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'solicitacoes'
+     ) then
     alter publication supabase_realtime add table public.solicitacoes;
+  end if;
+
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1
+       from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'historico_status'
+     ) then
     alter publication supabase_realtime add table public.historico_status;
   end if;
-exception
-  when duplicate_object then null; -- tabela já presente na publicação
 end
 $$;
 
 -- =============================================================================
 -- 10. STORAGE (bucket privado de anexos)
 -- =============================================================================
-insert into storage.buckets (id, name, public)
-values ('anexos-solicitacoes', 'anexos-solicitacoes', false)
-on conflict (id) do nothing;
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('anexos-solicitacoes', 'anexos-solicitacoes', false, 10485760)
+on conflict (id) do update
+set public = false,
+    file_size_limit = 10485760;
 
 -- Upload liberado para o colaborador anônimo; leitura apenas para admin (via signed URL).
 -- Sem policies de UPDATE/DELETE => remoção física vedada (apenas soft delete da referência).
