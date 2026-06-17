@@ -1,4 +1,4 @@
-> **IMPLEMENTAÇÃO CLAUDE CODE:** Este documento é a especificação absoluta, estrita e imutável do sistema. Qualquer geração de código, esquema ou componente deve seguir este conteúdo à risca, sem inferências externas, extensões de escopo ou adivinhações.
+> **IMPLEMENTAÇÃO CODEX:** Este documento é a especificação absoluta, estrita e imutável do sistema. Qualquer geração de código, esquema ou componente deve seguir este conteúdo à risca, sem inferências externas, extensões de escopo ou adivinhações.
 
 ---
 
@@ -18,6 +18,7 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
 - Vite
 - TailwindCSS
 - React Router DOM
+- TUDO dentro de um index.html
 
 ### Backend as a Service (BaaS)
 - **Supabase Core:**
@@ -25,65 +26,16 @@ Sistema interno focado estritamente na captura, análise e triagem de gargalos o
   - PostgreSQL (Database)
   - Storage (Bucket de Anexos)
   - Realtime (Subscriptions)
+  - API Supabase vai realizar tudo isso.
 
 ### Deploy
-- GitHub Pages (Compilação como SPA estática com fallback para SPA Routing)
+- GitHub Pages
 
 ---
 
-## 2. ESTRUTURA DE PASTAS (OBRIGATÓRIA)
+## 2. FLUXOS CORE DO SISTEMA
 
-O projeto deve seguir estritamente o mapa de diretórios abaixo. Não crie pastas raiz alternativas.
-
-```text
-src/
-├── app/
-│   ├── router/
-│   └── providers/
-├── pages/
-│   ├── public/
-│   │   ├── Formulario/
-│   │   └── Sucesso/
-│   └── admin/
-│       ├── Login/
-│       ├── Dashboard/
-│       ├── Solicitacoes/
-│       └── DetalheSolicitacao/
-├── components/
-│   ├── ui/
-│   ├── forms/
-│   ├── charts/
-│   └── layout/
-├── services/
-│   └── supabase/
-│       ├── solicitacoes.service.ts
-│       ├── anexos.service.ts
-│       └── auth.service.ts
-├── hooks/
-│   ├── useSolicitacoes.ts
-│   ├── useRealtimeSolicitacoes.ts
-│   └── useAuth.ts
-├── lib/
-│   ├── priority.ts
-│   ├── protocol.ts
-│   ├── validators.ts
-│   └── formatters.ts
-├── store/
-│   ├── ui.store.ts
-│   └── admin.store.ts
-├── types/
-│   ├── solicitacao.types.ts
-│   └── auth.types.ts
-├── styles/
-└── assets/
-
-```
-
----
-
-## 3. FLUXOS CORE DO SISTEMA
-
-### 3.1. Fluxo do Colaborador (Público)
+### 2.1. Fluxo do Colaborador (Público)
 
 1. Acessa a rota raiz `/`.
 2. Preenche o formulário estruturado de dores operacionais.
@@ -102,12 +54,12 @@ src/
 
 7. Redireciona imediatamente para `/sucesso`.
 
-### 3.2. Fluxo do Administrador (Comitê)
+### 2.2. Fluxo do Administrador (Comitê)
 
-1. Realiza autenticação com e-mail e senha em `/admin/login`.
-2. Redireciona para o painel consolidado em `/admin/dashboard`.
+1. Realiza autenticação com e-mail e senha
+2. Redireciona para o painel consolidado
 3. Monitoramento de eventos em tempo real via Supabase Realtime (sem refresh).
-4. Gerenciamento do ciclo de vida em `/admin/solicitacoes/:id`:
+4. Gerenciamento do ciclo de vida
 * Transição assistida de Status (aderente à State Machine).
 * Inserção obrigatória de parecer técnico.
 * Inserção de anotações e observações internas.
@@ -117,7 +69,7 @@ src/
 
 ---
 
-## 4. AUTENTICAÇÃO E POLÍTICAS DE ACESSO (SUPABASE AUTH)
+## 3. AUTENTICAÇÃO E POLÍTICAS DE ACESSO (SUPABASE AUTH)
 
 ### Whitelist Estrita de Administradores
 
@@ -127,17 +79,11 @@ Apenas as credenciais explicitadas abaixo possuem permissão para gerar sessões
 * `abner@protege.med.br`
 * `esocial@protege.med.br`
 
-### Regras de Acesso
-
-* Rotas iniciadas em `/admin/*` exigem sessão autenticada ativa e pertencente à whitelist.
-* O Colaborador comum (usuário final do formulário) **NÃO possui credenciais e não faz login**.
-* **Segurança Nativa:** RLS (Row Level Security) ativado em 100% das tabelas do banco de dados.
-
 ---
 
-## 5. MODELO DE DADOS RELACIONAL
+## 4. MODELO DE DADOS RELACIONAL
 
-O esquema do banco de dados PostgreSQL no Supabase é composto obrigatoriamente pelas seguintes tabelas:
+O esquema do banco de dados PostgreSQL no Supabase é composto pelas seguintes tabelas:
 
 * `solicitacoes`: Registro principal das dores reportadas e metadados associados.
 * `anexos`: Caminhos de referência e metadados dos arquivos salvos no storage.
@@ -145,9 +91,11 @@ O esquema do banco de dados PostgreSQL no Supabase é composto obrigatoriamente 
 * `setores`: Tabela auxiliar para categorização estruturada das áreas da empresa.
 * `cargos`: Tabela auxiliar contendo os cargos operacionais mapeados.
 
+Me ajude a elaborar melhor caso tenha outra ideia/rota.
+
 ---
 
-## 6. MÁQUINA DE ESTADOS (STATE MACHINE OBRIGATÓRIA)
+## 5. MÁQUINA DE ESTADOS (STATE MACHINE OBRIGATÓRIA)
 
 As transições de ciclo de vida das solicitações devem seguir estritamente o fluxo finito mapeado abaixo:
 
@@ -168,14 +116,14 @@ As transições de ciclo de vida das solicitações devem seguir estritamente o 
 ### Regras Estritas de Transição:
 
 * Apenas usuários administradores autenticados podem alterar estados de uma solicitação.
-* Toda e qualquer alteração de status gera obrigatoriamente um registro em `historico_status`.
+* Toda e qualquer alteração de status gera obrigatoriamente um registro
 * Transições de estado que violem a lógica visualizada acima devem ser barradas programaticamente na interface e garantidas via constraints/triggers no banco de dados.
 
 ---
 
-## 7. ENGINE DE CÁLCULO DE PRIORIDADE (FRONTEND ONLY)
+## 6. ENGINE DE CÁLCULO DE PRIORIDADE (FRONTEND ONLY)
 
-📍 **Diretório de Implementação:** `/src/lib/priority.ts`
+📍 **Diretório de Implementação:**
 
 ### Regras Operacionais
 
@@ -230,9 +178,11 @@ type PriorityResult = {
 
 ```
 
+Somente exemplos ok? Quero baseado assim.
+
 ---
 
-## 8. REGRAS PARA GERAÇÃO DE PROTOCOLO
+## 7. REGRAS PARA GERAÇÃO DE PROTOCOLO
 
 ### Formato Obrigatório
 
@@ -250,7 +200,7 @@ A geração sequencial do número incremental do protocolo deve ser gerenciada d
 
 ---
 
-## 9. POLÍTICAS DE ROW LEVEL SECURITY (RLS)
+## 8. POLÍTICAS DE ROW LEVEL SECURITY (RLS)
 
 A tabela abaixo dita a configuração exata das políticas de segurança que devem ser executadas no banco de dados do Supabase:
 
@@ -264,7 +214,7 @@ A tabela abaixo dita a configuração exata das políticas de segurança que dev
 
 ---
 
-## 10. SINCRONIZAÇÃO EM TEMPO REAL (REALTIME)
+## 9. SINCRONIZAÇÃO EM TEMPO REAL (REALTIME)
 
 O sistema deve escutar ativamente o canal de replicação de dados do Supabase para atualizar de forma dinâmica a interface do usuário nas views administrativas.
 
@@ -283,7 +233,7 @@ O sistema deve escutar ativamente o canal de replicação de dados do Supabase p
 
 ---
 
-## 11. POLÍTICAS DE ARMAZENAMENTO (STORAGE)
+## 10. POLÍTICAS DE ARMAZENAMENTO (STORAGE)
 
 * **Nome Corporativo do Bucket:** `anexos-solicitacoes`
 * **Gargalos e Travas de Validação:**
@@ -295,7 +245,7 @@ O sistema deve escutar ativamente o canal de replicação de dados do Supabase p
 
 ---
 
-## 12. METRICAS DO DASHBOARD (BI ADMINISTRATIVO)
+## 11. METRICAS DO DASHBOARD (BI ADMINISTRATIVO)
 
 O painel administrativo em `/admin/dashboard` deve conter obrigatoriamente os seguintes cartões de KPI e blocos analíticos:
 
@@ -309,27 +259,20 @@ O painel administrativo em `/admin/dashboard` deve conter obrigatoriamente os se
 
 ---
 
-## 13. DIRETRIZES DE DESIGN SYSTEM E IDENTIDADE VISUAL
+## 12. DIRETRIZES DE DESIGN SYSTEM E IDENTIDADE VISUAL
+
+## 
 
 ### Comportamento e Experiência do Usuário (UX)
 
 * **Painel do Colaborador (Público):** Layout centralizado em card único, interface minimalista focado em alto desempenho de digitação, ocultação total de sidebars. Foco estrito em navegação fluida em dispositivos móveis (*mobile-first*). Paleta tonal clean: Predomínio de Branco e Azul Claro.
 * **Painel Administrativo:** Layout estruturado no formato de aplicação SaaS moderna. Presença de Sidebar fixa de controle e navegação, Cards informativos de KPI com destaque numérico, Tabelas ricas contendo filtros de coluna e paginação síncrona. Estética baseada no Material Design corporativo, limpo, com espaçamentos confortáveis e tipografia nítida.
 
-### Matriz de Paleta Identificadora de Status (UI Colors)
-
-| Status Cadastrado | Semântica Visual | Código Hexadecimal (Tailwind Equivalente) |
-| --- | --- | --- |
-| **Nova** | Cinza Neutro | `#9CA3AF` (`text-gray-400` / `bg-gray-400`) |
-| **Em Análise** | Azul Operacional | `#3B82F6` (`text-blue-500` / `bg-blue-500`) |
-| **Aguardando Informações** | Laranja Alerta | `#F59E0B` (`text-amber-500` / `bg-amber-500`) |
-| **Aprovada** | Verde Sucesso | `#10B981` (`text-emerald-500` / `bg-emerald-500`) |
-| **Rejeitada** | Vermelho Erro | `#EF4444` (`text-red-500` / `bg-red-500`) |
-| **Concluída** | Roxo Finalizador | `#8B5CF6` (`text-violet-500` / `bg-violet-500`) |
+Faça o UI do jeito que achar melhor...
 
 ---
 
-## 14. DIRETRIZES NON-NEGOTIABLE (RESTRIÇÕES ABSOLUTAS)
+## 13. DIRETRIZES NON-NEGOTIABLE (RESTRIÇÕES ABSOLUTAS)
 
 ### O que é Terminantemente PROIBIDO (❌)
 
@@ -344,13 +287,6 @@ O painel administrativo em `/admin/dashboard` deve conter obrigatoriamente os se
 2. **Atomicidade de Auditoria:** Toda transição de estado da máquina deve obrigatoriamente gerar um payload de log associado ao UUID do admin executor.
 3. **Unicidade de Protocolos:** A estrutura do banco de dados deve garantir a unicidade de chaves primárias e formatos de protocolos de ponta a ponta.
 
----
+Bom, não sei de nada, me ajude a estruturar. A ideia é verificar se é viável tudo dentro de um index.html com API do Supabase como banco de dados e autenticação.
 
-## 15. MATRIX DE RESPONSABILIDADE ARQUITETURAL
-
-Para fins de consistência e inteligência na tomada de decisão do modelo de IA, a federação de regras é segregada estritamente conforme a matriz:
-
-* **Camada de Dados & Persistência Contínua:** Supabase PostgreSQL.
-* **Camada de Orquestração Reativa:** Supabase Realtime Channels.
-* **Processamento de Inteligência de Negócio:** Camada Frontend client-side (`/src/lib/*` e Hooks).
-* **Garantia de Integridade e Isolamento:** Triggers de Banco de Dados e RLS Policies.
+Verifique se é necessário o backend.

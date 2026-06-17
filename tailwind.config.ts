@@ -1,26 +1,32 @@
 import type { Config } from 'tailwindcss';
 
-/**
- * Paleta institucional (Branco + Azul claro). Ajustar os tons de `brand` ao
- * manual de marca da Protege quando disponível.
- */
-export default {
+const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        },
+          50: '#f2f9ff',
+          100: '#e6f3ff',
+          200: '#c2e4ff',
+          300: '#8bd0ff',
+          400: '#4ab5fb',
+          500: '#2497e3',
+          600: '#1578c2',
+          700: '#125f9d',
+          800: '#124f82',
+          900: '#15436b'
+        }
       },
-    },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Arial', 'sans-serif']
+      },
+      boxShadow: {
+        soft: '0 18px 60px rgba(15, 23, 42, 0.08)'
+      }
+    }
   },
-  plugins: [],
-} satisfies Config;
+  plugins: []
+};
+
+export default config;

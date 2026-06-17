@@ -3,21 +3,25 @@
  *
  * Centraliza opções de seleção, pontuações da engine de prioridade, máquina de
  * estados, cores de status e limites operacionais. Os valores (`value`) devem
- * espelhar exatamente as constraints de domínio em
- * `supabase/migrations/0001_schema_inicial.sql`. Não use strings soltas no app:
- * importe daqui.
+ * espelhar as constraints de domínio em `supabase/migrations/0001_schema_inicial.sql`.
  */
 
 /** Opção de seleção genérica, com pontuação opcional usada pela engine de prioridade. */
 export interface OpcaoSelecao<T extends string = string> {
   readonly value: T;
   readonly label: string;
-  /** Pontuação atribuída na matriz de prioridade (ARQUITETURA §7). */
+  /** Pontuação atribuída na matriz de prioridade (ARQUITETURA MVP §6). */
   readonly pontos?: number;
 }
 
+export const ADMIN_EMAILS = [
+  'fabio@protege.med.br',
+  'abner@protege.med.br',
+  'esocial@protege.med.br',
+] as const;
+
 // -----------------------------------------------------------------------------
-// Critérios pontuados (Matriz Crítica de Pontuação — ARQUITETURA §7)
+// Critérios pontuados (Matriz Crítica de Pontuação — ARQUITETURA MVP §6)
 // -----------------------------------------------------------------------------
 
 export const IMPACTO_OPERACIONAL_OPCOES = [
@@ -50,7 +54,7 @@ export const FREQUENCIA_OPCOES = [
   { value: 'Diário', label: 'Diário', pontos: 20 },
 ] as const satisfies readonly OpcaoSelecao[];
 
-/** Pontuação dos critérios booleanos (Sim soma; Não = 0). */
+/** Pontuação dos critérios booleanos: Sim soma; Não soma 0. */
 export const PONTOS_USA_PLANILHA = 10;
 export const PONTOS_USA_EMAIL = 5;
 export const PONTOS_DEPENDENCIA_PESSOA = 5;
@@ -73,7 +77,7 @@ export const URGENCIA_OPCOES = [
 ] as const satisfies readonly OpcaoSelecao[];
 
 // -----------------------------------------------------------------------------
-// Prioridade — faixas de classificação (ARQUITETURA §7)
+// Prioridade — faixas de classificação (ARQUITETURA MVP §6)
 // -----------------------------------------------------------------------------
 
 export const PRIORIDADE_NIVEIS = ['Baixa', 'Média', 'Alta', 'Crítica'] as const;
@@ -87,7 +91,7 @@ export const FAIXAS_PRIORIDADE = [
 ] as const satisfies readonly { min: number; max: number; nivel: PrioridadeNivelInterno }[];
 
 // -----------------------------------------------------------------------------
-// Máquina de estados (ARQUITETURA §6)
+// Máquina de estados
 // -----------------------------------------------------------------------------
 
 export const STATUS_SOLICITACAO = [
@@ -102,41 +106,42 @@ type StatusInterno = (typeof STATUS_SOLICITACAO)[number];
 
 /** Transições permitidas. Espelha `fn_validar_transicao_status` no banco. */
 export const TRANSICOES_STATUS: Record<StatusInterno, readonly StatusInterno[]> = {
-  'Nova': ['Em Análise'],
+  Nova: ['Em Análise'],
   'Em Análise': ['Aguardando Informações', 'Aprovada', 'Rejeitada'],
   'Aguardando Informações': ['Em Análise'],
-  'Aprovada': ['Concluída'],
-  'Rejeitada': ['Concluída'],
-  'Concluída': [],
+  Aprovada: ['Concluída'],
+  Rejeitada: ['Concluída'],
+  Concluída: [],
 };
 
-/** Paleta de status (ARQUITETURA §13). */
 export const STATUS_CORES: Record<StatusInterno, { hex: string; bg: string; text: string }> = {
-  'Nova': { hex: '#9CA3AF', bg: 'bg-gray-400', text: 'text-gray-400' },
+  Nova: { hex: '#9CA3AF', bg: 'bg-gray-400', text: 'text-gray-400' },
   'Em Análise': { hex: '#3B82F6', bg: 'bg-blue-500', text: 'text-blue-500' },
   'Aguardando Informações': { hex: '#F59E0B', bg: 'bg-amber-500', text: 'text-amber-500' },
-  'Aprovada': { hex: '#10B981', bg: 'bg-emerald-500', text: 'text-emerald-500' },
-  'Rejeitada': { hex: '#EF4444', bg: 'bg-red-500', text: 'text-red-500' },
-  'Concluída': { hex: '#8B5CF6', bg: 'bg-violet-500', text: 'text-violet-500' },
+  Aprovada: { hex: '#10B981', bg: 'bg-emerald-500', text: 'text-emerald-500' },
+  Rejeitada: { hex: '#EF4444', bg: 'bg-red-500', text: 'text-red-500' },
+  Concluída: { hex: '#8B5CF6', bg: 'bg-violet-500', text: 'text-violet-500' },
 };
 
 // -----------------------------------------------------------------------------
 // Autenticação / domínio corporativo
 // -----------------------------------------------------------------------------
 
-/** Sufixo de e-mail obrigatório do colaborador (ARQUITETURA §3.1). */
+/** Sufixo de e-mail obrigatório do colaborador. */
 export const EMAIL_DOMINIO_PERMITIDO = '@protege.med.br';
+export const PROTEGE_EMAIL_DOMAIN = EMAIL_DOMINIO_PERMITIDO;
 
 // -----------------------------------------------------------------------------
-// Storage / anexos (ARQUITETURA §11)
+// Storage / anexos
 // -----------------------------------------------------------------------------
 
 export const BUCKET_ANEXOS = 'anexos-solicitacoes';
+export const STORAGE_BUCKET = BUCKET_ANEXOS;
 export const MAX_ANEXOS = 5;
-export const MAX_TAMANHO_ANEXO_BYTES = 10 * 1024 * 1024; // 10 MB
+export const MAX_TAMANHO_ANEXO_BYTES = 10 * 1024 * 1024;
 
 // -----------------------------------------------------------------------------
-// Rotas (centralizadas para evitar strings mágicas no router/links)
+// Rotas
 // -----------------------------------------------------------------------------
 
 export const ROTAS = {

@@ -1,18 +1,22 @@
-/**
- * Placeholder da aplicação. O roteamento (público + admin) e as páginas serão
- * implementados na próxima fase em `src/app/router`.
- */
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
+
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { AdminLoginPage } from './pages/AdminLoginPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { PublicFormPage } from './pages/PublicFormPage';
+import { SuccessPage } from './pages/SuccessPage';
+
 export default function App() {
   return (
-    <main className="flex min-h-full items-center justify-center bg-brand-50 p-6">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-sm">
-        <h1 className="text-xl font-semibold text-brand-700">
-          Portal de Oportunidades de Melhoria
-        </h1>
-        <p className="mt-2 text-sm text-gray-500">
-          Fundação técnica configurada. Telas em construção.
-        </p>
-      </div>
-    </main>
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<PublicFormPage />} />
+        <Route path="/sucesso" element={<SuccessPage />} />
+        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </HashRouter>
   );
 }

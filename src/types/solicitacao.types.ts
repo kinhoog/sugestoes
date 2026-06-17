@@ -3,13 +3,13 @@
  * `src/lib/constants.ts` para manter uma única fonte de verdade.
  */
 import {
+  FREQUENCIA_OPCOES,
   IMPACTO_OPERACIONAL_OPCOES,
   PESSOAS_IMPACTADAS_OPCOES,
-  TEMPO_PERDIDO_OPCOES,
-  FREQUENCIA_OPCOES,
-  URGENCIA_OPCOES,
-  STATUS_SOLICITACAO,
   PRIORIDADE_NIVEIS,
+  STATUS_SOLICITACAO,
+  TEMPO_PERDIDO_OPCOES,
+  URGENCIA_OPCOES,
 } from '../lib/constants';
 
 export type ImpactoOperacional = (typeof IMPACTO_OPERACIONAL_OPCOES)[number]['value'];
@@ -20,7 +20,6 @@ export type Urgencia = (typeof URGENCIA_OPCOES)[number]['value'];
 export type StatusSolicitacao = (typeof STATUS_SOLICITACAO)[number];
 export type PrioridadeNivel = (typeof PRIORIDADE_NIVEIS)[number];
 
-/** Tabelas auxiliares. */
 export interface Setor {
   id: number;
   nome: string;
@@ -34,7 +33,6 @@ export interface Cargo {
   deleted_at: string | null;
 }
 
-/** Linha completa da tabela `solicitacoes` (visão administrativa). */
 export interface Solicitacao {
   id: string;
   protocolo: string;
@@ -71,7 +69,6 @@ export interface Solicitacao {
   deleted_at: string | null;
 }
 
-/** Linha da tabela `anexos`. */
 export interface Anexo {
   id: string;
   solicitacao_id: string;
@@ -82,7 +79,6 @@ export interface Anexo {
   deleted_at: string | null;
 }
 
-/** Linha da tabela `historico_status`. */
 export interface HistoricoStatus {
   id: string;
   solicitacao_id: string;
@@ -93,10 +89,6 @@ export interface HistoricoStatus {
   data_alteracao: string;
 }
 
-/**
- * Payload do colaborador para a RPC `criar_solicitacao`. `score` e
- * `prioridade_calculada` são calculados no frontend antes do envio.
- */
 export interface NovaSolicitacaoPayload {
   nome_completo: string;
   email: string;
@@ -123,14 +115,12 @@ export interface NovaSolicitacaoPayload {
   prioridade_calculada: PrioridadeNivel;
 }
 
-/** Metadado de anexo já enviado ao Storage, passado para a RPC. */
 export interface AnexoPayload {
   nome_arquivo: string;
   caminho_storage: string;
   tamanho_bytes: number;
 }
 
-/** Retorno da RPC `criar_solicitacao`. */
 export interface CriarSolicitacaoResult {
   id: string;
   protocolo: string;
