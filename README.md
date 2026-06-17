@@ -4,7 +4,7 @@ Sistema de Sugestões - eProtege.
 
 Sistema interno para captura, análise e triagem de gargalos operacionais, retrabalho, desperdício de tempo, dependência de planilhas/e-mails e riscos operacionais. O foco é registrar a dor ou problema real da operação, não soluções técnicas propostas pelo colaborador.
 
-Status atual: **Fase 1 — Fundação técnica concluída**.
+Status atual: **Fase 2 — Supabase, schema, RLS e segurança configurados**.
 
 ## Stack
 
@@ -69,6 +69,8 @@ Aplique a migration em `supabase/migrations/0001_schema_inicial.sql` no SQL Edit
 ## Documentação
 
 Decisões de arquitetura, modelo de dados, RLS e roadmap: [`docs/FUNDACAO-TECNICA.md`](docs/FUNDACAO-TECNICA.md).
+
+Configuração operacional do Supabase: [`docs/SUPABASE.md`](docs/SUPABASE.md).
 
 ## Princípios não-negociáveis
 

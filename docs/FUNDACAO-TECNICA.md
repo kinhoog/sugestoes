@@ -1,6 +1,6 @@
 # Fundação Técnica — Portal de Oportunidades de Melhoria
 
-Documento de engenharia da **Fase 1** (banco de dados + camada de domínio + bootstrap). Fonte da verdade de produto: `CONTEXTO DO PROJETO.md` e `ARQUITETURA MVP.md`.
+Documento de engenharia da **Fase 2** (Supabase, banco, segurança e camada de domínio). Fonte da verdade de produto: `CONTEXTO DO PROJETO.md` e `ARQUITETURA MVP.md`.
 
 ## 1. Decisões arquiteturais (resolução de divergências entre os docs)
 
@@ -14,14 +14,14 @@ Os dois documentos de especificação conflitavam em alguns pontos. As decisões
 | 4 | **Histórico de status** | CONTEXTO guarda e-mail (varchar); ARQUITETURA exige UUID. | **Trigger automático** grava cada transição com **e-mail + UUID** do admin. Colunas `usuario_comite` (e-mail) e `usuario_comite_id` (uuid). |
 
 ### Itens com default aplicado
-- **Whitelist admin:** `fabio@`, `abner@`, `esocial@protege.med.br` (tabela `public.admins`). A menção a "Erick" no CONTEXTO §4 não tem e-mail correspondente — confirmar se precisa de conta própria.
-- **Protocolo:** reinício de sequencial **por ano** via tabela-contador atômica (`protocolo_contadores`) em vez de `SEQUENCE` global, para honrar o formato `PRO-YYYY-XXXX` mantendo segurança de concorrência (lock de linha no UPSERT).
+- **Whitelist admin:** `fabio@protege.med.br`, `abner@protege.med.br`, `esocial@protege.med.br` (Erick) na tabela `public.admins`.
+- **Protocolo:** gerado por `public.protocolo_solicitacoes_seq` + trigger `fn_gerar_protocolo`, no formato `PRO-YYYY-XXXX`, sem geração manual no frontend.
 - **`setores`/`cargos`:** seed é **placeholder** — substituir pela estrutura organizacional real.
 - **`urgencia`:** opções `Baixa | Média | Alta | Imediata` (não definidas explicitamente nos docs; não pontuam).
 
 ## 2. Modelo de dados
 
-Tabelas em `public`: `solicitacoes`, `anexos`, `historico_status`, `setores`, `cargos` (negócio) + `admins` e `protocolo_contadores` (infra/config). Tipos enum: `solicitacao_status`, `prioridade_nivel`.
+Tabelas em `public`: `solicitacoes`, `anexos`, `historico_status`, `setores`, `cargos` (negócio) + `admins` (config). Infra de protocolo: sequence `protocolo_solicitacoes_seq`. Tipos enum: `solicitacao_status`, `prioridade_nivel`.
 
 Garantias no banco:
 - **Soft delete** via `deleted_at` (sem qualquer policy de `DELETE` → exclusão física vedada).
@@ -29,6 +29,8 @@ Garantias no banco:
 - **Máquina de estados** validada em `fn_validar_transicao_status` (espelha `TRANSICOES_STATUS` no frontend).
 - **Carimbos de SLA** (`data_inicio_analise`, `data_decisao`, `data_fechamento`) preenchidos automaticamente na transição.
 - **Histórico atômico** (`trg_registrar_historico_inicial` na criação + `trg_registrar_historico_status` em cada mudança).
+- **Bloqueio defensivo de DELETE físico** por trigger nas tabelas de negócio.
+- **Histórico append-only** por trigger bloqueando update/delete em `historico_status`.
 
 ## 3. RLS (resumo)
 
@@ -46,7 +48,7 @@ Garantias no banco:
 Publicação `supabase_realtime` inclui `solicitacoes` (INSERT/UPDATE) e `historico_status` (INSERT). Subscriptions só funcionam para sessões `authenticated` que passem na RLS (admins).
 
 ## 5. Storage
-Bucket privado `anexos-solicitacoes`. Upload liberado a anon/authenticated; leitura só admin (via signed URL). Sem policies de UPDATE/DELETE (remoção física vedada).
+Bucket privado `anexos-solicitacoes`, com `file_size_limit = 10485760` (10 MB). Upload liberado a anon/authenticated; leitura só admin (via signed URL). Sem policies de UPDATE/DELETE (remoção física vedada). O limite de até 5 anexos por solicitação é validado na RPC `criar_solicitacao`.
 
 ## 6. Camada de domínio (frontend)
 - `src/lib/constants.ts` — **fonte única** de opções, pontuações, faixas, máquina de estados, cores, limites e rotas.
@@ -61,8 +63,9 @@ Bucket privado `anexos-solicitacoes`. Upload liberado a anon/authenticated; leit
 4. Substituir o seed de `setores`/`cargos` pela estrutura real.
 5. `npm install && npm run dev`.
 
+Guia operacional detalhado: [`docs/SUPABASE.md`](SUPABASE.md).
+
 ## 8. Roadmap (próximas fases)
-- **Fase 2 — Serviços/hooks:** `services/supabase/{solicitacoes,anexos,auth}.service.ts`, `hooks/{useAuth,useSolicitacoes,useRealtimeSolicitacoes}.ts`, `store/*`.
-- **Fase 3 — Público:** roteamento, `pages/public/Formulario`, `pages/public/Sucesso`, componentes de `forms/` e `ui/`.
-- **Fase 4 — Admin:** `Login`, `Dashboard` (KPIs/charts), `Solicitacoes` (grid + filtros), `DetalheSolicitacao` (transição de status + parecer + timeline).
-- **Fase 5 — Deploy:** GitHub Pages (base path + 404.html já previstos no build).
+- **Fase 3 — Formulário público:** serviços de criação, upload, validações e tela de sucesso.
+- **Fase 4 — Admin:** Auth, Dashboard (KPIs/charts), Solicitações (grid + filtros), DetalheSolicitação (transição de status + parecer + timeline).
+- **Fase 5 — Deploy:** GitHub Pages (base path já previsto no build).
