@@ -25,7 +25,7 @@ interface AlertProps {
 export function Alert({ tone = 'info', children, className = '' }: AlertProps) {
   return (
     <div
-      className={`notice-enter flex gap-2 rounded-2xl border px-4 py-3 text-sm leading-6 ${toneClasses[tone]} ${className}`}
+      className={`portal-alert portal-alert-${tone} notice-enter flex gap-2 rounded-2xl border px-4 py-3 text-sm leading-6 ${toneClasses[tone]} ${className}`}
     >
       {icons[tone]}
       <div>{children}</div>
