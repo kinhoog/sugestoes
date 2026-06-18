@@ -308,6 +308,26 @@ html.theme-light .auth-backdrop {
   color: #0f172a !important;
 }
 
+html.theme-light .auth-backdrop .theme-toggle-button {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #d8e7f3 !important;
+  color: #125f9d !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .auth-backdrop .theme-toggle-button:hover {
+  background-color: #f2f9ff !important;
+  border-color: #c2e4ff !important;
+  color: #0e4f81 !important;
+  box-shadow: 0 14px 34px rgba(18, 95, 157, 0.12) !important;
+}
+
+html.theme-light .auth-backdrop .theme-toggle-button:focus {
+  box-shadow:
+    0 0 0 4px rgba(36, 151, 227, 0.14),
+    0 10px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
 html.theme-light .app-backdrop {
   background:
     radial-gradient(circle at top left, rgba(139, 208, 255, 0.28), transparent 34rem),
@@ -363,6 +383,17 @@ html.theme-dark .auth-backdrop {
   background:
     radial-gradient(circle at top left, rgba(36, 151, 227, 0.24) 0, rgba(2, 6, 23, 0.98) 38%, #020617 100%) !important;
   color: #e2e8f0 !important;
+}
+
+html.theme-dark .auth-backdrop .theme-toggle-button {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .auth-backdrop .theme-toggle-button:hover {
+  border-color: #2497e3 !important;
+  color: #a5f3fc !important;
 }
 
 html.theme-dark .app-backdrop {
