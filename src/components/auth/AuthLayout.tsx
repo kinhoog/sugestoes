@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Activity, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Bot, Cpu, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface AuthLayoutProps {
   title: string;
@@ -9,9 +9,9 @@ interface AuthLayoutProps {
 
 const valueCards = [
   {
-    icon: <Activity size={18} />,
-    title: 'Gargalos visíveis',
-    text: 'Registre pontos de retrabalho, perda de tempo e rotina manual.',
+    icon: <Bot size={18} />,
+    title: 'Rotinas automatizáveis',
+    text: 'Aponte controles manuais, retrabalhos e atividades repetitivas do setor.',
   },
   {
     icon: <ShieldCheck size={18} />,
@@ -19,9 +19,9 @@ const valueCards = [
     text: 'Entrada restrita a colaboradores com e-mail corporativo verificado.',
   },
   {
-    icon: <CheckCircle2 size={18} />,
-    title: 'Análise estruturada',
-    text: 'Cada solicitação recebe protocolo e segue para avaliação interna.',
+    icon: <Cpu size={18} />,
+    title: 'Avaliação por Automações e IA',
+    text: 'As demandas são analisadas para identificar sistemas internos e melhorias digitais.',
   },
 ];
 
@@ -30,41 +30,43 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,#e6f7ff_0,#f8fbff_34%,#eef7ff_68%,#f8fafc_100%)]">
       <div className="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-cyan-200/30 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 bottom-10 h-80 w-80 rounded-full bg-brand-300/20 blur-3xl" />
-      <main className="relative mx-auto grid min-h-screen w-full max-w-6xl items-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-12">
-        <section className="page-enter hidden lg:block">
-          <div className="inline-flex items-center gap-3 rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-semibold text-brand-800 shadow-[0_14px_40px_rgba(21,120,194,0.12)] backdrop-blur">
-            <Sparkles size={16} />
-            Portal interno de melhoria contínua
+      <main className="relative mx-auto grid min-h-screen w-full max-w-6xl items-center gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[0.96fr_0.84fr] lg:py-10">
+        <section className="page-enter hidden max-w-2xl lg:block">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-800 shadow-[0_10px_28px_rgba(21,120,194,0.1)] backdrop-blur">
+            <Sparkles size={13} />
+            Portal interno de automação
           </div>
 
-          <div className="mt-8 flex items-center gap-4">
-            <div className="rounded-3xl bg-white/80 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.12)] ring-1 ring-white/80 backdrop-blur">
+          <div className="mt-7 flex items-start gap-4">
+            <div className="rounded-2xl bg-white/80 p-3 shadow-[0_18px_52px_rgba(15,23,42,0.11)] ring-1 ring-white/80 backdrop-blur">
               <img
                 src={`${import.meta.env.BASE_URL}logo.png`}
-                alt="Protege"
-                className="h-16 w-auto"
+                alt="eProtege"
+                className="h-12 w-auto"
               />
             </div>
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.22em] text-brand-700">
-                Protege
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-700">
+                eProtege
               </p>
-              <h1 className="mt-2 max-w-xl text-4xl font-semibold leading-tight text-slate-950">
-                Transforme gargalos operacionais em oportunidades reais de melhoria.
+              <h1 className="mt-2 max-w-2xl text-3xl font-semibold leading-snug text-slate-950">
+                Registro de Demandas para Automação Interna
               </h1>
             </div>
           </div>
 
-          <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600">
-            Registre dificuldades, retrabalhos e rotinas manuais para que o comitê avalie
-            melhorias internas com mais contexto, rastreabilidade e segurança.
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-600">
+            Registre situações do dia a dia que geram retrabalho, perda de tempo, controle manual
+            ou dificuldade operacional. As informações serão avaliadas pela equipe de Automações e
+            IA para identificar se há possibilidade de criação de sistemas internos, automações ou
+            melhorias digitais para apoiar o setor solicitante.
           </p>
 
-          <div className="mt-8 grid max-w-2xl gap-4">
+          <div className="mt-7 grid max-w-2xl gap-3">
             {valueCards.map((card, index) => (
               <article
                 key={card.title}
-                className="floating-card rounded-2xl border border-white/70 bg-white/75 p-4 shadow-[0_18px_54px_rgba(15,23,42,0.09)] backdrop-blur"
+                className="floating-card rounded-2xl border border-white/70 bg-white/75 p-3.5 shadow-[0_16px_46px_rgba(15,23,42,0.08)] backdrop-blur"
                 style={{ animationDelay: `${index * 80}ms` }}
               >
                 <div className="flex items-start gap-3">
@@ -83,10 +85,12 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
 
         <section className="page-enter mx-auto w-full max-w-md">
           <div className="mb-6 flex items-center gap-3 lg:hidden">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Protege" className="h-12 w-auto" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="eProtege" className="h-12 w-auto" />
             <div>
-              <p className="text-sm font-bold text-brand-700">Protege</p>
-              <p className="text-xs text-slate-500">Oportunidades de Melhoria</p>
+              <p className="text-sm font-bold text-brand-700">eProtege</p>
+              <p className="text-xs text-slate-500">
+                Automação de Rotinas e Melhoria de Processos
+              </p>
             </div>
           </div>
 

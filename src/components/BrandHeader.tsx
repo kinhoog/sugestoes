@@ -14,13 +14,15 @@ export function BrandHeader({ children, showAdminLink = true }: BrandHeaderProps
           <span className="rounded-2xl bg-white p-2 shadow-[0_12px_30px_rgba(15,23,42,0.08)] ring-1 ring-slate-100">
             <img
               src={`${import.meta.env.BASE_URL}logo.png`}
-              alt="Protege"
+              alt="eProtege"
               className="h-9 w-auto"
             />
           </span>
           <div>
-            <p className="text-sm font-semibold text-brand-700">Protege</p>
-            <p className="text-xs text-slate-500">Oportunidades de Melhoria</p>
+            <p className="text-sm font-semibold text-brand-700">eProtege</p>
+            <p className="hidden text-xs text-slate-500 sm:block">
+              Automação de Rotinas e Melhoria de Processos
+            </p>
           </div>
         </Link>
         {children ??

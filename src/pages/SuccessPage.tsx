@@ -32,14 +32,14 @@ export function SuccessPage() {
             </div>
 
             <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-brand-600">
-              Solicitação registrada
+              Demanda registrada
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
-              Obrigado por contribuir com a melhoria da operação.
+              Demanda registrada para análise de automação interna.
             </h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Sua solicitação foi recebida e será analisada pelo comitê interno. Use o protocolo
-              abaixo para acompanhar ou mencionar este registro.
+              Sua solicitação foi recebida e será analisada pela equipe de Automações e IA. Use o
+              protocolo abaixo para acompanhar ou mencionar este registro.
             </p>
 
             {protocolo ? (
@@ -57,7 +57,7 @@ export function SuccessPage() {
             )}
 
             <div className="mx-auto mt-7 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
-              {['Análise inicial', 'Priorização interna', 'Retorno pelo comitê'].map((item) => (
+              {['Análise inicial', 'Avaliação de automação', 'Retorno ao setor'].map((item) => (
                 <div
                   key={item}
                   className="rounded-2xl border border-slate-200 bg-white/85 p-4 shadow-[0_12px_32px_rgba(15,23,42,0.05)]"
@@ -70,7 +70,7 @@ export function SuccessPage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
               <ButtonLink to={ROTAS.formulario} icon={<Plus size={16} />}>
-                Registrar nova solicitação
+                Registrar nova demanda
               </ButtonLink>
               <Button
                 type="button"

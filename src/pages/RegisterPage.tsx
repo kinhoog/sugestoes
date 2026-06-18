@@ -65,7 +65,7 @@ export function RegisterPage() {
   return (
     <AuthLayout
       title="Criar cadastro"
-      description="Crie seu acesso corporativo para registrar oportunidades reais de melhoria."
+      description="Crie seu acesso corporativo para registrar demandas de automação de rotinas e melhoria de processos."
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
         <InputField

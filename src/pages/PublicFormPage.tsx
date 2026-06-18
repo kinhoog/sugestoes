@@ -82,7 +82,7 @@ const steps: readonly WizardStep[] = [
   {
     label: 'Identificação',
     eyebrow: 'Etapa 1',
-    title: 'Quem está registrando a oportunidade?',
+    title: 'Quem está registrando a demanda?',
     description: 'Confirme seus dados e selecione o setor e cargo para contextualizar a análise.',
   },
   {
@@ -126,7 +126,8 @@ const steps: readonly WizardStep[] = [
     label: 'Revisão',
     eyebrow: 'Etapa 8',
     title: 'Revise antes de enviar.',
-    description: 'A solicitação será registrada com protocolo e enviada para análise do comitê.',
+    description:
+      'A demanda será registrada com protocolo e enviada para análise da equipe de Automações e IA.',
   },
 ] as const;
 
@@ -388,11 +389,12 @@ export function PublicFormPage() {
                 Formulário público
               </p>
               <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
-                Registrar oportunidade de melhoria
+                Registrar demanda para análise de automação interna
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                Conte onde existe retrabalho, perda de tempo ou dependência manual. O comitê
-                analisará o contexto informado.
+                Conte onde existe retrabalho, perda de tempo, controle manual ou dificuldade
+                operacional recorrente. A equipe de Automações e IA analisará o contexto informado
+                para avaliar a possibilidade de automação, sistema interno ou melhoria digital.
               </p>
             </div>
             <div className="flex items-center gap-3 rounded-2xl bg-brand-900 px-4 py-3 text-white shadow-[0_18px_42px_rgba(18,95,157,0.25)]">
@@ -451,7 +453,7 @@ export function PublicFormPage() {
                   value={form.processo_alvo}
                   onChange={(event) => setField('processo_alvo', event.target.value)}
                   placeholder="Ex.: conferência de ASO, controle de exames, fechamento financeiro"
-                  helper="Use um nome simples para ajudar o comitê a localizar a rotina."
+                  helper="Use um nome simples para ajudar a equipe de Automações e IA a localizar a rotina."
                 />
               ) : null}
 
@@ -700,8 +702,8 @@ function ReviewContent({ form }: { form: FormState }) {
   return (
     <div className="grid gap-4">
       <Alert tone="info">
-        Confira as informações antes de enviar. Após o envio, a solicitação será analisada pelo
-        comitê interno.
+        Confira as informações antes de enviar. Após o envio, a demanda será analisada pela equipe
+        de Automações e IA.
       </Alert>
 
       <div className="grid gap-4 md:grid-cols-2">

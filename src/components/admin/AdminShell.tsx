@@ -13,7 +13,7 @@ export function AdminShell({ children }: AdminShellProps) {
         <Link to="/" className="flex items-center gap-3">
           <img
             src={`${import.meta.env.BASE_URL}logo.png`}
-            alt="Protege"
+            alt="eProtege"
             className="h-10 w-auto"
           />
           <div>

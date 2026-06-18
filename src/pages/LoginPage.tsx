@@ -85,7 +85,7 @@ export function LoginPage() {
   return (
     <AuthLayout
       title="Entrar no portal"
-      description="Acesse com seu e-mail corporativo para registrar dificuldades, retrabalhos e rotinas manuais."
+      description="Acesse com seu e-mail corporativo para registrar demandas de automação interna e melhoria digital."
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
         <InputField
