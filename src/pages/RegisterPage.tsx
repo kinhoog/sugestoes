@@ -72,8 +72,9 @@ export function RegisterPage() {
     <AuthLayout
       title="Criar cadastro"
       description="Crie seu acesso corporativo para registrar demandas de automação de rotinas e melhoria de processos."
+      variant="register"
     >
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-3.5" onSubmit={handleSubmit}>
         <InputField
           label="Nome completo"
           type="text"
@@ -120,7 +121,7 @@ export function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
+      <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
         Já tem cadastro?{' '}
         <Link
           to={ROTAS.login}
