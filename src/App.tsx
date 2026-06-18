@@ -6,7 +6,8 @@ import { AuthProvider } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
 import { ROTAS } from './lib/constants';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
-import { AdminLoginPage } from './pages/AdminLoginPage';
+import { AdminSolicitacaoDetalhePage } from './pages/AdminSolicitacaoDetalhePage';
+import { AdminSolicitacoesPage } from './pages/AdminSolicitacoesPage';
 import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { PublicFormPage } from './pages/PublicFormPage';
@@ -58,7 +59,7 @@ export default function App() {
               path="/admin/login"
               element={
                 <AdminGuard>
-                  <AdminLoginPage />
+                  <Navigate to={ROTAS.adminDashboard} replace />
                 </AdminGuard>
               }
             />
@@ -67,6 +68,22 @@ export default function App() {
               element={
                 <AdminGuard>
                   <AdminDashboardPage />
+                </AdminGuard>
+              }
+            />
+            <Route
+              path="/admin/solicitacoes"
+              element={
+                <AdminGuard>
+                  <AdminSolicitacoesPage />
+                </AdminGuard>
+              }
+            />
+            <Route
+              path="/admin/solicitacoes/:id"
+              element={
+                <AdminGuard>
+                  <AdminSolicitacaoDetalhePage />
                 </AdminGuard>
               }
             />

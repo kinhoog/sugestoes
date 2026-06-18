@@ -4,7 +4,7 @@ import { LockKeyhole, LogOut } from 'lucide-react';
 
 import { useAuth } from '../../hooks/useAuth';
 import { ROTAS } from '../../lib/constants';
-import { isAdminEmail } from '../../services/firebase/auth.service';
+import { isAdminEmail } from '../../lib/admin';
 import { BrandHeader } from '../BrandHeader';
 import { Button, ButtonLink } from '../ui/Button';
 

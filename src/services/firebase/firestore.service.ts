@@ -22,7 +22,7 @@ import type {
   Solicitacao,
   StatusSolicitacao,
 } from '../../types/solicitacao.types';
-import { isAdminEmail } from './auth.service';
+import { isAdminEmail } from '../../lib/admin';
 import { requireFirestore } from './client';
 
 export const FIRESTORE_COLLECTIONS = {
