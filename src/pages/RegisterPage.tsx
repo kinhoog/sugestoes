@@ -67,7 +67,7 @@ export function RegisterPage() {
       title="Criar cadastro"
       description="Crie seu acesso corporativo para registrar demandas de automação de rotinas e melhoria de processos."
     >
-      <form className="space-y-5" onSubmit={handleSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <InputField
           label="Nome completo"
           type="text"
@@ -82,7 +82,7 @@ export function RegisterPage() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           autoComplete="email"
-          placeholder="seu.nome@protege.med.br"
+          placeholder="exemplo@protege.med.br"
         />
 
         <InputField
@@ -114,7 +114,7 @@ export function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-5 text-sm text-slate-600">
+      <p className="mt-4 text-sm text-slate-600">
         Já tem cadastro?{' '}
         <Link to={ROTAS.login} className="font-medium text-brand-700 hover:text-brand-800">
           Entrar

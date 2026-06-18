@@ -87,14 +87,14 @@ export function LoginPage() {
       title="Entrar no portal"
       description="Acesse com seu e-mail corporativo para registrar demandas de automação interna e melhoria digital."
     >
-      <form className="space-y-5" onSubmit={handleSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <InputField
           label="E-mail corporativo"
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           autoComplete="email"
-          placeholder="seu.nome@protege.med.br"
+          placeholder="exemplo@protege.med.br"
         />
 
         <InputField
@@ -118,7 +118,7 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <div className="mt-5 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
         <Link to={ROTAS.cadastro} className="font-medium text-brand-700 hover:text-brand-800">
           Criar cadastro
         </Link>
