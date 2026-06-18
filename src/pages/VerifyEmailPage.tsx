@@ -73,14 +73,14 @@ export function VerifyEmailPage() {
       title="Verifique seu e-mail"
       description="Antes de acessar o formulário, confirme o link enviado para sua caixa de entrada."
     >
-      <div className="rounded-2xl border border-brand-100 bg-brand-50/80 p-4 shadow-[0_14px_36px_rgba(21,120,194,0.08)]">
+      <div className="rounded-2xl border border-brand-100 bg-brand-50/80 p-4 shadow-[0_14px_36px_rgba(21,120,194,0.08)] dark:border-brand-500/30 dark:bg-brand-900/40 dark:shadow-[0_16px_42px_rgba(0,0,0,0.24)]">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-[0_10px_28px_rgba(21,120,194,0.14)]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-700 shadow-[0_10px_28px_rgba(21,120,194,0.14)] dark:bg-slate-900 dark:text-cyan-200">
             <MailCheck className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-900">{email}</p>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
+            <p className="text-sm font-medium text-slate-900 dark:text-white">{email}</p>
+            <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
               Após clicar no link recebido por e-mail, volte aqui e atualize a validação.
             </p>
           </div>
@@ -113,7 +113,7 @@ export function VerifyEmailPage() {
       <button
         type="button"
         onClick={() => void logout()}
-        className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+        className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
       >
         <LogOut size={15} />
         Sair desta conta

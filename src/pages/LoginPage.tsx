@@ -14,20 +14,21 @@ import { useAuth } from '../hooks/useAuth';
 
 interface LocationState {
   from?: { pathname?: string };
+  notice?: string;
 }
 
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isEmailVerified } = useAuth();
+  const state = location.state as LocationState | null;
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(state?.notice ?? null);
 
-  const state = location.state as LocationState | null;
   const redirectTo = state?.from?.pathname ?? ROTAS.formulario;
 
   if (user && isEmailVerified) {
@@ -119,14 +120,17 @@ export function LoginPage() {
       </form>
 
       <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-        <Link to={ROTAS.cadastro} className="font-medium text-brand-700 hover:text-brand-800">
+        <Link
+          to={ROTAS.cadastro}
+          className="font-medium text-brand-700 hover:text-brand-800 dark:text-cyan-200 dark:hover:text-cyan-100"
+        >
           Criar cadastro
         </Link>
         <button
           type="button"
           onClick={() => void handlePasswordReset()}
           disabled={resetLoading}
-          className="inline-flex items-center gap-2 font-semibold text-slate-600 transition hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex items-center gap-2 font-semibold text-slate-600 transition hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-70 dark:text-slate-300 dark:hover:text-white"
         >
           {resetLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail size={15} />}
           Recuperar senha

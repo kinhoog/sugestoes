@@ -48,6 +48,7 @@ export async function criarContaComEmailSenha(
   }
 
   await sendEmailVerification(credencial.user);
+  await firebaseSignOut(auth);
 
   return credencial.user;
 }

@@ -13,6 +13,7 @@ import {
 import { BrandHeader } from '../components/BrandHeader';
 import { FormStep } from '../components/form/FormStep';
 import { ProgressIndicator } from '../components/form/ProgressIndicator';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { InputField, SelectField, TextareaField } from '../components/ui/Field';
@@ -367,13 +368,14 @@ export function PublicFormPage() {
     <div className="app-backdrop min-h-screen">
       <BrandHeader>
         <div className="flex items-center gap-3">
-          <span className="hidden max-w-[220px] truncate rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-600 sm:block">
+          <span className="hidden max-w-[220px] truncate rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-600 sm:block dark:bg-slate-900 dark:text-slate-300">
             {email}
           </span>
+          <ThemeToggle />
           <button
             type="button"
             onClick={() => void logout()}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] motion-reduce:transition-none"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:text-cyan-200 dark:hover:shadow-[0_14px_34px_rgba(0,0,0,0.3)]"
           >
             <LogOut size={15} />
             Sair
@@ -382,22 +384,22 @@ export function PublicFormPage() {
       </BrandHeader>
 
       <main className="page-enter mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
-        <div className="mb-7 rounded-[1.5rem] border border-white/70 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur">
+        <div className="mb-7 rounded-[1.5rem] border border-white/70 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-700/80 dark:bg-slate-950/90 dark:shadow-[0_24px_70px_rgba(0,0,0,0.34)]">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-600">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-600 dark:text-cyan-200">
                 Formulário público
               </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+              <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950 dark:text-white">
                 Registrar demanda para análise de automação interna
               </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                 Conte onde existe retrabalho, perda de tempo, controle manual ou dificuldade
                 operacional recorrente. A equipe de Automações e IA analisará o contexto informado
                 para avaliar a possibilidade de automação, sistema interno ou melhoria digital.
               </p>
             </div>
-            <div className="flex items-center gap-3 rounded-2xl bg-brand-900 px-4 py-3 text-white shadow-[0_18px_42px_rgba(18,95,157,0.25)]">
+            <div className="flex items-center gap-3 rounded-2xl bg-brand-900 px-4 py-3 text-white shadow-[0_18px_42px_rgba(18,95,157,0.25)] dark:bg-brand-700 dark:shadow-[0_18px_42px_rgba(36,151,227,0.22)]">
               <ClipboardList size={20} />
               <div>
                 <p className="text-xs text-brand-100">Fluxo guiado</p>
@@ -658,8 +660,8 @@ function BooleanQuestion({
     <div
       className={`rounded-2xl border p-4 transition-all duration-200 motion-reduce:transition-none ${
         checked
-          ? 'border-brand-200 bg-brand-50/70 shadow-[0_16px_36px_rgba(21,120,194,0.1)]'
-          : 'border-slate-200 bg-white hover:border-brand-100 hover:shadow-[0_12px_32px_rgba(15,23,42,0.06)]'
+          ? 'border-brand-200 bg-brand-50/70 shadow-[0_16px_36px_rgba(21,120,194,0.1)] dark:border-brand-500/40 dark:bg-brand-900/40 dark:shadow-[0_16px_36px_rgba(0,0,0,0.25)]'
+          : 'border-slate-200 bg-white hover:border-brand-100 hover:shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-900/80 dark:hover:border-brand-500/50 dark:hover:shadow-[0_14px_34px_rgba(0,0,0,0.22)]'
       }`}
     >
       <label className="flex cursor-pointer items-start gap-3">
@@ -667,11 +669,13 @@ function BooleanQuestion({
           type="checkbox"
           checked={checked}
           onChange={(event) => onCheckedChange(event.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-500"
+          className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-900"
         />
         <span>
-          <span className="block text-sm font-semibold text-slate-900">{label}</span>
-          <span className="mt-1 block text-xs leading-5 text-slate-500">
+          <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+            {label}
+          </span>
+          <span className="mt-1 block text-xs leading-5 text-slate-500 dark:text-slate-400">
             Marque somente se isso fizer parte do problema informado.
           </span>
         </span>
@@ -741,16 +745,18 @@ function ReviewContent({ form }: { form: FormState }) {
 
 function ReviewCard({ title, items }: { title: string; items: readonly [string, string][] }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
-      <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-        <FileCheck2 size={16} className="text-brand-700" />
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
+        <FileCheck2 size={16} className="text-brand-700 dark:text-cyan-200" />
         {title}
       </h3>
       <dl className="mt-3 space-y-3">
         {items.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</dt>
-            <dd className="mt-1 text-sm leading-6 text-slate-700">{value}</dd>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              {label}
+            </dt>
+            <dd className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-200">{value}</dd>
           </div>
         ))}
       </dl>
@@ -760,9 +766,9 @@ function ReviewCard({ title, items }: { title: string; items: readonly [string, 
 
 function ReviewBlock({ title, value }: { title: string; value: string }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
-      <h3 className="text-sm font-semibold text-slate-950">{title}</h3>
-      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-slate-900/80 dark:shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
+      <h3 className="text-sm font-semibold text-slate-950 dark:text-white">{title}</h3>
+      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
         {value || 'Não informado'}
       </p>
     </section>

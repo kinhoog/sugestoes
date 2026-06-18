@@ -54,7 +54,13 @@ export function RegisterPage() {
 
     try {
       await criarContaComEmailSenha(email, senha, nomeCompleto);
-      navigate(ROTAS.verificarEmail, { replace: true });
+      navigate(ROTAS.login, {
+        replace: true,
+        state: {
+          notice:
+            'Cadastro criado com sucesso. Verifique seu e-mail corporativo antes de acessar o portal.',
+        },
+      });
     } catch (registerError) {
       setError(getFriendlyFirebaseError(registerError));
     } finally {
@@ -114,9 +120,12 @@ export function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-sm text-slate-600">
+      <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
         Já tem cadastro?{' '}
-        <Link to={ROTAS.login} className="font-medium text-brand-700 hover:text-brand-800">
+        <Link
+          to={ROTAS.login}
+          className="font-medium text-brand-700 hover:text-brand-800 dark:text-cyan-200 dark:hover:text-cyan-100"
+        >
           Entrar
         </Link>
       </p>

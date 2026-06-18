@@ -2,6 +2,8 @@ import { ClipboardList, LayoutDashboard, LogOut } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
+import { BrandLogo } from '../BrandLogo';
+
 interface AdminShellProps {
   children: ReactNode;
 }
@@ -11,11 +13,7 @@ export function AdminShell({ children }: AdminShellProps) {
     <div className="min-h-screen bg-slate-100">
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-200 bg-white px-4 py-5 lg:block">
         <Link to="/" className="flex items-center gap-3">
-          <img
-            src={`${import.meta.env.BASE_URL}logo.png`}
-            alt="eProtege"
-            className="h-10 w-auto"
-          />
+          <BrandLogo className="h-10" />
           <div>
             <p className="text-sm font-semibold text-brand-700">Comite</p>
             <p className="text-xs text-slate-500">Triagem operacional</p>

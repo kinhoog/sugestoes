@@ -4,9 +4,10 @@ import { AlertCircle, CheckCircle2, Info } from 'lucide-react';
 type AlertTone = 'error' | 'success' | 'info';
 
 const toneClasses: Record<AlertTone, string> = {
-  error: 'border-red-100 bg-red-50 text-red-800',
-  success: 'border-emerald-100 bg-emerald-50 text-emerald-800',
-  info: 'border-brand-100 bg-brand-50 text-brand-900',
+  error: 'border-red-100 bg-red-50 text-red-800 dark:border-red-500/30 dark:bg-red-950/40 dark:text-red-100',
+  success:
+    'border-emerald-100 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-100',
+  info: 'border-brand-100 bg-brand-50 text-brand-900 dark:border-brand-500/30 dark:bg-brand-900/40 dark:text-cyan-100',
 };
 
 const icons: Record<AlertTone, ReactNode> = {
