@@ -27,7 +27,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     <button
       ref={ref}
       type={type}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-brand-100 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 motion-reduce:transition-none dark:focus:ring-brand-900/50 ${variantClasses[variant]} ${className}`}
+      className={`portal-button portal-button-${variant} inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-brand-100 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 motion-reduce:transition-none dark:focus:ring-brand-900/50 ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {icon}
@@ -53,7 +53,7 @@ export function ButtonLink({
   return (
     <Link
       to={to}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-brand-100 motion-reduce:transition-none dark:focus:ring-brand-900/50 ${variantClasses[variant]} ${className}`}
+      className={`portal-button portal-button-${variant} inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-brand-100 motion-reduce:transition-none dark:focus:ring-brand-900/50 ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {icon}

@@ -11,7 +11,7 @@ interface BrandHeaderProps {
 
 export function BrandHeader({ children, showAdminLink = true }: BrandHeaderProps) {
   return (
-    <header className="sticky top-0 z-30 border-b border-white/70 bg-white/90 shadow-[0_12px_40px_rgba(15,23,42,0.05)] backdrop-blur-xl transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950/90 dark:shadow-[0_16px_44px_rgba(0,0,0,0.35)]">
+    <header className="portal-brand-header sticky top-0 z-30 border-b border-white/70 bg-white/90 shadow-[0_12px_40px_rgba(15,23,42,0.05)] backdrop-blur-xl transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950/90 dark:shadow-[0_16px_44px_rgba(0,0,0,0.35)]">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link to="/" className="flex min-w-0 items-center gap-3">
           <span className="shrink-0 rounded-2xl bg-white p-2 shadow-[0_12px_30px_rgba(15,23,42,0.08)] ring-1 ring-slate-100 dark:bg-white/95 dark:ring-white/10">
