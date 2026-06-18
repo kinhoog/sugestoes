@@ -45,7 +45,13 @@ export function AuthLayout({
   const cardClassName = isRegister
     ? 'rounded-[1.5rem] border border-white/80 bg-white/90 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.14)] backdrop-blur sm:p-5 dark:border-slate-700/80 dark:bg-slate-950/90 dark:shadow-[0_28px_80px_rgba(0,0,0,0.45)]'
     : 'rounded-[1.5rem] border border-white/80 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.14)] backdrop-blur sm:p-6 dark:border-slate-700/80 dark:bg-slate-950/90 dark:shadow-[0_28px_80px_rgba(0,0,0,0.45)]';
-  const cardHeaderClassName = isRegister ? 'mb-4' : 'mb-5';
+  const cardHeaderClassName = isRegister ? 'mb-3' : 'mb-5';
+  const titleClassName = isRegister
+    ? 'mt-1.5 text-xl font-semibold text-slate-950 dark:text-white'
+    : 'mt-2 text-2xl font-semibold text-slate-950 dark:text-white';
+  const descriptionClassName = isRegister
+    ? 'mt-1.5 text-sm leading-5 text-slate-600 dark:text-slate-300'
+    : 'mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300';
 
   return (
     <div
@@ -127,10 +133,8 @@ export function AuthLayout({
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-600 dark:text-cyan-200">
                 Acesso corporativo
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">{title}</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {description}
-              </p>
+              <h2 className={titleClassName}>{title}</h2>
+              <p className={descriptionClassName}>{description}</p>
             </div>
             {children}
           </div>
