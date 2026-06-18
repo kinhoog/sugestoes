@@ -2,6 +2,7 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   updateProfile,
@@ -47,6 +48,7 @@ export async function criarContaComEmailSenha(
   }
 
   await sendEmailVerification(credencial.user);
+  await firebaseSignOut(auth);
 
   return credencial.user;
 }
@@ -65,6 +67,16 @@ export async function entrarComEmailSenha(email: string, senha: string): Promise
 
 export async function reenviarVerificacaoEmail(user: User): Promise<void> {
   await sendEmailVerification(user);
+}
+
+export async function enviarRecuperacaoSenha(email: string): Promise<void> {
+  const emailNormalizado = normalizarEmail(email);
+
+  if (!isEmailCorporativo(emailNormalizado)) {
+    throw new Error(`Use um e-mail corporativo ${PROTEGE_EMAIL_DOMAIN}.`);
+  }
+
+  await sendPasswordResetEmail(requireFirebaseAuth(), emailNormalizado);
 }
 
 export async function sair(): Promise<void> {

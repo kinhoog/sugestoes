@@ -138,8 +138,50 @@ export const PROTEGE_EMAIL_DOMAIN = EMAIL_DOMINIO_PERMITIDO;
 export const ROTAS = {
   formulario: '/',
   sucesso: '/sucesso',
+  login: '/login',
+  cadastro: '/cadastro',
+  verificarEmail: '/verificar-email',
   adminLogin: '/admin/login',
   adminDashboard: '/admin/dashboard',
   adminSolicitacoes: '/admin/solicitacoes',
   adminDetalhe: (id: string) => `/admin/solicitacoes/${id}`,
 } as const;
+
+// -----------------------------------------------------------------------------
+// Opcoes locais do formulario publico
+// -----------------------------------------------------------------------------
+
+export const SETORES_OPCOES = [
+  { id: 'recepcao', nome: 'Recepção' },
+  { id: 'administrativo', nome: 'Administrativo' },
+  { id: 'enfermagem', nome: 'Enfermagem' },
+  { id: 'financeiro', nome: 'Financeiro' },
+  { id: 'seguranca-do-trabalho', nome: 'Segurança do Trabalho' },
+] as const;
+
+export type SetorOpcaoId = (typeof SETORES_OPCOES)[number]['id'];
+
+export const CARGOS_POR_SETOR = {
+  recepcao: [
+    { id: 'lider-recepcao-atendimento', nome: 'Líder de Recepção e Atendimento' },
+    { id: 'atendente-saude-ocupacional', nome: 'Atendente de Saúde Ocupacional' },
+    { id: 'estagiario-recepcao', nome: 'Estagiário(a)' },
+  ],
+  administrativo: [
+    { id: 'gerente-administrativo', nome: 'Gerente Administrativo(a)' },
+    { id: 'assistente-administrativo', nome: 'Assistente Administrativo' },
+    { id: 'assistente-sistemas', nome: 'Assistente de Sistemas' },
+  ],
+  enfermagem: [
+    { id: 'auxiliar-enfermagem', nome: 'Auxiliar de Enfermagem' },
+    { id: 'tecnica-enfermagem-trabalho', nome: 'Técnica de Enfermagem do Trabalho' },
+  ],
+  financeiro: [{ id: 'assistente-financeiro', nome: 'Assistente Financeiro' }],
+  'seguranca-do-trabalho': [
+    { id: 'tecnico-seguranca-trabalho', nome: 'Técnico(a) de Segurança do Trabalho' },
+    { id: 'engenheira-seguranca-trabalho', nome: 'Engenheira de Segurança do Trabalho' },
+    { id: 'estagiario-seguranca-trabalho', nome: 'Estagiário(a)' },
+  ],
+} as const satisfies Record<SetorOpcaoId, readonly { id: string; nome: string }[]>;
+
+export const CARGOS_OPCOES = Object.values(CARGOS_POR_SETOR).flat();

@@ -10,6 +10,18 @@
   color: #0f172a;
 }
 
+.theme-light {
+  color-scheme: light;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.dark {
+  color-scheme: dark;
+  background: #020617;
+  color: #e2e8f0;
+}
+
 html,
 body,
 #root {
@@ -18,6 +30,13 @@ body,
 
 body {
   margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.dark body {
+  background: #020617;
+  color: #e2e8f0;
 }
 
 button,
@@ -25,4 +44,718 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notice-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes badge-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 10px 28px rgba(21, 120, 194, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  }
+  50% {
+    box-shadow:
+      0 14px 44px rgba(21, 120, 194, 0.3),
+      0 0 0 1px rgba(139, 208, 255, 0.78) inset;
+  }
+}
+
+@keyframes badge-shimmer {
+  0%,
+  34% {
+    transform: translateX(-145%);
+    opacity: 0;
+  }
+  46% {
+    opacity: 0.92;
+  }
+  64%,
+  100% {
+    transform: translateX(145%);
+    opacity: 0;
+  }
+}
+
+@keyframes badge-orbit-glow {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translate3d(-18%, -8%, 0) scale(0.9);
+  }
+  42% {
+    opacity: 0.62;
+    transform: translate3d(24%, 6%, 0) scale(1.08);
+  }
+  70% {
+    opacity: 0.34;
+    transform: translate3d(8%, -2%, 0) scale(0.98);
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(21, 120, 194, 0));
+    opacity: 0.72;
+    transform: scale(1) rotate(0deg);
+  }
+  28% {
+    filter: drop-shadow(0 0 7px rgba(36, 151, 227, 0.42));
+    opacity: 1;
+    transform: scale(1.26) rotate(10deg);
+  }
+  48% {
+    filter: drop-shadow(0 0 4px rgba(36, 151, 227, 0.28));
+    opacity: 0.86;
+    transform: scale(0.94) rotate(-8deg);
+  }
+  72% {
+    filter: drop-shadow(0 0 8px rgba(36, 151, 227, 0.38));
+    opacity: 1;
+    transform: scale(1.14) rotate(5deg);
+  }
+}
+
+@keyframes success-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.page-enter {
+  animation: page-enter 260ms ease-out both;
+}
+
+.step-enter {
+  animation: step-enter 240ms ease-out both;
+}
+
+.notice-enter {
+  animation: notice-enter 180ms ease-out both;
+}
+
+.automation-badge {
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  animation: page-enter 240ms ease-out both, badge-glow 2.8s ease-in-out infinite;
+}
+
+.automation-badge::before {
+  content: "";
+  position: absolute;
+  inset: -45% -18%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 28% 45%, rgba(139, 208, 255, 0.42), transparent 20%),
+    radial-gradient(circle at 68% 48%, rgba(20, 184, 166, 0.2), transparent 18%);
+  animation: badge-orbit-glow 3.6s ease-in-out infinite;
+}
+
+.automation-badge::after {
+  content: "";
+  position: absolute;
+  inset: -60% -35%;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.78) 48%,
+    rgba(139, 208, 255, 0.44) 53%,
+    transparent 68%
+  );
+  animation: badge-shimmer 3.4s ease-in-out infinite;
+}
+
+.dark .automation-badge::after {
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(125, 211, 252, 0.34) 48%,
+    rgba(45, 212, 191, 0.2) 53%,
+    transparent 68%
+  );
+}
+
+.badge-sparkle {
+  animation: sparkle-twinkle 1.9s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.info-card {
+  animation: none;
+}
+
+.success-check {
+  animation: success-pop 320ms ease-out both;
+}
+
+.app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(139, 208, 255, 0.28), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 30rem),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f8fafc 100%);
+}
+
+.dark .app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(36, 151, 227, 0.2), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 30rem),
+    linear-gradient(135deg, #020617 0%, #07111f 48%, #020617 100%);
+}
+
+.theme-light .auth-backdrop {
+  background:
+    radial-gradient(circle at top left, #e6f7ff 0, #f8fbff 34%, #eef7ff 68%, #f8fafc 100%) !important;
+}
+
+.theme-light .app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(139, 208, 255, 0.28), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 30rem),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f8fafc 100%) !important;
+}
+
+.theme-light input:not([type="checkbox"]),
+.theme-light select,
+.theme-light textarea {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  transition-property: border-color, color, box-shadow !important;
+}
+
+.theme-light input:not([type="checkbox"]):disabled,
+.theme-light select:disabled,
+.theme-light textarea:disabled {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+}
+
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.theme-dark input:not([type="checkbox"]),
+.theme-dark select,
+.theme-dark textarea {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+  transition-property: border-color, color, box-shadow !important;
+}
+
+.theme-dark input:not([type="checkbox"]):disabled,
+.theme-dark select:disabled,
+.theme-dark textarea:disabled {
+  background-color: #1e293b !important;
+  color: #64748b !important;
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.theme-light body,
+html.theme-light #root {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .auth-backdrop {
+  background:
+    radial-gradient(circle at top left, #e6f7ff 0, #f8fbff 34%, #eef7ff 68%, #f8fafc 100%) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .auth-backdrop .theme-toggle-button {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #d8e7f3 !important;
+  color: #125f9d !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .auth-backdrop .theme-toggle-button:hover {
+  background-color: #f2f9ff !important;
+  border-color: #c2e4ff !important;
+  color: #0e4f81 !important;
+  box-shadow: 0 14px 34px rgba(18, 95, 157, 0.12) !important;
+}
+
+html.theme-light .auth-backdrop .theme-toggle-button:focus {
+  box-shadow:
+    0 0 0 4px rgba(36, 151, 227, 0.14),
+    0 10px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(139, 208, 255, 0.28), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 30rem),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f8fafc 100%) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light :is(section, article, aside, div)[class*="dark:bg-slate"] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: #d8e7f3 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .info-card {
+  background-color: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.82) !important;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light [class*="dark:text-white"],
+html.theme-light [class*="dark:text-slate-100"],
+html.theme-light [class*="dark:text-slate-200"] {
+  color: #0f172a !important;
+}
+
+html.theme-light [class*="dark:text-slate-300"],
+html.theme-light [class*="dark:text-slate-400"],
+html.theme-light [class*="dark:text-slate-500"] {
+  color: #475569 !important;
+}
+
+html.theme-light [class*="dark:text-cyan"] {
+  color: #125f9d !important;
+}
+
+html.theme-light input:not([type="checkbox"]),
+html.theme-light select,
+html.theme-light textarea {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #d8e7f3 !important;
+  color: #0f172a !important;
+}
+
+html.theme-dark body,
+html.theme-dark #root {
+  background: #020617 !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .auth-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(36, 151, 227, 0.24) 0, rgba(2, 6, 23, 0.98) 38%, #020617 100%) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .auth-backdrop .theme-toggle-button {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .auth-backdrop .theme-toggle-button:hover {
+  border-color: #2497e3 !important;
+  color: #a5f3fc !important;
+}
+
+html.theme-dark .app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(36, 151, 227, 0.2), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 30rem),
+    linear-gradient(135deg, #020617 0%, #07111f 48%, #020617 100%) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark :is(section, article, aside, div)[class*="dark:bg-slate"],
+html.theme-dark .info-card {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark [class*="dark:text-white"],
+html.theme-dark [class*="dark:text-slate-100"],
+html.theme-dark [class*="dark:text-slate-200"] {
+  color: #f8fafc !important;
+}
+
+html.theme-dark [class*="dark:text-slate-300"],
+html.theme-dark [class*="dark:text-slate-400"],
+html.theme-dark [class*="dark:text-slate-500"] {
+  color: #cbd5e1 !important;
+}
+
+html.theme-dark [class*="dark:text-cyan"] {
+  color: #a5f3fc !important;
+}
+
+html.theme-dark input:not([type="checkbox"]),
+html.theme-dark select,
+html.theme-dark textarea {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+html.theme-light .portal-form-shell {
+  background:
+    radial-gradient(circle at top left, rgba(139, 208, 255, 0.22), transparent 32rem),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 28rem),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f8fafc 100%) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .portal-form-shell .portal-brand-header {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #d8e7f3 !important;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.05) !important;
+}
+
+html.theme-light .portal-form-shell .portal-user-chip,
+html.theme-light .portal-form-shell .portal-logout-button {
+  background-color: rgba(255, 255, 255, 0.86) !important;
+  border-color: #d8e7f3 !important;
+  color: #475569 !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .portal-form-shell .portal-logout-button:hover {
+  border-color: #c2e4ff !important;
+  color: #125f9d !important;
+  box-shadow: 0 14px 34px rgba(18, 95, 157, 0.12) !important;
+}
+
+html.theme-light .portal-form-shell .theme-toggle-button {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #d8e7f3 !important;
+  color: #125f9d !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .portal-form-shell .theme-toggle-button:hover {
+  background-color: #f2f9ff !important;
+  border-color: #c2e4ff !important;
+  color: #0e4f81 !important;
+  box-shadow: 0 14px 34px rgba(18, 95, 157, 0.12) !important;
+}
+
+html.theme-light .portal-form-shell .theme-toggle-button:focus {
+  box-shadow:
+    0 0 0 4px rgba(36, 151, 227, 0.14),
+    0 10px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .portal-form-shell .portal-form-hero,
+html.theme-light .portal-form-shell .portal-progress-card,
+html.theme-light .portal-form-shell .portal-step-card,
+html.theme-light .portal-form-shell .portal-review-card {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  border-color: #d8e7f3 !important;
+  color: #0f172a !important;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.07) !important;
+}
+
+html.theme-light .portal-form-shell .portal-form-hero h1,
+html.theme-light .portal-form-shell .portal-step-title,
+html.theme-light .portal-form-shell .portal-review-card h3 {
+  color: #0b1220 !important;
+}
+
+html.theme-light .portal-form-shell .portal-form-hero p:not(.text-brand-100),
+html.theme-light .portal-form-shell .portal-step-description,
+html.theme-light .portal-form-shell .portal-field-helper,
+html.theme-light .portal-form-shell .portal-review-card p,
+html.theme-light .portal-form-shell .portal-review-card dd {
+  color: #475569 !important;
+}
+
+html.theme-light .portal-form-shell .portal-step-eyebrow {
+  color: #125f9d !important;
+}
+
+html.theme-light .portal-form-shell .portal-step-divider {
+  border-color: #e6eef7 !important;
+}
+
+html.theme-light .portal-form-shell .portal-flow-chip {
+  background:
+    linear-gradient(135deg, rgba(230, 243, 255, 0.95), rgba(255, 255, 255, 0.92)) !important;
+  border: 1px solid #c2e4ff !important;
+  color: #0e4f81 !important;
+  box-shadow: 0 16px 40px rgba(18, 95, 157, 0.12) !important;
+}
+
+html.theme-light .portal-form-shell .portal-flow-chip p {
+  color: #0e4f81 !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-card {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-card > div:first-child span:first-child {
+  color: #0f172a !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-item-active {
+  background-color: #e6f3ff !important;
+  color: #0e4f81 !important;
+  box-shadow: 0 12px 30px rgba(21, 120, 194, 0.12) !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-item-complete {
+  color: #334155 !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-item-pending {
+  color: #64748b !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-number {
+  background-color: #f1f7fd !important;
+  color: #64748b !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-item-active .portal-progress-number {
+  background-color: #125f9d !important;
+  color: #ffffff !important;
+}
+
+html.theme-light .portal-form-shell .portal-progress-item-complete .portal-progress-number {
+  background-color: #dcfce7 !important;
+  color: #047857 !important;
+}
+
+html.theme-light .portal-form-shell .portal-field-label {
+  color: #1e293b !important;
+}
+
+html.theme-light .portal-form-shell .portal-control {
+  background-color: #ffffff !important;
+  border-color: #d8e7f3 !important;
+  color: #0f172a !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04) !important;
+}
+
+html.theme-light .portal-form-shell .portal-control::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.theme-light .portal-form-shell .portal-control:hover {
+  border-color: #c2e4ff !important;
+  background-color: #ffffff !important;
+}
+
+html.theme-light .portal-form-shell .portal-control:focus {
+  border-color: #2497e3 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(36, 151, 227, 0.16) !important;
+}
+
+html.theme-light .portal-form-shell .portal-control:disabled {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+}
+
+html.theme-light .portal-form-shell .portal-choice-card {
+  background-color: #ffffff !important;
+  border-color: #d8e7f3 !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04) !important;
+}
+
+html.theme-light .portal-form-shell .portal-choice-card:hover {
+  border-color: #c2e4ff !important;
+  box-shadow: 0 14px 34px rgba(18, 95, 157, 0.1) !important;
+}
+
+html.theme-light .portal-form-shell .portal-checkbox {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.theme-light .portal-form-shell .portal-button-primary,
+html.theme-light .portal-form-shell .portal-form-primary-action {
+  background-color: #125f9d !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 34px rgba(18, 95, 157, 0.22) !important;
+}
+
+html.theme-light .portal-form-shell .portal-button-primary:hover,
+html.theme-light .portal-form-shell .portal-form-primary-action:hover {
+  background-color: #0e4f81 !important;
+  box-shadow: 0 20px 42px rgba(18, 95, 157, 0.28) !important;
+}
+
+html.theme-light .portal-form-shell .portal-button-secondary,
+html.theme-light .portal-form-shell .portal-form-secondary-action {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #d8e7f3 !important;
+  color: #0e4f81 !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .portal-form-shell .portal-button-secondary:hover,
+html.theme-light .portal-form-shell .portal-form-secondary-action:hover {
+  background-color: #f2f9ff !important;
+  border-color: #c2e4ff !important;
+}
+
+html.theme-light .portal-form-shell .portal-alert {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.theme-light .portal-form-shell .portal-alert-error {
+  background-color: #fff7f7 !important;
+  border-color: #fecaca !important;
+  color: #991b1b !important;
+}
+
+html.theme-light .portal-form-shell .portal-alert-info {
+  background-color: #f2f9ff !important;
+  border-color: #c2e4ff !important;
+  color: #0e4f81 !important;
+}
+
+html.theme-light .portal-form-shell .portal-alert-success {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #166534 !important;
+}
+
+html.theme-light .portal-form-shell .portal-alert :is(p, strong, li, div, svg) {
+  color: inherit !important;
+}
+
+html.theme-dark .portal-form-shell {
+  background:
+    radial-gradient(circle at top left, rgba(36, 151, 227, 0.2), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 30rem),
+    linear-gradient(135deg, #020617 0%, #07111f 48%, #020617 100%) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .portal-form-shell .portal-brand-header,
+html.theme-dark .portal-form-shell .portal-form-hero,
+html.theme-dark .portal-form-shell .portal-progress-card,
+html.theme-dark .portal-form-shell .portal-step-card,
+html.theme-dark .portal-form-shell .portal-review-card {
+  background-color: rgba(2, 6, 23, 0.9) !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .portal-form-shell .portal-choice-card,
+html.theme-dark .portal-form-shell .portal-user-chip,
+html.theme-dark .portal-form-shell .portal-logout-button {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .portal-form-shell .portal-control {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+html.theme-dark .portal-form-shell .theme-toggle-button {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .portal-form-shell .theme-toggle-button:hover {
+  border-color: #2497e3 !important;
+  color: #a5f3fc !important;
+}
+
+html.theme-dark .portal-form-shell .portal-alert-error {
+  background-color: rgba(127, 29, 29, 0.38) !important;
+  border-color: rgba(248, 113, 113, 0.34) !important;
+  color: #fee2e2 !important;
+}
+
+html.theme-dark .portal-form-shell .portal-alert-info {
+  background-color: rgba(21, 67, 107, 0.45) !important;
+  border-color: rgba(36, 151, 227, 0.34) !important;
+  color: #cffafe !important;
+}
+
+html.theme-dark .portal-form-shell .portal-alert-success {
+  background-color: rgba(6, 78, 59, 0.38) !important;
+  border-color: rgba(52, 211, 153, 0.34) !important;
+  color: #d1fae5 !important;
+}
+
+html.theme-dark .portal-form-shell .portal-alert :is(p, strong, li, div, svg) {
+  color: inherit !important;
+}
+
+html,
+body,
+#root,
+.app-backdrop,
+header,
+section,
+article,
+aside,
+input,
+select,
+textarea,
+button {
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
 }

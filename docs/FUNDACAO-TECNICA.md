@@ -54,6 +54,8 @@ Garantias previstas:
 - colaborador não acessa dashboard;
 - colaborador não altera status;
 - admin lê e atualiza solicitações;
+- entrada visual administrativa aparece somente para usuário autenticado, com e-mail verificado e presente na allowlist;
+- rotas `/admin/*` são bloqueadas no frontend para colaboradores comuns até a Fase 4;
 - `score`, `prioridade_calculada`, `created_by` e `protocolo` não podem ser alterados em update;
 - delete físico bloqueado nas rules;
 - histórico sem update/delete.
