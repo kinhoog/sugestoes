@@ -111,121 +111,135 @@ export function AdminDashboardPage() {
 
         {error ? <Alert tone="error">{error}</Alert> : null}
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <KpiCard
-            icon={<ClipboardList size={20} />}
-            label="Total de solicitações"
-            value={loading ? '—' : String(dashboard.total)}
-            detail="Demandas registradas"
-          />
-          <KpiCard
-            icon={<Clock3 size={20} />}
-            label="Solicitações novas"
-            value={loading ? '—' : String(dashboard.novas)}
-            detail="Aguardando triagem"
-          />
-          <KpiCard
-            icon={<AlertTriangle size={20} />}
-            label="Alta ou crítica"
-            value={loading ? '—' : String(dashboard.criticasOuAltas)}
-            detail="Prioridade calculada"
-          />
-          <KpiCard
-            icon={<Layers3 size={20} />}
-            label="Setores envolvidos"
-            value={loading ? '—' : String(dashboard.setoresComDemandas)}
-            detail="Com demandas abertas"
-          />
-        </div>
+        {loading ? <DashboardLoading /> : null}
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]">
-          <DistributionCard
-            title="Solicitações por status"
-            icon={<Activity size={18} />}
-            total={dashboard.total}
-            items={STATUS_SOLICITACAO.map((status) => ({
-              label: status,
-              value: dashboard.porStatus[status],
-            }))}
-          />
-          <DistributionCard
-            title="Solicitações por prioridade"
-            icon={<Gauge size={18} />}
-            total={dashboard.total}
-            items={PRIORIDADE_NIVEIS.map((prioridade) => ({
-              label: prioridade,
-              value: dashboard.porPrioridade[prioridade],
-            }))}
-          />
-        </div>
+        {!loading && !error ? (
+          <>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <KpiCard
+                icon={<ClipboardList size={20} />}
+                label="Total de solicitações"
+                value={String(dashboard.total)}
+                detail="Demandas registradas"
+              />
+              <KpiCard
+                icon={<Clock3 size={20} />}
+                label="Solicitações novas"
+                value={String(dashboard.novas)}
+                detail="Aguardando triagem"
+              />
+              <KpiCard
+                icon={<AlertTriangle size={20} />}
+                label="Alta ou crítica"
+                value={String(dashboard.criticasOuAltas)}
+                detail="Prioridade calculada"
+              />
+              <KpiCard
+                icon={<Layers3 size={20} />}
+                label="Setores envolvidos"
+                value={String(dashboard.setoresComDemandas)}
+                detail="Com demandas abertas"
+              />
+            </div>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-          <DistributionCard
-            title="Solicitações por setor"
-            icon={<Layers3 size={18} />}
-            total={dashboard.total}
-            items={dashboard.setores.map((setor) => ({
-              label: setor.nome,
-              value: setor.total,
-            }))}
-          />
-
-          <section className="rounded-[1.5rem] border border-white/80 bg-white/88 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_84px_rgba(0,0,0,0.35)]">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
-                  Tempo real
-                </p>
-                <h2 className="mt-1 text-lg font-semibold text-slate-950 dark:text-white">
-                  Solicitações recentes
+            {dashboard.total === 0 ? (
+              <section className="mt-6 rounded-[1.5rem] border border-dashed border-slate-200 bg-white/70 px-5 py-12 text-center shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/70">
+                <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
+                  Nenhuma solicitação encontrada.
                 </h2>
-              </div>
-              <Link
-                to={ROTAS.adminSolicitacoes}
-                className="text-sm font-semibold text-brand-700 transition hover:text-brand-900 dark:text-cyan-200 dark:hover:text-cyan-100"
-              >
-                Ver lista
-              </Link>
-            </div>
+                <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                  Quando colaboradores registrarem demandas pelo formulário público, elas aparecerão
+                  aqui em tempo real.
+                </p>
+              </section>
+            ) : (
+              <>
+                <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]">
+                  <DistributionCard
+                    title="Solicitações por status"
+                    icon={<Activity size={18} />}
+                    total={dashboard.total}
+                    items={STATUS_SOLICITACAO.map((status) => ({
+                      label: status,
+                      value: dashboard.porStatus[status],
+                    }))}
+                  />
+                  <DistributionCard
+                    title="Solicitações por prioridade"
+                    icon={<Gauge size={18} />}
+                    total={dashboard.total}
+                    items={PRIORIDADE_NIVEIS.map((prioridade) => ({
+                      label: prioridade,
+                      value: dashboard.porPrioridade[prioridade],
+                    }))}
+                  />
+                </div>
 
-            <div className="mt-5 grid gap-3">
-              {loading ? (
-                <EmptyState text="Carregando solicitações..." />
-              ) : dashboard.recentes.length === 0 ? (
-                <EmptyState text="Nenhuma solicitação registrada ainda." />
-              ) : (
-                dashboard.recentes.map((solicitacao) => (
-                  <Link
-                    key={solicitacao.id}
-                    to={ROTAS.adminDetalhe(solicitacao.id)}
-                    className="rounded-2xl border border-slate-200 bg-white/90 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-brand-500"
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-6 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+                  <DistributionCard
+                    title="Solicitações por setor"
+                    icon={<Layers3 size={18} />}
+                    total={dashboard.total}
+                    items={dashboard.setores.map((setor) => ({
+                      label: setor.nome,
+                      value: setor.total,
+                    }))}
+                  />
+
+                  <section className="rounded-[1.5rem] border border-white/80 bg-white/88 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_84px_rgba(0,0,0,0.35)]">
+                    <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm font-bold text-brand-800 dark:text-cyan-200">
-                          {solicitacao.protocolo ?? 'Sem protocolo'}
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
+                          Tempo real
                         </p>
-                        <h3 className="mt-1 line-clamp-1 text-sm font-semibold text-slate-950 dark:text-white">
-                          {valorTextoAdmin(solicitacao.processo_alvo)}
-                        </h3>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          {getSetorNomeAdmin(solicitacao.setor_id)} ·{' '}
-                          {valorTextoAdmin(solicitacao.nome_completo)}
-                        </p>
+                        <h2 className="mt-1 text-lg font-semibold text-slate-950 dark:text-white">
+                          Solicitações recentes
+                        </h2>
                       </div>
-                      <div className="text-left sm:text-right">
-                        <PrioridadeBadge prioridade={solicitacao.prioridade_calculada} />
-                        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                          {formatarDataHoraAdmin(solicitacao.data_criacao)}
-                        </p>
-                      </div>
+                      <Link
+                        to={ROTAS.adminSolicitacoes}
+                        className="text-sm font-semibold text-brand-700 transition hover:text-brand-900 dark:text-cyan-200 dark:hover:text-cyan-100"
+                      >
+                        Ver lista
+                      </Link>
                     </div>
-                  </Link>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
+
+                    <div className="mt-5 grid gap-3">
+                      {dashboard.recentes.map((solicitacao) => (
+                        <Link
+                          key={solicitacao.id}
+                          to={ROTAS.adminDetalhe(solicitacao.id)}
+                          className="rounded-2xl border border-slate-200 bg-white/90 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-brand-500"
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <p className="text-sm font-bold text-brand-800 dark:text-cyan-200">
+                                {solicitacao.protocolo ?? 'Sem protocolo'}
+                              </p>
+                              <h3 className="mt-1 line-clamp-1 text-sm font-semibold text-slate-950 dark:text-white">
+                                {valorTextoAdmin(solicitacao.processo_alvo)}
+                              </h3>
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {getSetorNomeAdmin(solicitacao.setor_id)} ·{' '}
+                                {valorTextoAdmin(solicitacao.nome_completo)}
+                              </p>
+                            </div>
+                            <div className="text-left sm:text-right">
+                              <PrioridadeBadge prioridade={solicitacao.prioridade_calculada} />
+                              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                {formatarDataHoraAdmin(solicitacao.data_criacao)}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              </>
+            )}
+          </>
+        ) : null}
       </div>
     </AdminShell>
   );
@@ -293,6 +307,27 @@ function DistributionCard({
         ))}
       </div>
     </section>
+  );
+}
+
+function DashboardLoading() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {['Total', 'Novas', 'Prioridade', 'Setores'].map((item) => (
+        <section
+          key={item}
+          className="rounded-[1.35rem] border border-white/80 bg-white/78 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/76"
+        >
+          <div className="h-11 w-11 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+          <div className="mt-4 h-4 w-28 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
+          <div className="mt-3 h-8 w-16 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
+          <div className="mt-3 h-3 w-24 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
+        </section>
+      ))}
+      <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-white/70 px-5 py-8 text-sm text-slate-500 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur md:col-span-2 xl:col-span-4 dark:border-slate-800 dark:bg-slate-950/70 dark:text-slate-400">
+        Carregando solicitações em tempo real...
+      </div>
+    </div>
   );
 }
 

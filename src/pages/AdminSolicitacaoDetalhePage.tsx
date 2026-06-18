@@ -46,7 +46,7 @@ export function AdminSolicitacaoDetalhePage() {
 
         {loading ? (
           <EmptyDetail text="Carregando detalhe da solicitação..." />
-        ) : !solicitacao ? (
+        ) : error ? null : !solicitacao ? (
           <EmptyDetail text="Solicitação não encontrada ou sem permissão de acesso." />
         ) : (
           <>
@@ -176,8 +176,9 @@ export function AdminSolicitacaoDetalhePage() {
                 </InfoPanel>
 
                 <InfoPanel title="Histórico">
-                  {historicoError ? <Alert tone="error">{historicoError}</Alert> : null}
-                  {historicoLoading ? (
+                  {historicoError ? (
+                    <Alert tone="error">{historicoError}</Alert>
+                  ) : historicoLoading ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400">
                       Carregando histórico...
                     </p>

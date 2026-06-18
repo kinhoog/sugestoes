@@ -2,7 +2,6 @@ import {
   collection,
   doc,
   onSnapshot,
-  orderBy,
   query,
   where,
   type DocumentSnapshot,
@@ -29,18 +28,22 @@ function mapDocument<T extends { id: string }>(snapshot: DocumentSnapshot): T | 
   return { id: snapshot.id, ...snapshot.data() } as T;
 }
 
+function isSolicitacaoAtiva(solicitacao: SolicitacaoAdmin): boolean {
+  return solicitacao.deleted_at == null;
+}
+
 export function observarSolicitacoesAdminReadOnly(
   onNext: (solicitacoes: SolicitacaoAdmin[]) => void,
   onError?: (error: FirestoreError) => void,
 ): Unsubscribe {
   const db = requireFirestore();
-  const q = query(
-    collection(db, FIRESTORE_COLLECTIONS.solicitacoes),
-    where('deleted_at', '==', null),
-    orderBy('data_criacao', 'desc'),
-  );
+  const solicitacoesRef = collection(db, FIRESTORE_COLLECTIONS.solicitacoes);
 
-  return onSnapshot(q, (snapshot) => onNext(snapshot.docs.map(mapDoc<SolicitacaoAdmin>)), onError);
+  return onSnapshot(
+    solicitacoesRef,
+    (snapshot) => onNext(snapshot.docs.map(mapDoc<SolicitacaoAdmin>).filter(isSolicitacaoAtiva)),
+    onError,
+  );
 }
 
 export function observarSolicitacaoAdminReadOnly(
@@ -67,7 +70,6 @@ export function observarHistoricoSolicitacaoAdminReadOnly(
   const q = query(
     collection(db, FIRESTORE_COLLECTIONS.historicoStatus),
     where('solicitacao_id', '==', solicitacaoId),
-    orderBy('data_alteracao', 'asc'),
   );
 
   return onSnapshot(q, (snapshot) => onNext(snapshot.docs.map(mapDoc<HistoricoStatus>)), onError);

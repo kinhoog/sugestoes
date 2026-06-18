@@ -6,6 +6,7 @@ import {
   observarSolicitacoesAdminReadOnly,
   type SolicitacaoAdmin,
 } from '../services/firebase/admin.service';
+import { dataAdminParaDate } from '../lib/admin';
 import type { HistoricoStatus } from '../types/solicitacao.types';
 
 interface AdminSolicitacoesState {
@@ -27,8 +28,39 @@ interface AdminHistoricoState {
 }
 
 function getErrorMessage(error: unknown): string {
+  const detail = error instanceof Error ? error.message : null;
+  const message = 'Não foi possível carregar as solicitações. Verifique permissões ou conexão com o Firestore.';
+
+  if (detail) {
+    return `${message} Detalhe: ${detail}`;
+  }
+
+  return message;
+}
+
+function ordenarSolicitacoesRecentes(solicitacoes: readonly SolicitacaoAdmin[]): SolicitacaoAdmin[] {
+  return solicitacoes
+    .slice()
+    .sort(
+      (a, b) =>
+        (dataAdminParaDate(b.data_criacao)?.getTime() ?? 0) -
+        (dataAdminParaDate(a.data_criacao)?.getTime() ?? 0),
+    );
+}
+
+function ordenarHistorico(historico: readonly HistoricoStatus[]): HistoricoStatus[] {
+  return historico
+    .slice()
+    .sort(
+      (a, b) =>
+        (dataAdminParaDate(a.data_alteracao)?.getTime() ?? 0) -
+        (dataAdminParaDate(b.data_alteracao)?.getTime() ?? 0),
+    );
+}
+
+function getDetalheErrorMessage(error: unknown): string {
   if (error instanceof Error) {
-    return error.message;
+    return `Não foi possível carregar os dados administrativos. Detalhe: ${error.message}`;
   }
 
   return 'Não foi possível carregar os dados administrativos.';
@@ -43,7 +75,8 @@ export function useAdminSolicitacoes(): AdminSolicitacoesState {
 
   useEffect(() => {
     const unsubscribe = observarSolicitacoesAdminReadOnly(
-      (solicitacoes) => setState({ solicitacoes, loading: false, error: null }),
+      (solicitacoes) =>
+        setState({ solicitacoes: ordenarSolicitacoesRecentes(solicitacoes), loading: false, error: null }),
       (error) =>
         setState((current) => ({
           ...current,
@@ -80,7 +113,7 @@ export function useAdminSolicitacao(solicitacaoId: string | undefined): AdminSol
         setState((current) => ({
           ...current,
           loading: false,
-          error: getErrorMessage(error),
+          error: getDetalheErrorMessage(error),
         })),
     );
 
@@ -109,12 +142,12 @@ export function useAdminHistoricoSolicitacao(
 
     const unsubscribe = observarHistoricoSolicitacaoAdminReadOnly(
       solicitacaoId,
-      (historico) => setState({ historico, loading: false, error: null }),
+      (historico) => setState({ historico: ordenarHistorico(historico), loading: false, error: null }),
       (error) =>
         setState((current) => ({
           ...current,
           loading: false,
-          error: getErrorMessage(error),
+          error: getDetalheErrorMessage(error),
         })),
     );
 

@@ -161,13 +161,14 @@ export function observarSolicitacoesAdmin(
   onError?: (error: FirestoreError) => void,
 ): Unsubscribe {
   const db = requireFirestore();
-  const q = query(
-    collection(db, FIRESTORE_COLLECTIONS.solicitacoes),
-    where('deleted_at', '==', null),
-    orderBy('data_criacao', 'desc'),
-  );
+  const solicitacoesRef = collection(db, FIRESTORE_COLLECTIONS.solicitacoes);
 
-  return onSnapshot(q, (snapshot) => onNext(snapshot.docs.map(mapDoc<Solicitacao>)), onError);
+  return onSnapshot(
+    solicitacoesRef,
+    (snapshot) =>
+      onNext(snapshot.docs.map(mapDoc<Solicitacao>).filter((solicitacao) => solicitacao.deleted_at == null)),
+    onError,
+  );
 }
 
 export function observarHistoricoSolicitacao(

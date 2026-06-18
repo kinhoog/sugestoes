@@ -162,9 +162,11 @@ export function AdminSolicitacoesPage() {
 
           <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-400">
             <span>
-              {loading
-                ? 'Carregando solicitações...'
-                : `${filteredSolicitacoes.length} de ${solicitacoes.length} solicitações`}
+              {error
+                ? 'Erro ao carregar solicitações'
+                : loading
+                  ? 'Carregando solicitações...'
+                  : `${filteredSolicitacoes.length} de ${solicitacoes.length} solicitações`}
             </span>
             <span>Ordenação: mais recentes primeiro</span>
           </div>
@@ -196,7 +198,7 @@ export function AdminSolicitacoesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredSolicitacoes.map((solicitacao) => (
+                {!loading && !error ? filteredSolicitacoes.map((solicitacao) => (
                   <tr
                     key={solicitacao.id}
                     className="transition-colors hover:bg-brand-50/60 dark:hover:bg-slate-900/80"
@@ -240,13 +242,13 @@ export function AdminSolicitacoesPage() {
                       </Link>
                     </td>
                   </tr>
-                ))}
+                )) : null}
               </tbody>
             </table>
           </div>
 
           <div className="grid gap-3 p-4 lg:hidden">
-            {filteredSolicitacoes.map((solicitacao) => (
+            {!loading && !error ? filteredSolicitacoes.map((solicitacao) => (
               <Link
                 key={solicitacao.id}
                 to={ROTAS.adminDetalhe(solicitacao.id)}
@@ -278,10 +280,22 @@ export function AdminSolicitacoesPage() {
                   {formatarDataHoraAdmin(solicitacao.data_criacao)}
                 </p>
               </Link>
-            ))}
+            )) : null}
           </div>
 
-          {!loading && filteredSolicitacoes.length === 0 ? (
+          {error ? (
+            <div className="px-4 py-12 text-center">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Não foi possível carregar as solicitações.
+              </p>
+              <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                Verifique se o usuário é admin autorizado, se o e-mail está verificado e se a
+                conexão com o Firestore está disponível.
+              </p>
+            </div>
+          ) : null}
+
+          {!loading && !error && filteredSolicitacoes.length === 0 ? (
             <div className="px-4 py-12 text-center text-sm text-slate-500 dark:text-slate-400">
               Nenhuma solicitação encontrada para os filtros aplicados.
             </div>
