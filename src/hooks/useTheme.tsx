@@ -37,9 +37,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   useLayoutEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
-    root.classList.toggle('theme-dark', theme === 'dark');
-    root.classList.toggle('theme-light', theme === 'light');
+    root.classList.remove('dark', 'theme-dark', 'theme-light');
+    root.classList.add(theme === 'dark' ? 'dark' : 'theme-light');
+    if (theme === 'dark') {
+      root.classList.add('theme-dark');
+    }
     root.dataset.theme = theme;
     root.style.colorScheme = theme;
   }, [theme]);

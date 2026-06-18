@@ -254,6 +254,114 @@ textarea {
   color: #64748b !important;
 }
 
+html.theme-light body,
+html.theme-light #root {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .auth-backdrop {
+  background:
+    radial-gradient(circle at top left, #e6f7ff 0, #f8fbff 34%, #eef7ff 68%, #f8fafc 100%) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(139, 208, 255, 0.28), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 30rem),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f8fafc 100%) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light :is(section, article, aside, div)[class*="dark:bg-slate"] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: #d8e7f3 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .info-card {
+  background-color: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.82) !important;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light [class*="dark:text-white"],
+html.theme-light [class*="dark:text-slate-100"],
+html.theme-light [class*="dark:text-slate-200"] {
+  color: #0f172a !important;
+}
+
+html.theme-light [class*="dark:text-slate-300"],
+html.theme-light [class*="dark:text-slate-400"],
+html.theme-light [class*="dark:text-slate-500"] {
+  color: #475569 !important;
+}
+
+html.theme-light [class*="dark:text-cyan"] {
+  color: #125f9d !important;
+}
+
+html.theme-light input:not([type="checkbox"]),
+html.theme-light select,
+html.theme-light textarea {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #d8e7f3 !important;
+  color: #0f172a !important;
+}
+
+html.theme-dark body,
+html.theme-dark #root {
+  background: #020617 !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .auth-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(36, 151, 227, 0.24) 0, rgba(2, 6, 23, 0.98) 38%, #020617 100%) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark .app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(36, 151, 227, 0.2), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 30rem),
+    linear-gradient(135deg, #020617 0%, #07111f 48%, #020617 100%) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark :is(section, article, aside, div)[class*="dark:bg-slate"],
+html.theme-dark .info-card {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+  color: #e2e8f0 !important;
+}
+
+html.theme-dark [class*="dark:text-white"],
+html.theme-dark [class*="dark:text-slate-100"],
+html.theme-dark [class*="dark:text-slate-200"] {
+  color: #f8fafc !important;
+}
+
+html.theme-dark [class*="dark:text-slate-300"],
+html.theme-dark [class*="dark:text-slate-400"],
+html.theme-dark [class*="dark:text-slate-500"] {
+  color: #cbd5e1 !important;
+}
+
+html.theme-dark [class*="dark:text-cyan"] {
+  color: #a5f3fc !important;
+}
+
+html.theme-dark input:not([type="checkbox"]),
+html.theme-dark select,
+html.theme-dark textarea {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
 html,
 body,
 #root,
