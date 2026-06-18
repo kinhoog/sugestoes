@@ -132,6 +132,9 @@ const steps: readonly WizardStep[] = [
   },
 ] as const;
 
+const reviewStepIndex = steps.length - 1;
+const validationStepIndexes = [0, 1, 2, 3, 4, 5, 6] as const;
+
 const emptyForm: FormState = {
   nome_completo: '',
   setor_id: '',
@@ -191,35 +194,35 @@ function getOptionLabel<T extends string>(
   return value ? (options.find((option) => option.value === value)?.label ?? value) : 'Não informado';
 }
 
-function validateStep(stepIndex: number, form: FormState): string[] {
+function validateCurrentStep(stepIndex: number, form: FormState): string[] {
   const errors: string[] = [];
 
-  if (stepIndex === 0 || stepIndex === 7) {
+  if (stepIndex === 0) {
     if (!isPreenchido(form.nome_completo)) errors.push('Informe seu nome completo.');
     if (!isPreenchido(form.setor_id)) errors.push('Selecione o setor.');
     if (!isPreenchido(form.cargo_id)) errors.push('Selecione o cargo.');
   }
 
-  if (stepIndex === 1 || stepIndex === 7) {
+  if (stepIndex === 1) {
     if (!isPreenchido(form.processo_alvo)) {
       errors.push('Informe qual processo, atividade ou rotina está gerando dificuldade.');
     }
   }
 
-  if (stepIndex === 2 || stepIndex === 7) {
+  if (stepIndex === 2) {
     if (!isPreenchido(form.funcionamento_atual)) {
       errors.push('Explique como essa atividade funciona hoje.');
     }
   }
 
-  if (stepIndex === 3 || stepIndex === 7) {
+  if (stepIndex === 3) {
     if (!form.frequencia) errors.push('Selecione com que frequência isso acontece.');
     if (!form.impacto_operacional) errors.push('Selecione o impacto operacional.');
     if (!form.pessoas_impactadas) errors.push('Selecione quantas pessoas são impactadas.');
     if (!form.tempo_perdido) errors.push('Selecione quanto tempo aproximadamente é perdido.');
   }
 
-  if (stepIndex === 4 || stepIndex === 7) {
+  if (stepIndex === 4) {
     if (form.usa_planilha && !isPreenchido(form.descricao_planilha)) {
       errors.push('Descreva como a rotina depende de planilha.');
     }
@@ -234,7 +237,7 @@ function validateStep(stepIndex: number, form: FormState): string[] {
     }
   }
 
-  if (stepIndex === 5 || stepIndex === 7) {
+  if (stepIndex === 5) {
     if (!isPreenchido(form.resultado_ideal)) errors.push('Informe como seria o cenário ideal.');
     if (!form.urgencia) errors.push('Selecione a urgência percebida.');
   }
@@ -242,8 +245,16 @@ function validateStep(stepIndex: number, form: FormState): string[] {
   return errors;
 }
 
-function validateForm(form: FormState): string[] {
-  return validateStep(7, form);
+function validateForm(form: FormState): { errors: string[]; firstInvalidStepIndex: number | null } {
+  for (const validationStepIndex of validationStepIndexes) {
+    const errors = validateCurrentStep(validationStepIndex, form);
+
+    if (errors.length > 0) {
+      return { errors, firstInvalidStepIndex: validationStepIndex };
+    }
+  }
+
+  return { errors: [], firstInvalidStepIndex: null };
 }
 
 export function PublicFormPage() {
@@ -270,7 +281,7 @@ export function PublicFormPage() {
   }
 
   function handleNext() {
-    const validationErrors = validateStep(stepIndex, form);
+    const validationErrors = validateCurrentStep(stepIndex, form);
     setErrors(validationErrors);
     setSubmitError(null);
 
@@ -278,7 +289,7 @@ export function PublicFormPage() {
       return;
     }
 
-    setStepIndex((current) => Math.min(current + 1, steps.length - 1));
+    setStepIndex((current) => Math.min(current + 1, reviewStepIndex));
   }
 
   function handleBack() {
@@ -291,10 +302,18 @@ export function PublicFormPage() {
     event.preventDefault();
     setSubmitError(null);
 
-    const validationErrors = validateForm(form);
-    setErrors(validationErrors);
+    if (stepIndex < reviewStepIndex) {
+      handleNext();
+      return;
+    }
 
-    if (validationErrors.length > 0) {
+    const validationResult = validateForm(form);
+    setErrors(validationResult.errors);
+
+    if (validationResult.errors.length > 0) {
+      if (validationResult.firstInvalidStepIndex !== null) {
+        setStepIndex(validationResult.firstInvalidStepIndex);
+      }
       return;
     }
 
@@ -613,7 +632,7 @@ export function PublicFormPage() {
                 Voltar
               </Button>
 
-              {stepIndex < steps.length - 1 ? (
+              {stepIndex < reviewStepIndex ? (
                 <Button
                   type="button"
                   onClick={handleNext}
