@@ -16,13 +16,13 @@ import {
 import type { User as FirebaseUser } from '@firebase/auth';
 
 import { formatarProtocolo } from '../../lib/protocol';
-import { ADMIN_EMAILS } from '../../lib/constants';
 import type {
   HistoricoStatus,
   NovaSolicitacaoPayload,
   Solicitacao,
   StatusSolicitacao,
 } from '../../types/solicitacao.types';
+import { isAdminEmail } from './auth.service';
 import { requireFirestore } from './client';
 
 export const FIRESTORE_COLLECTIONS = {
@@ -42,10 +42,6 @@ interface UsuarioPerfil {
   email_verificado: boolean;
 }
 
-function isAdminEmailLocal(email: string): boolean {
-  return ADMIN_EMAILS.includes(email.toLowerCase() as (typeof ADMIN_EMAILS)[number]);
-}
-
 export async function criarOuAtualizarPerfilUsuario(
   user: FirebaseUser,
   nomeCompleto?: string,
@@ -56,7 +52,7 @@ export async function criarOuAtualizarPerfilUsuario(
     uid: user.uid,
     email,
     nome_completo: nomeCompleto?.trim() || user.displayName || null,
-    perfil: isAdminEmailLocal(email) ? 'admin' : 'colaborador',
+    perfil: isAdminEmail(email) ? 'admin' : 'colaborador',
     email_verificado: user.emailVerified,
   };
 

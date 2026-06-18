@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
+import { useAuth } from '../hooks/useAuth';
+import { isAdminEmail } from '../services/firebase/auth.service';
 import { BrandLogo } from './BrandLogo';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -10,6 +12,9 @@ interface BrandHeaderProps {
 }
 
 export function BrandHeader({ children, showAdminLink = true }: BrandHeaderProps) {
+  const { user, email, isEmailVerified } = useAuth();
+  const shouldShowAdminLink = showAdminLink && Boolean(user && isEmailVerified && isAdminEmail(email));
+
   return (
     <header className="portal-brand-header sticky top-0 z-30 border-b border-white/70 bg-white/90 shadow-[0_12px_40px_rgba(15,23,42,0.05)] backdrop-blur-xl transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950/90 dark:shadow-[0_16px_44px_rgba(0,0,0,0.35)]">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
@@ -28,7 +33,7 @@ export function BrandHeader({ children, showAdminLink = true }: BrandHeaderProps
         {children ?? (
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            {showAdminLink ? (
+            {shouldShowAdminLink ? (
               <Link
                 to="/admin/login"
                 className="rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:text-cyan-200 dark:hover:shadow-[0_14px_34px_rgba(0,0,0,0.3)]"

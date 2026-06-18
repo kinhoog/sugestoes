@@ -1,8 +1,10 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import { AdminGuard } from './components/auth/AdminGuard';
 import { AuthGuard } from './components/auth/AuthGuard';
 import { AuthProvider } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
+import { ROTAS } from './lib/constants';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminLoginPage } from './pages/AdminLoginPage';
 import { LoginPage } from './pages/LoginPage';
@@ -44,9 +46,38 @@ export default function App() {
                 </AuthGuard>
               }
             />
-            <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminGuard>
+                  <Navigate to={ROTAS.adminDashboard} replace />
+                </AdminGuard>
+              }
+            />
+            <Route
+              path="/admin/login"
+              element={
+                <AdminGuard>
+                  <AdminLoginPage />
+                </AdminGuard>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminGuard>
+                  <AdminDashboardPage />
+                </AdminGuard>
+              }
+            />
+            <Route
+              path="/admin/*"
+              element={
+                <AdminGuard>
+                  <Navigate to={ROTAS.adminDashboard} replace />
+                </AdminGuard>
+              }
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </HashRouter>
