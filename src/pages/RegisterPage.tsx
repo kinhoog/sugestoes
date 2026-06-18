@@ -72,14 +72,16 @@ export function RegisterPage() {
     <AuthLayout
       title="Criar cadastro"
       description="Crie seu acesso corporativo para registrar demandas de automação de rotinas e melhoria de processos."
+      variant="register"
     >
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-3" onSubmit={handleSubmit}>
         <InputField
           label="Nome completo"
           type="text"
           value={nomeCompleto}
           onChange={(event) => setNomeCompleto(event.target.value)}
           autoComplete="name"
+          className="[padding-bottom:0.5rem] [padding-top:0.5rem]"
         />
 
         <InputField
@@ -89,6 +91,7 @@ export function RegisterPage() {
           onChange={(event) => setEmail(event.target.value)}
           autoComplete="email"
           placeholder="exemplo@protege.med.br"
+          className="[padding-bottom:0.5rem] [padding-top:0.5rem]"
         />
 
         <InputField
@@ -98,6 +101,7 @@ export function RegisterPage() {
           onChange={(event) => setSenha(event.target.value)}
           autoComplete="new-password"
           helper="Use pelo menos 6 caracteres."
+          className="[padding-bottom:0.5rem] [padding-top:0.5rem]"
         />
 
         <InputField
@@ -106,6 +110,7 @@ export function RegisterPage() {
           value={confirmacaoSenha}
           onChange={(event) => setConfirmacaoSenha(event.target.value)}
           autoComplete="new-password"
+          className="[padding-bottom:0.5rem] [padding-top:0.5rem]"
         />
 
         {error ? <Alert tone="error">{error}</Alert> : null}
@@ -120,7 +125,7 @@ export function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
+      <p className="mt-2.5 text-sm text-slate-600 dark:text-slate-300">
         Já tem cadastro?{' '}
         <Link
           to={ROTAS.login}
