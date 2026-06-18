@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -34,10 +35,16 @@ function getInitialTheme(): Theme {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
     root.classList.toggle('dark', theme === 'dark');
+    root.classList.toggle('theme-dark', theme === 'dark');
+    root.classList.toggle('theme-light', theme === 'light');
+    root.dataset.theme = theme;
     root.style.colorScheme = theme;
+  }, [theme]);
+
+  useEffect(() => {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 

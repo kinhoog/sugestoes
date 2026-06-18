@@ -30,7 +30,7 @@ const valueCards = [
 
 export function AuthLayout({ title, description, children }: AuthLayoutProps) {
   return (
-    <div className="relative min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top_left,#e6f7ff_0,#f8fbff_34%,#eef7ff_68%,#f8fafc_100%)] transition-colors duration-300 dark:bg-[radial-gradient(circle_at_top_left,rgba(36,151,227,0.24)_0,rgba(2,6,23,0.98)_38%,#020617_100%)]">
+    <div className="auth-backdrop relative min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top_left,#e6f7ff_0,#f8fbff_34%,#eef7ff_68%,#f8fafc_100%)] transition-colors duration-300 dark:bg-[radial-gradient(circle_at_top_left,rgba(36,151,227,0.24)_0,rgba(2,6,23,0.98)_38%,#020617_100%)]">
       <div className="pointer-events-none absolute -left-20 top-10 h-60 w-60 rounded-full bg-cyan-200/30 blur-3xl dark:bg-cyan-500/10" />
       <div className="pointer-events-none absolute -right-16 bottom-6 h-64 w-64 rounded-full bg-brand-300/20 blur-3xl dark:bg-brand-600/10" />
       <div className="absolute right-4 top-4 z-20 sm:right-6">
@@ -40,7 +40,7 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
       <main className="relative mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-6 px-4 py-4 sm:px-6 lg:grid-cols-[0.95fr_0.82fr] lg:py-5">
         <section className="page-enter hidden max-w-2xl lg:block">
           <div className="automation-badge inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-800 shadow-[0_10px_28px_rgba(21,120,194,0.1)] backdrop-blur dark:border-cyan-300/20 dark:bg-slate-900/70 dark:text-cyan-100 dark:shadow-[0_14px_36px_rgba(0,0,0,0.3)]">
-            <Sparkles size={12} />
+            <Sparkles size={12} className="badge-sparkle" />
             Portal interno de automação
           </div>
 

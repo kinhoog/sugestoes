@@ -10,6 +10,12 @@
   color: #0f172a;
 }
 
+.theme-light {
+  color-scheme: light;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
 .dark {
   color-scheme: dark;
   background: #020617;
@@ -24,6 +30,13 @@ body,
 
 body {
   margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.dark body {
+  background: #020617;
+  color: #e2e8f0;
 }
 
 button,
@@ -72,7 +85,39 @@ textarea {
     box-shadow: 0 10px 28px rgba(21, 120, 194, 0.1);
   }
   50% {
-    box-shadow: 0 12px 34px rgba(21, 120, 194, 0.18);
+    box-shadow: 0 12px 36px rgba(21, 120, 194, 0.22);
+  }
+}
+
+@keyframes badge-shimmer {
+  0%,
+  42% {
+    transform: translateX(-130%);
+    opacity: 0;
+  }
+  52% {
+    opacity: 1;
+  }
+  70%,
+  100% {
+    transform: translateX(130%);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: scale(1) rotate(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.18) rotate(7deg);
+  }
+  70% {
+    opacity: 0.86;
+    transform: scale(0.96) rotate(-4deg);
   }
 }
 
@@ -100,7 +145,37 @@ textarea {
 }
 
 .automation-badge {
-  animation: page-enter 240ms ease-out both, badge-glow 5s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+  animation: page-enter 240ms ease-out both, badge-glow 3.8s ease-in-out infinite;
+}
+
+.automation-badge::after {
+  content: "";
+  position: absolute;
+  inset: -60% -35%;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 66%
+  );
+  animation: badge-shimmer 4.8s ease-in-out infinite;
+}
+
+.dark .automation-badge::after {
+  background: linear-gradient(
+    110deg,
+    transparent 34%,
+    rgba(125, 211, 252, 0.24) 50%,
+    transparent 66%
+  );
+}
+
+.badge-sparkle {
+  animation: sparkle-twinkle 2.6s ease-in-out infinite;
+  transform-origin: center;
 }
 
 .info-card {
@@ -123,6 +198,79 @@ textarea {
     radial-gradient(circle at top left, rgba(36, 151, 227, 0.2), transparent 34rem),
     radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 30rem),
     linear-gradient(135deg, #020617 0%, #07111f 48%, #020617 100%);
+}
+
+.theme-light .auth-backdrop {
+  background:
+    radial-gradient(circle at top left, #e6f7ff 0, #f8fbff 34%, #eef7ff 68%, #f8fafc 100%) !important;
+}
+
+.theme-light .app-backdrop {
+  background:
+    radial-gradient(circle at top left, rgba(139, 208, 255, 0.28), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 30rem),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f8fafc 100%) !important;
+}
+
+.theme-light input:not([type="checkbox"]),
+.theme-light select,
+.theme-light textarea {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  transition-property: border-color, color, box-shadow !important;
+}
+
+.theme-light input:not([type="checkbox"]):disabled,
+.theme-light select:disabled,
+.theme-light textarea:disabled {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+}
+
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.theme-dark input:not([type="checkbox"]),
+.theme-dark select,
+.theme-dark textarea {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+  transition-property: border-color, color, box-shadow !important;
+}
+
+.theme-dark input:not([type="checkbox"]):disabled,
+.theme-dark select:disabled,
+.theme-dark textarea:disabled {
+  background-color: #1e293b !important;
+  color: #64748b !important;
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html,
+body,
+#root,
+.app-backdrop,
+header,
+section,
+article,
+aside,
+input,
+select,
+textarea,
+button {
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
