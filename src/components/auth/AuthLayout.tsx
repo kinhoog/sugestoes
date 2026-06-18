@@ -44,9 +44,9 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
             Portal interno de automação
           </div>
 
-          <div className="mt-5 flex items-start gap-3.5">
-            <div className="rounded-2xl bg-white/80 p-2.5 shadow-[0_16px_44px_rgba(15,23,42,0.1)] ring-1 ring-white/80 backdrop-blur dark:bg-white/95 dark:ring-white/20">
-              <BrandLogo className="h-10" />
+          <div className="mt-5 flex items-center gap-4">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/80 p-2.5 shadow-[0_16px_44px_rgba(15,23,42,0.1)] ring-1 ring-white/80 backdrop-blur dark:bg-white/95 dark:ring-white/20">
+              <BrandLogo className="h-11" />
             </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-700 dark:text-cyan-200">
