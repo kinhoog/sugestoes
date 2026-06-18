@@ -38,7 +38,7 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
       </div>
 
       <main className="relative mx-auto grid min-h-dvh w-full max-w-6xl content-center items-start gap-6 px-4 py-4 sm:px-6 lg:grid-cols-[0.95fr_0.82fr] lg:py-5">
-        <section className="page-enter hidden max-w-2xl lg:-mt-6 lg:block xl:-mt-8">
+        <section className="page-enter hidden max-w-2xl lg:-mt-8 lg:block xl:-mt-10">
           <div className="automation-badge inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-800 shadow-[0_10px_28px_rgba(21,120,194,0.1)] backdrop-blur dark:border-cyan-300/20 dark:bg-slate-900/70 dark:text-cyan-100 dark:shadow-[0_14px_36px_rgba(0,0,0,0.3)]">
             <Sparkles size={12} className="badge-sparkle" />
             Portal interno de automação
