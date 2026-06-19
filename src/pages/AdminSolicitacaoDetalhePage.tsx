@@ -31,6 +31,7 @@ import { ROTAS, STATUS_SOLICITACAO } from '../lib/constants';
 import {
   assumirSolicitacaoAdmin,
   atualizarObservacaoInternaAdmin,
+  atualizarRespostaPublicaAdmin,
   atualizarStatusSolicitacaoAdmin,
   type SolicitacaoAdmin,
 } from '../services/firebase/admin.service';
@@ -57,6 +58,10 @@ function getHistoricoEventoLabel(item: HistoricoStatus): string {
     return 'Observação interna';
   }
 
+  if (item.tipo_evento === 'resposta_publica') {
+    return 'Resposta ao colaborador';
+  }
+
   return item.status_anterior ? 'Alteração de status' : 'Criação da solicitação';
 }
 
@@ -67,7 +72,7 @@ function getResponsavelAdminLabel(solicitacao: SolicitacaoAdmin): string {
 }
 
 type DetalheTab = 'resumo' | 'impacto' | 'historico';
-type AdminModalAberto = 'status' | 'observacao' | 'reatribuicao' | null;
+type AdminModalAberto = 'status' | 'observacao' | 'resposta' | 'reatribuicao' | null;
 
 const DETALHE_TABS: Array<{ id: DetalheTab; label: string }> = [
   { id: 'resumo', label: 'Resumo' },
@@ -87,6 +92,7 @@ export function AdminSolicitacaoDetalhePage() {
   const [novoStatus, setNovoStatus] = useState<StatusSolicitacao>('Nova');
   const [observacaoStatus, setObservacaoStatus] = useState('');
   const [observacaoInterna, setObservacaoInterna] = useState('');
+  const [respostaPublica, setRespostaPublica] = useState('');
   const [savingAction, setSavingAction] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
@@ -101,6 +107,7 @@ export function AdminSolicitacaoDetalhePage() {
 
     setNovoStatus(solicitacao.status);
     setObservacaoInterna(solicitacao.observacao_interna ?? '');
+    setRespostaPublica(solicitacao.resposta_publica ?? '');
     setObservacaoStatus('');
   }, [solicitacao]);
 
@@ -118,6 +125,8 @@ export function AdminSolicitacaoDetalhePage() {
 
   const observacaoInternaAlterada =
     observacaoInterna.trim() !== (solicitacao?.observacao_interna?.trim() ?? '');
+  const respostaPublicaAlterada =
+    respostaPublica.trim() !== (solicitacao?.resposta_publica?.trim() ?? '');
 
   function getActionErrorMessage(actionErrorValue: unknown): string {
     if (actionErrorValue instanceof Error) {
@@ -223,6 +232,27 @@ export function AdminSolicitacaoDetalhePage() {
     }
   }
 
+  async function handleSalvarRespostaPublica() {
+    if (!solicitacao || !adminUsuario || !respostaPublicaAlterada) {
+      return;
+    }
+
+    const success = await runAdminAction(
+      'resposta',
+      () =>
+        atualizarRespostaPublicaAdmin({
+          solicitacao,
+          respostaPublica,
+          admin: adminUsuario,
+        }),
+      'Resposta ao colaborador salva.',
+    );
+
+    if (success) {
+      setModalAberto(null);
+    }
+  }
+
   function abrirModalStatus() {
     if (!solicitacao) {
       return;
@@ -236,6 +266,11 @@ export function AdminSolicitacaoDetalhePage() {
   function abrirModalObservacao() {
     setObservacaoInterna(solicitacao?.observacao_interna ?? '');
     setModalAberto('observacao');
+  }
+
+  function abrirModalResposta() {
+    setRespostaPublica(solicitacao?.resposta_publica ?? '');
+    setModalAberto('resposta');
   }
 
   function handleCliqueResponsavel() {
@@ -356,6 +391,7 @@ export function AdminSolicitacaoDetalhePage() {
                 onAlterarStatus={abrirModalStatus}
                 onAssumirDemanda={handleCliqueResponsavel}
                 onObservacaoInterna={abrirModalObservacao}
+                onRespostaPublica={abrirModalResposta}
               />
             </div>
 
@@ -529,6 +565,50 @@ export function AdminSolicitacaoDetalhePage() {
                 </div>
               </AdminActionDialog>
             ) : null}
+
+            {modalAberto === 'resposta' ? (
+              <AdminActionDialog
+                title="Resposta ao colaborador"
+                description="Esta resposta poderá ser exibida ao colaborador no acompanhamento da demanda."
+                isSaving={Boolean(savingAction)}
+                onClose={() => setModalAberto(null)}
+              >
+                <div className="grid gap-3">
+                  <textarea
+                    id="resposta-publica"
+                    value={respostaPublica}
+                    onChange={(event) => setRespostaPublica(event.target.value)}
+                    rows={5}
+                    className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
+                    placeholder="Registre a resposta que poderá ser compartilhada com o colaborador"
+                  />
+                  {!respostaPublicaAlterada ? (
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                      Nenhuma alteração para salvar.
+                    </p>
+                  ) : null}
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setModalAberto(null)}
+                      disabled={Boolean(savingAction)}
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleSalvarRespostaPublica()}
+                      disabled={!respostaPublicaAlterada || Boolean(savingAction)}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(18,95,157,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:bg-brand-600 dark:hover:bg-brand-500"
+                    >
+                      <Save size={16} />
+                      {savingAction === 'resposta' ? 'Salvando...' : 'Salvar resposta'}
+                    </button>
+                  </div>
+                </div>
+              </AdminActionDialog>
+            ) : null}
           </>
         )}
       </div>
@@ -543,6 +623,7 @@ function AdminQuickActions({
   onAlterarStatus,
   onAssumirDemanda,
   onObservacaoInterna,
+  onRespostaPublica,
 }: {
   solicitacao: SolicitacaoAdmin;
   savingAction: string | null;
@@ -550,6 +631,7 @@ function AdminQuickActions({
   onAlterarStatus: () => void;
   onAssumirDemanda: () => void;
   onObservacaoInterna: () => void;
+  onRespostaPublica: () => void;
 }) {
   const isSavingResponsavel = savingAction === 'responsavel';
   const responsavel = solicitacao.responsavel_admin_email
@@ -587,7 +669,7 @@ function AdminQuickActions({
         </div>
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <button
           type="button"
           onClick={onAlterarStatus}
@@ -614,6 +696,15 @@ function AdminQuickActions({
         >
           <Save size={16} />
           Observação interna
+        </button>
+        <button
+          type="button"
+          onClick={onRespostaPublica}
+          disabled={Boolean(savingAction)}
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-[0_8px_20px_rgba(15,23,42,0.05)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:bg-slate-800 dark:hover:text-cyan-100"
+        >
+          <FileText size={16} />
+          Resposta ao colaborador
         </button>
       </div>
 
@@ -697,6 +788,9 @@ function ResumoTab({ solicitacao }: { solicitacao: SolicitacaoAdmin }) {
         ) : (
           'Não informado'
         )}
+      </DetailSection>
+      <DetailSection title="Resposta ao colaborador">
+        {valorTextoAdmin(solicitacao.resposta_publica)}
       </DetailSection>
     </div>
   );

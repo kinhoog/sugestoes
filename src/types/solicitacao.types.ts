@@ -23,7 +23,8 @@ export type HistoricoTipoEvento =
   | 'criacao'
   | 'alteracao_status'
   | 'atribuicao_responsavel'
-  | 'observacao_interna';
+  | 'observacao_interna'
+  | 'resposta_publica';
 
 export interface Setor {
   id: string;
@@ -68,6 +69,7 @@ export interface Solicitacao {
   status: StatusSolicitacao;
   parecer_tecnico: string | null;
   observacao_interna: string | null;
+  resposta_publica?: string | null;
   responsavel_admin_id?: string | null;
   responsavel_admin_email?: string | null;
   responsavel_admin_nome?: string | null;

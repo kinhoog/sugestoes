@@ -21,6 +21,7 @@ import {
   STATUS_SOLICITACAO,
 } from '../lib/constants';
 import {
+  dataAdminParaDate,
   formatarDataHoraAdmin,
   getSetorNomeAdmin,
   valorTextoAdmin,
@@ -51,6 +52,12 @@ function percent(count: number, total: number): number {
   return total > 0 ? Math.round((count / total) * 100) : 0;
 }
 
+function sortByRecent(a: SolicitacaoAdmin, b: SolicitacaoAdmin): number {
+  const dateA = dataAdminParaDate(a.updated_at ?? a.data_criacao)?.getTime() ?? 0;
+  const dateB = dataAdminParaDate(b.updated_at ?? b.data_criacao)?.getTime() ?? 0;
+  return dateB - dateA;
+}
+
 export function AdminDashboardPage() {
   const { solicitacoes, loading, error } = useAdminSolicitacoes();
 
@@ -71,18 +78,27 @@ export function AdminDashboardPage() {
       nome: setor.nome,
       total: solicitacoes.filter((solicitacao) => solicitacao.setor_id === setor.id).length,
     })).sort((a, b) => b.total - a.total);
-    const recentes = solicitacoes.slice(0, 5);
+    const solicitacoesRecentes = solicitacoes.slice().sort(sortByRecent);
+    const recentes = solicitacoesRecentes.slice(0, 5);
+    const semResponsavel = solicitacoes.filter(
+      (solicitacao) => !solicitacao.responsavel_admin_email,
+    );
 
     return {
       total,
       novas: porStatus.Nova,
       emAnalise: porStatus['Em Análise'],
-      semResponsavel: solicitacoes.filter((solicitacao) => !solicitacao.responsavel_admin_email).length,
-      setoresComDemandas: setores.filter((setor) => setor.total > 0).length,
+      aguardandoInformacoes: porStatus['Aguardando Informações'],
+      aprovadas: porStatus.Aprovada,
+      rejeitadas: porStatus.Rejeitada,
+      concluidas: porStatus.Concluída,
+      semResponsavel: semResponsavel.length,
+      comResponsavel: total - semResponsavel.length,
       porStatus,
       porPrioridade,
       setores,
       recentes,
+      semResponsavelRecentes: semResponsavel.slice().sort(sortByRecent).slice(0, 5),
     };
   }, [solicitacoes]);
 
@@ -116,7 +132,7 @@ export function AdminDashboardPage() {
 
         {!loading && !error ? (
           <>
-            <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
               <KpiCard
                 icon={<ClipboardList size={20} />}
                 label="Total de solicitações"
@@ -136,10 +152,40 @@ export function AdminDashboardPage() {
                 detail="Demandas em andamento"
               />
               <KpiCard
+                icon={<Clock3 size={20} />}
+                label="Aguardando informações"
+                value={String(dashboard.aguardandoInformacoes)}
+                detail="Pendentes de complemento"
+              />
+              <KpiCard
+                icon={<UserCheck size={20} />}
+                label="Aprovadas"
+                value={String(dashboard.aprovadas)}
+                detail="Demandas aprovadas"
+              />
+              <KpiCard
+                icon={<Activity size={20} />}
+                label="Rejeitadas"
+                value={String(dashboard.rejeitadas)}
+                detail="Demandas rejeitadas"
+              />
+              <KpiCard
+                icon={<ClipboardList size={20} />}
+                label="Concluídas"
+                value={String(dashboard.concluidas)}
+                detail="Demandas finalizadas"
+              />
+              <KpiCard
                 icon={<UserCheck size={20} />}
                 label="Sem responsável"
                 value={String(dashboard.semResponsavel)}
                 detail="Aguardando atribuição"
+              />
+              <KpiCard
+                icon={<UserCheck size={20} />}
+                label="Com responsável"
+                value={String(dashboard.comResponsavel)}
+                detail="Demandas atribuídas"
               />
             </div>
 
@@ -237,6 +283,50 @@ export function AdminDashboardPage() {
                     </div>
                   </section>
                 </div>
+
+                <section className="mt-4 rounded-2xl border border-white/80 bg-white/88 p-3.5 shadow-[0_18px_46px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_22px_60px_rgba(0,0,0,0.35)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
+                        Atribuição
+                      </p>
+                      <h2 className="mt-1 text-base font-semibold text-slate-950 dark:text-white">
+                        Demandas sem responsável
+                      </h2>
+                    </div>
+                    <Link
+                      to={ROTAS.adminSolicitacoes}
+                      className="text-sm font-semibold text-brand-700 transition hover:text-brand-900 dark:text-cyan-200 dark:hover:text-cyan-100"
+                    >
+                      Ver lista
+                    </Link>
+                  </div>
+
+                  {dashboard.semResponsavelRecentes.length > 0 ? (
+                    <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                      {dashboard.semResponsavelRecentes.map((solicitacao) => (
+                        <Link
+                          key={solicitacao.id}
+                          to={ROTAS.adminDetalhe(solicitacao.id)}
+                          className="rounded-xl border border-slate-200 bg-white/90 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-brand-500"
+                        >
+                          <p className="text-sm font-bold text-brand-800 dark:text-cyan-200">
+                            {solicitacao.protocolo ?? 'Sem protocolo'}
+                          </p>
+                          <h3 className="mt-1 line-clamp-1 text-sm font-semibold text-slate-950 dark:text-white">
+                            {valorTextoAdmin(solicitacao.processo_alvo)}
+                          </h3>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            {getSetorNomeAdmin(solicitacao.setor_id)} ·{' '}
+                            {formatarDataHoraAdmin(solicitacao.data_criacao)}
+                          </p>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState text="Todas as demandas carregadas já possuem responsável." />
+                  )}
+                </section>
               </>
             )}
           </>

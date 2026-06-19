@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Search } from 'lucide-react';
+import { ArrowRight, Download, Search } from 'lucide-react';
 
 import { PrioridadeBadge, StatusBadge } from '../components/admin/AdminBadges';
 import { AdminShell } from '../components/admin/AdminShell';
@@ -15,6 +15,7 @@ import {
 import {
   dataAdminParaDate,
   formatarDataHoraAdmin,
+  getCargoNomeAdmin,
   getSetorNomeAdmin,
   normalizarTextoAdmin,
   valorTextoAdmin,
@@ -53,6 +54,81 @@ function sortByRecent(a: SolicitacaoAdmin, b: SolicitacaoAdmin): number {
   const dateA = dataAdminParaDate(a.data_criacao)?.getTime() ?? 0;
   const dateB = dataAdminParaDate(b.data_criacao)?.getTime() ?? 0;
   return dateB - dateA;
+}
+
+function csvEscape(value: string | number | null | undefined): string {
+  const text = String(value ?? '');
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function getCsvDateStamp(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function exportarSolicitacoesCsv(solicitacoes: SolicitacaoAdmin[]): void {
+  const headers = [
+    'Protocolo',
+    'Status',
+    'Prioridade',
+    'Score',
+    'Solicitante',
+    'E-mail',
+    'Setor',
+    'Cargo',
+    'Processo/atividade',
+    'Frequência',
+    'Impacto',
+    'Pessoas impactadas',
+    'Tempo perdido',
+    'Urgência',
+    'Responsável admin',
+    'Criado em',
+    'Atualizado em',
+    'Data início análise',
+    'Data decisão',
+    'Data fechamento',
+    'Resposta ao colaborador',
+  ];
+  const rows = solicitacoes.map((solicitacao) => [
+    solicitacao.protocolo,
+    solicitacao.status,
+    solicitacao.prioridade_calculada,
+    solicitacao.score,
+    solicitacao.nome_completo,
+    solicitacao.email,
+    getSetorNomeAdmin(solicitacao.setor_id),
+    getCargoNomeAdmin(solicitacao.cargo_id, solicitacao.setor_id),
+    solicitacao.processo_alvo,
+    solicitacao.frequencia,
+    solicitacao.impacto_operacional,
+    solicitacao.pessoas_impactadas,
+    solicitacao.tempo_perdido,
+    solicitacao.urgencia,
+    solicitacao.responsavel_admin_nome ?? solicitacao.responsavel_admin_email ?? '',
+    formatarDataHoraAdmin(solicitacao.data_criacao),
+    formatarDataHoraAdmin(solicitacao.updated_at),
+    formatarDataHoraAdmin(solicitacao.data_inicio_analise),
+    formatarDataHoraAdmin(solicitacao.data_decisao),
+    formatarDataHoraAdmin(solicitacao.data_fechamento),
+    solicitacao.resposta_publica ?? '',
+  ]);
+  const csv = [headers, ...rows]
+    .map((row) => row.map((value) => csvEscape(value)).join(';'))
+    .join('\r\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = `demandas-automacao-${getCsvDateStamp()}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 export function AdminSolicitacoesPage() {
@@ -182,7 +258,7 @@ export function AdminSolicitacoesPage() {
             </label>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-3 text-[13px] text-slate-500 dark:text-slate-400">
+          <div className="mt-3 flex flex-col gap-3 text-[13px] text-slate-500 sm:flex-row sm:items-center sm:justify-between dark:text-slate-400">
             <span>
               {error
                 ? 'Erro ao carregar solicitações'
@@ -190,7 +266,18 @@ export function AdminSolicitacoesPage() {
                   ? 'Carregando solicitações...'
                   : `${filteredSolicitacoes.length} de ${solicitacoes.length} solicitações`}
             </span>
-            <span>Ordenação: mais recentes primeiro</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span>Ordenação: mais recentes primeiro</span>
+              <button
+                type="button"
+                onClick={() => exportarSolicitacoesCsv(filteredSolicitacoes)}
+                disabled={loading || Boolean(error) || filteredSolicitacoes.length === 0}
+                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-brand-100 bg-white px-3 text-sm font-semibold text-brand-800 shadow-[0_8px_20px_rgba(15,23,42,0.05)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
+              >
+                <Download size={16} />
+                Exportar CSV
+              </button>
+            </div>
           </div>
         </section>
 
