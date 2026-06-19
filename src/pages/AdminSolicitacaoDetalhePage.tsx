@@ -1,6 +1,16 @@
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Clock3, ExternalLink, FileText, Gauge, UserRound } from 'lucide-react';
-import type { ReactNode } from 'react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  ExternalLink,
+  FileText,
+  Gauge,
+  Save,
+  UserCheck,
+  UserRound,
+} from 'lucide-react';
 
 import { PrioridadeBadge, StatusBadge } from '../components/admin/AdminBadges';
 import { AdminShell } from '../components/admin/AdminShell';
@@ -9,6 +19,7 @@ import {
   useAdminHistoricoSolicitacao,
   useAdminSolicitacao,
 } from '../hooks/useAdminSolicitacoes';
+import { useAuth } from '../hooks/useAuth';
 import {
   booleanoAdmin,
   formatarDataHoraAdmin,
@@ -16,20 +27,159 @@ import {
   getSetorNomeAdmin,
   valorTextoAdmin,
 } from '../lib/admin';
-import { ROTAS } from '../lib/constants';
+import { ROTAS, STATUS_SOLICITACAO } from '../lib/constants';
+import {
+  assumirSolicitacaoAdmin,
+  atualizarObservacaoInternaAdmin,
+  atualizarStatusSolicitacaoAdmin,
+  type SolicitacaoAdmin,
+} from '../services/firebase/admin.service';
+import type { HistoricoStatus, StatusSolicitacao } from '../types/solicitacao.types';
 
 function isHttpReference(value: string | null | undefined): boolean {
   return Boolean(value && /^https?:\/\//i.test(value));
 }
 
+function getHistoricoEventoLabel(item: HistoricoStatus): string {
+  if (item.tipo_evento === 'criacao') {
+    return 'Criação da solicitação';
+  }
+
+  if (item.tipo_evento === 'alteracao_status') {
+    return 'Alteração de status';
+  }
+
+  if (item.tipo_evento === 'atribuicao_responsavel') {
+    return 'Atribuição de responsável';
+  }
+
+  if (item.tipo_evento === 'observacao_interna') {
+    return 'Observação interna';
+  }
+
+  return item.status_anterior ? 'Alteração de status' : 'Criação da solicitação';
+}
+
 export function AdminSolicitacaoDetalhePage() {
   const { id } = useParams<{ id: string }>();
+  const { user, email } = useAuth();
   const { solicitacao, loading, error } = useAdminSolicitacao(id);
   const {
     historico,
     loading: historicoLoading,
     error: historicoError,
   } = useAdminHistoricoSolicitacao(id);
+  const [novoStatus, setNovoStatus] = useState<StatusSolicitacao>('Nova');
+  const [observacaoStatus, setObservacaoStatus] = useState('');
+  const [observacaoInterna, setObservacaoInterna] = useState('');
+  const [savingAction, setSavingAction] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!solicitacao) {
+      return;
+    }
+
+    setNovoStatus(solicitacao.status);
+    setObservacaoInterna(solicitacao.observacao_interna ?? '');
+    setObservacaoStatus('');
+  }, [solicitacao]);
+
+  const adminUsuario = useMemo(() => {
+    if (!user || !email) {
+      return null;
+    }
+
+    return {
+      uid: user.uid,
+      email,
+      nome: user.displayName,
+    };
+  }, [email, user]);
+
+  const observacaoInternaAlterada =
+    observacaoInterna.trim() !== (solicitacao?.observacao_interna?.trim() ?? '');
+
+  function getActionErrorMessage(actionErrorValue: unknown): string {
+    if (actionErrorValue instanceof Error) {
+      return actionErrorValue.message;
+    }
+
+    return 'Não foi possível concluir a ação administrativa.';
+  }
+
+  async function runAdminAction(
+    actionName: string,
+    action: () => Promise<void>,
+    success: string,
+  ): Promise<boolean> {
+    setSavingAction(actionName);
+    setActionError(null);
+    setActionSuccess(null);
+
+    try {
+      await action();
+      setActionSuccess(success);
+      return true;
+    } catch (actionErrorValue) {
+      setActionError(getActionErrorMessage(actionErrorValue));
+      return false;
+    } finally {
+      setSavingAction(null);
+    }
+  }
+
+  async function handleAtualizarStatus() {
+    if (!solicitacao || !adminUsuario || novoStatus === solicitacao.status) {
+      return;
+    }
+
+    const success = await runAdminAction(
+      'status',
+      () =>
+        atualizarStatusSolicitacaoAdmin({
+          solicitacao,
+          novoStatus,
+          observacao: observacaoStatus,
+          admin: adminUsuario,
+      }),
+      'Status atualizado e histórico registrado.',
+    );
+
+    if (success) {
+      setObservacaoStatus('');
+    }
+  }
+
+  async function handleAssumirDemanda() {
+    if (!solicitacao || !adminUsuario) {
+      return;
+    }
+
+    await runAdminAction(
+      'responsavel',
+      () => assumirSolicitacaoAdmin({ solicitacao, admin: adminUsuario }),
+      'Responsável administrativo atualizado.',
+    );
+  }
+
+  async function handleSalvarObservacaoInterna() {
+    if (!solicitacao || !adminUsuario || !observacaoInternaAlterada) {
+      return;
+    }
+
+    await runAdminAction(
+      'observacao',
+      () =>
+        atualizarObservacaoInternaAdmin({
+          solicitacao,
+          observacaoInterna,
+          admin: adminUsuario,
+        }),
+      'Observação interna salva.',
+    );
+  }
 
   return (
     <AdminShell>
@@ -43,6 +193,8 @@ export function AdminSolicitacaoDetalhePage() {
         </Link>
 
         {error ? <Alert tone="error">{error}</Alert> : null}
+        {actionError ? <Alert tone="error" className="mb-4">{actionError}</Alert> : null}
+        {actionSuccess ? <Alert tone="success" className="mb-4">{actionSuccess}</Alert> : null}
 
         {loading ? (
           <EmptyDetail text="Carregando detalhe da solicitação..." />
@@ -135,6 +287,21 @@ export function AdminSolicitacaoDetalhePage() {
               </div>
 
               <div className="grid content-start gap-5">
+                <AdminManagementPanel
+                  solicitacao={solicitacao}
+                  novoStatus={novoStatus}
+                  observacaoStatus={observacaoStatus}
+                  observacaoInterna={observacaoInterna}
+                  observacaoInternaAlterada={observacaoInternaAlterada}
+                  savingAction={savingAction}
+                  onStatusChange={setNovoStatus}
+                  onObservacaoStatusChange={setObservacaoStatus}
+                  onObservacaoInternaChange={setObservacaoInterna}
+                  onAtualizarStatus={() => void handleAtualizarStatus()}
+                  onAssumirDemanda={() => void handleAssumirDemanda()}
+                  onSalvarObservacaoInterna={() => void handleSalvarObservacaoInterna()}
+                />
+
                 <InfoPanel title="Impacto informado">
                   <InfoRow label="Frequência" value={valorTextoAdmin(solicitacao.frequencia)} />
                   <InfoRow
@@ -193,6 +360,9 @@ export function AdminSolicitacaoDetalhePage() {
                           key={item.id}
                           className="rounded-2xl border border-slate-200 bg-white/76 p-3 dark:border-slate-800 dark:bg-slate-900/62"
                         >
+                          <p className="mb-2 text-xs font-bold uppercase tracking-[0.13em] text-brand-700 dark:text-cyan-200">
+                            {getHistoricoEventoLabel(item)}
+                          </p>
                           <div className="flex flex-wrap items-center gap-2">
                             {item.status_anterior ? (
                               <StatusBadge status={item.status_anterior} />
@@ -208,6 +378,11 @@ export function AdminSolicitacaoDetalhePage() {
                             {formatarDataHoraAdmin(item.data_alteracao)} ·{' '}
                             {valorTextoAdmin(item.usuario_email)}
                           </p>
+                          {item.observacao ? (
+                            <p className="mt-2 whitespace-pre-wrap text-sm leading-5 text-slate-600 dark:text-slate-300">
+                              {item.observacao}
+                            </p>
+                          ) : null}
                         </div>
                       ))}
                     </div>
@@ -219,6 +394,152 @@ export function AdminSolicitacaoDetalhePage() {
         )}
       </div>
     </AdminShell>
+  );
+}
+
+function AdminManagementPanel({
+  solicitacao,
+  novoStatus,
+  observacaoStatus,
+  observacaoInterna,
+  observacaoInternaAlterada,
+  savingAction,
+  onStatusChange,
+  onObservacaoStatusChange,
+  onObservacaoInternaChange,
+  onAtualizarStatus,
+  onAssumirDemanda,
+  onSalvarObservacaoInterna,
+}: {
+  solicitacao: SolicitacaoAdmin;
+  novoStatus: StatusSolicitacao;
+  observacaoStatus: string;
+  observacaoInterna: string;
+  observacaoInternaAlterada: boolean;
+  savingAction: string | null;
+  onStatusChange: (status: StatusSolicitacao) => void;
+  onObservacaoStatusChange: (value: string) => void;
+  onObservacaoInternaChange: (value: string) => void;
+  onAtualizarStatus: () => void;
+  onAssumirDemanda: () => void;
+  onSalvarObservacaoInterna: () => void;
+}) {
+  const isSavingStatus = savingAction === 'status';
+  const isSavingResponsavel = savingAction === 'responsavel';
+  const isSavingObservacao = savingAction === 'observacao';
+  const responsavel = solicitacao.responsavel_admin_email
+    ? valorTextoAdmin(solicitacao.responsavel_admin_nome ?? solicitacao.responsavel_admin_email)
+    : 'Não atribuído';
+
+  return (
+    <section className="rounded-[1.25rem] border border-brand-100 bg-white/90 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-brand-500/20 dark:bg-slate-950/88 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
+            Gestão administrativa
+          </p>
+          <h2 className="mt-1 text-base font-semibold text-slate-950 dark:text-white">
+            Workflow da demanda
+          </h2>
+        </div>
+        <StatusBadge status={solicitacao.status} />
+      </div>
+
+      <div className="mt-4 grid gap-4">
+        <div>
+          <label
+            htmlFor="novo-status"
+            className="text-xs font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500"
+          >
+            Alterar status
+          </label>
+          <select
+            id="novo-status"
+            value={novoStatus}
+            onChange={(event) => onStatusChange(event.target.value as StatusSolicitacao)}
+            className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
+          >
+            {STATUS_SOLICITACAO.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          <textarea
+            value={observacaoStatus}
+            onChange={(event) => onObservacaoStatusChange(event.target.value)}
+            rows={3}
+            className="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
+            placeholder="Observação opcional sobre a alteração de status"
+          />
+          <button
+            type="button"
+            onClick={onAtualizarStatus}
+            disabled={novoStatus === solicitacao.status || Boolean(savingAction)}
+            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-3 py-2 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(18,95,157,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:bg-brand-600 dark:hover:bg-brand-500"
+          >
+            <CheckCircle2 size={16} />
+            {isSavingStatus ? 'Atualizando...' : 'Atualizar status'}
+          </button>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white/72 p-3 dark:border-slate-800 dark:bg-slate-900/58">
+          <InfoRow label="Responsável atual" value={responsavel} detail={solicitacao.responsavel_admin_email} />
+          <button
+            type="button"
+            onClick={onAssumirDemanda}
+            disabled={Boolean(savingAction)}
+            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-brand-100 bg-white px-3 py-2 text-sm font-semibold text-brand-800 shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
+          >
+            <UserCheck size={16} />
+            {isSavingResponsavel ? 'Assumindo...' : 'Assumir demanda'}
+          </button>
+        </div>
+
+        <div>
+          <label
+            htmlFor="observacao-interna"
+            className="text-xs font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500"
+          >
+            Observação interna
+          </label>
+          <textarea
+            id="observacao-interna"
+            value={observacaoInterna}
+            onChange={(event) => onObservacaoInternaChange(event.target.value)}
+            rows={5}
+            className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
+            placeholder="Registre contexto interno da equipe administrativa"
+          />
+          <button
+            type="button"
+            onClick={onSalvarObservacaoInterna}
+            disabled={!observacaoInternaAlterada || Boolean(savingAction)}
+            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-brand-100 bg-white px-3 py-2 text-sm font-semibold text-brand-800 shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
+          >
+            <Save size={16} />
+            {isSavingObservacao ? 'Salvando...' : 'Salvar observação interna'}
+          </button>
+        </div>
+
+        <div className="grid gap-3 rounded-xl border border-slate-200 bg-white/72 p-3 dark:border-slate-800 dark:bg-slate-900/58">
+          <InfoRow
+            label="Início da análise"
+            value={formatarDataHoraAdmin(solicitacao.data_inicio_analise)}
+          />
+          <InfoRow label="Decisão" value={formatarDataHoraAdmin(solicitacao.data_decisao)} />
+          <InfoRow
+            label="Fechamento"
+            value={formatarDataHoraAdmin(solicitacao.data_fechamento)}
+          />
+          <InfoRow
+            label="Última atualização"
+            value={formatarDataHoraAdmin(solicitacao.updated_at ?? solicitacao.data_criacao)}
+            detail={solicitacao.updated_by_email ?? 'Sem registro de atualização administrativa'}
+          />
+        </div>
+      </div>
+    </section>
   );
 }
 

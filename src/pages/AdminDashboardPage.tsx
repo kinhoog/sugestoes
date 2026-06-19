@@ -2,12 +2,12 @@ import { useMemo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Activity,
-  AlertTriangle,
   ArrowRight,
   ClipboardList,
   Clock3,
   Gauge,
   Layers3,
+  UserCheck,
 } from 'lucide-react';
 
 import { AdminShell } from '../components/admin/AdminShell';
@@ -76,7 +76,8 @@ export function AdminDashboardPage() {
     return {
       total,
       novas: porStatus.Nova,
-      criticasOuAltas: porPrioridade.Alta + porPrioridade.Crítica,
+      emAnalise: porStatus['Em Análise'],
+      semResponsavel: solicitacoes.filter((solicitacao) => !solicitacao.responsavel_admin_email).length,
       setoresComDemandas: setores.filter((setor) => setor.total > 0).length,
       porStatus,
       porPrioridade,
@@ -129,16 +130,16 @@ export function AdminDashboardPage() {
                 detail="Aguardando triagem"
               />
               <KpiCard
-                icon={<AlertTriangle size={20} />}
-                label="Alta ou crítica"
-                value={String(dashboard.criticasOuAltas)}
-                detail="Prioridade calculada"
+                icon={<Activity size={20} />}
+                label="Em análise"
+                value={String(dashboard.emAnalise)}
+                detail="Demandas em andamento"
               />
               <KpiCard
-                icon={<Layers3 size={20} />}
-                label="Setores envolvidos"
-                value={String(dashboard.setoresComDemandas)}
-                detail="Com demandas abertas"
+                icon={<UserCheck size={20} />}
+                label="Sem responsável"
+                value={String(dashboard.semResponsavel)}
+                detail="Aguardando atribuição"
               />
             </div>
 

@@ -24,6 +24,7 @@ import type { PrioridadeNivel, StatusSolicitacao } from '../types/solicitacao.ty
 
 type StatusFilter = '' | StatusSolicitacao;
 type PrioridadeFilter = '' | PrioridadeNivel;
+type ResponsavelFilter = '' | 'com' | 'sem';
 
 const filterControlClass =
   'h-10 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-[13px] text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.04)] outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-brand-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-brand-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50';
@@ -60,6 +61,7 @@ export function AdminSolicitacoesPage() {
   const [status, setStatus] = useState<StatusFilter>('');
   const [prioridade, setPrioridade] = useState<PrioridadeFilter>('');
   const [setor, setSetor] = useState('');
+  const [responsavel, setResponsavel] = useState<ResponsavelFilter>('');
 
   const searchNormalized = normalizarTextoAdmin(search);
 
@@ -72,9 +74,16 @@ export function AdminSolicitacoesPage() {
           prioridade ? solicitacao.prioridade_calculada === prioridade : true,
         )
         .filter((solicitacao) => (setor ? solicitacao.setor_id === setor : true))
+        .filter((solicitacao) =>
+          responsavel
+            ? responsavel === 'com'
+              ? Boolean(solicitacao.responsavel_admin_email)
+              : !solicitacao.responsavel_admin_email
+            : true,
+        )
         .slice()
         .sort(sortByRecent),
-    [prioridade, searchNormalized, setor, solicitacoes, status],
+    [prioridade, responsavel, searchNormalized, setor, solicitacoes, status],
   );
 
   return (
@@ -96,7 +105,7 @@ export function AdminSolicitacoesPage() {
         {error ? <Alert tone="error">{error}</Alert> : null}
 
         <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-3.5 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
-          <div className="grid gap-2.5 lg:grid-cols-[1fr_170px_170px_200px]">
+          <div className="grid gap-2.5 lg:grid-cols-[1fr_155px_155px_190px_170px]">
             <label className="relative block">
               <span className="sr-only">Buscar</span>
               <Search
@@ -158,6 +167,19 @@ export function AdminSolicitacoesPage() {
                 ))}
               </select>
             </label>
+
+            <label>
+              <span className="sr-only">Filtrar por responsável</span>
+              <select
+                value={responsavel}
+                onChange={(event) => setResponsavel(event.target.value as ResponsavelFilter)}
+                className={filterControlClass}
+              >
+                <option value="">Todos responsáveis</option>
+                <option value="com">Com responsável</option>
+                <option value="sem">Sem responsável</option>
+              </select>
+            </label>
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-3 text-[13px] text-slate-500 dark:text-slate-400">
@@ -180,12 +202,13 @@ export function AdminSolicitacoesPage() {
                   {[
                     'Protocolo',
                     'Solicitante',
+                    'Responsável',
                     'Setor',
                     'Processo',
                     'Status',
                     'Prioridade',
                     'Score',
-                    'Criada em',
+                    'Atualizada',
                     '',
                   ].map((header) => (
                     <th
@@ -214,6 +237,21 @@ export function AdminSolicitacoesPage() {
                         {valorTextoAdmin(solicitacao.email)}
                       </p>
                     </td>
+                    <td className="px-3.5 py-3">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        {solicitacao.responsavel_admin_email
+                          ? valorTextoAdmin(
+                              solicitacao.responsavel_admin_nome ??
+                                solicitacao.responsavel_admin_email,
+                            )
+                          : 'Não atribuído'}
+                      </p>
+                      {solicitacao.responsavel_admin_email ? (
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          {solicitacao.responsavel_admin_email}
+                        </p>
+                      ) : null}
+                    </td>
                     <td className="px-3.5 py-3 text-sm text-slate-600 dark:text-slate-300">
                       {getSetorNomeAdmin(solicitacao.setor_id)}
                     </td>
@@ -230,7 +268,7 @@ export function AdminSolicitacoesPage() {
                       {solicitacao.score ?? '—'}
                     </td>
                     <td className="px-3.5 py-3 text-sm text-slate-500 dark:text-slate-400">
-                      {formatarDataHoraAdmin(solicitacao.data_criacao)}
+                      {formatarDataHoraAdmin(solicitacao.updated_at ?? solicitacao.data_criacao)}
                     </td>
                     <td className="px-3.5 py-3 text-right">
                       <Link
@@ -269,6 +307,14 @@ export function AdminSolicitacoesPage() {
                   {valorTextoAdmin(solicitacao.nome_completo)} ·{' '}
                   {getSetorNomeAdmin(solicitacao.setor_id)}
                 </p>
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  Responsável:{' '}
+                  {solicitacao.responsavel_admin_email
+                    ? valorTextoAdmin(
+                        solicitacao.responsavel_admin_nome ?? solicitacao.responsavel_admin_email,
+                      )
+                    : 'Não atribuído'}
+                </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <StatusBadge status={solicitacao.status} />
                   <PrioridadeBadge prioridade={solicitacao.prioridade_calculada} />
@@ -277,7 +323,7 @@ export function AdminSolicitacoesPage() {
                   </span>
                 </div>
                 <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                  {formatarDataHoraAdmin(solicitacao.data_criacao)}
+                  Atualizada em {formatarDataHoraAdmin(solicitacao.updated_at ?? solicitacao.data_criacao)}
                 </p>
               </Link>
             )) : null}
