@@ -9,6 +9,8 @@ import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminSolicitacaoDetalhePage } from './pages/AdminSolicitacaoDetalhePage';
 import { AdminSolicitacoesPage } from './pages/AdminSolicitacoesPage';
 import { LoginPage } from './pages/LoginPage';
+import { MinhaDemandaDetalhePage } from './pages/MinhaDemandaDetalhePage';
+import { MinhasDemandasPage } from './pages/MinhasDemandasPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { PublicFormPage } from './pages/PublicFormPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -34,6 +36,22 @@ export default function App() {
               element={
                 <AuthGuard requireVerifiedEmail>
                   <SuccessPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/minhas-demandas"
+              element={
+                <AuthGuard requireVerifiedEmail>
+                  <MinhasDemandasPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/minhas-demandas/:id"
+              element={
+                <AuthGuard requireVerifiedEmail>
+                  <MinhaDemandaDetalhePage />
                 </AuthGuard>
               }
             />

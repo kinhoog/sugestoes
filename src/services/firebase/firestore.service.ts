@@ -20,14 +20,17 @@ import type {
   HistoricoStatus,
   NovaSolicitacaoPayload,
   Solicitacao,
+  SolicitacaoPublica,
   StatusSolicitacao,
 } from '../../types/solicitacao.types';
-import { isAdminEmail } from '../../lib/admin';
+import { getCargoNomeAdmin, getSetorNomeAdmin, isAdminEmail } from '../../lib/admin';
+import { mapStatusPublico } from '../../lib/status-publico';
 import { requireFirestore } from './client';
 
 export const FIRESTORE_COLLECTIONS = {
   usuarios: 'usuarios',
   solicitacoes: 'solicitacoes',
+  solicitacoesPublicas: 'solicitacoes_publicas',
   historicoStatus: 'historico_status',
   setores: 'setores',
   cargos: 'cargos',
@@ -77,6 +80,52 @@ export interface CriarSolicitacaoComProtocoloResult {
   protocolo: string;
 }
 
+interface SolicitacaoPublicaPayloadInput {
+  solicitacaoId: string;
+  protocolo: string;
+  createdBy: string;
+  createdByEmail: string;
+  solicitanteNome?: string | null;
+  setorId?: string | null;
+  cargoId?: string | null;
+  processoAtividade?: string | null;
+  status: StatusSolicitacao;
+  respostaPublica?: string | null;
+  createdAt: unknown;
+  updatedAt?: unknown;
+}
+
+export function buildSolicitacaoPublicaPayload({
+  solicitacaoId,
+  protocolo,
+  createdBy,
+  createdByEmail,
+  solicitanteNome,
+  setorId,
+  cargoId,
+  processoAtividade,
+  status,
+  respostaPublica,
+  createdAt,
+  updatedAt,
+}: SolicitacaoPublicaPayloadInput): Record<string, unknown> {
+  return {
+    solicitacao_id: solicitacaoId,
+    protocolo,
+    created_by: createdBy,
+    created_by_email: createdByEmail.toLowerCase(),
+    solicitante_nome: solicitanteNome?.trim() || null,
+    setor: setorId ? getSetorNomeAdmin(setorId) : null,
+    cargo: cargoId ? getCargoNomeAdmin(cargoId, setorId) : null,
+    processo_atividade: processoAtividade?.trim() || null,
+    status_publico: mapStatusPublico(status),
+    status_interno: status,
+    resposta_publica: respostaPublica?.trim() || null,
+    created_at: createdAt,
+    updated_at: updatedAt ?? createdAt,
+  };
+}
+
 export async function criarSolicitacaoComProtocolo({
   payload,
   uid,
@@ -86,6 +135,7 @@ export async function criarSolicitacaoComProtocolo({
   const ano = new Date().getFullYear();
   const contadorRef = doc(db, FIRESTORE_COLLECTIONS.contadores, `protocolos_${ano}`);
   const solicitacaoRef = doc(collection(db, FIRESTORE_COLLECTIONS.solicitacoes));
+  const solicitacaoPublicaRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoesPublicas, solicitacaoRef.id);
 
   return runTransaction(db, async (transaction) => {
     const contadorSnap = await transaction.get(contadorRef);
@@ -122,6 +172,24 @@ export async function criarSolicitacaoComProtocolo({
       updated_at: serverTimestamp(),
     });
 
+    transaction.set(
+      solicitacaoPublicaRef,
+      buildSolicitacaoPublicaPayload({
+        solicitacaoId: solicitacaoRef.id,
+        protocolo,
+        createdBy: uid,
+        createdByEmail: email,
+        solicitanteNome: payload.nome_completo,
+        setorId: payload.setor_id,
+        cargoId: payload.cargo_id,
+        processoAtividade: payload.processo_alvo,
+        status: 'Nova',
+        respostaPublica: null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }),
+    );
+
     const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
     transaction.set(historicoRef, {
       solicitacao_id: solicitacaoRef.id,
@@ -143,20 +211,35 @@ function mapDoc<T extends { id: string }>(snapshot: QueryDocumentSnapshot): T {
   return { id: snapshot.id, ...snapshot.data() } as T;
 }
 
-export function observarMinhasSolicitacoes(
+export function observarMinhasSolicitacoesPublicas(
   uid: string,
-  onNext: (solicitacoes: Solicitacao[]) => void,
+  onNext: (solicitacoes: SolicitacaoPublica[]) => void,
   onError?: (error: FirestoreError) => void,
 ): Unsubscribe {
   const db = requireFirestore();
   const q = query(
-    collection(db, FIRESTORE_COLLECTIONS.solicitacoes),
+    collection(db, FIRESTORE_COLLECTIONS.solicitacoesPublicas),
     where('created_by', '==', uid),
-    where('deleted_at', '==', null),
-    orderBy('data_criacao', 'desc'),
   );
 
-  return onSnapshot(q, (snapshot) => onNext(snapshot.docs.map(mapDoc<Solicitacao>)), onError);
+  return onSnapshot(q, (snapshot) => onNext(snapshot.docs.map(mapDoc<SolicitacaoPublica>)), onError);
+}
+
+export function observarMinhaSolicitacaoPublica(
+  solicitacaoId: string,
+  onNext: (solicitacao: SolicitacaoPublica | null) => void,
+  onError?: (error: FirestoreError) => void,
+): Unsubscribe {
+  const db = requireFirestore();
+  const solicitacaoRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoesPublicas, solicitacaoId);
+
+  return onSnapshot(
+    solicitacaoRef,
+    (snapshot) => {
+      onNext(snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as SolicitacaoPublica) : null);
+    },
+    onError,
+  );
 }
 
 export function observarSolicitacoesAdmin(

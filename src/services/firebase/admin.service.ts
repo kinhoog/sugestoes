@@ -18,7 +18,7 @@ import type {
   Solicitacao,
   StatusSolicitacao,
 } from '../../types/solicitacao.types';
-import { FIRESTORE_COLLECTIONS } from './firestore.service';
+import { FIRESTORE_COLLECTIONS, buildSolicitacaoPublicaPayload } from './firestore.service';
 import { requireFirestore } from './client';
 
 export type SolicitacaoAdmin = Solicitacao;
@@ -108,6 +108,27 @@ function buildHistoricoEvento({
   };
 }
 
+function buildSolicitacaoPublicaAdminPayload(
+  solicitacao: SolicitacaoAdmin,
+  status: StatusSolicitacao = solicitacao.status,
+  respostaPublica: string | null | undefined = solicitacao.resposta_publica,
+): Record<string, unknown> {
+  return buildSolicitacaoPublicaPayload({
+    solicitacaoId: solicitacao.id,
+    protocolo: solicitacao.protocolo,
+    createdBy: solicitacao.created_by,
+    createdByEmail: solicitacao.created_by_email,
+    solicitanteNome: solicitacao.nome_completo,
+    setorId: solicitacao.setor_id,
+    cargoId: solicitacao.cargo_id,
+    processoAtividade: solicitacao.processo_alvo,
+    status,
+    respostaPublica,
+    createdAt: solicitacao.data_criacao ?? serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
 export function observarSolicitacoesAdminReadOnly(
   onNext: (solicitacoes: SolicitacaoAdmin[]) => void,
   onError?: (error: FirestoreError) => void,
@@ -164,6 +185,7 @@ export async function atualizarStatusSolicitacaoAdmin({
   const db = requireFirestore();
   const batch = writeBatch(db);
   const solicitacaoRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoes, solicitacao.id);
+  const solicitacaoPublicaRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoesPublicas, solicitacao.id);
   const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
   const updatePayload: Record<string, unknown> = {
     status: novoStatus,
@@ -188,6 +210,11 @@ export async function atualizarStatusSolicitacaoAdmin({
   }
 
   batch.update(solicitacaoRef, updatePayload);
+  batch.set(
+    solicitacaoPublicaRef,
+    buildSolicitacaoPublicaAdminPayload(solicitacao, novoStatus),
+    { merge: true },
+  );
   batch.set(
     historicoRef,
     buildHistoricoEvento({
@@ -301,6 +328,7 @@ export async function atualizarRespostaPublicaAdmin({
   const db = requireFirestore();
   const batch = writeBatch(db);
   const solicitacaoRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoes, solicitacao.id);
+  const solicitacaoPublicaRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoesPublicas, solicitacao.id);
   const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
 
   batch.update(solicitacaoRef, {
@@ -309,6 +337,11 @@ export async function atualizarRespostaPublicaAdmin({
     updated_by: admin.uid,
     updated_by_email: admin.email.toLowerCase(),
   });
+  batch.set(
+    solicitacaoPublicaRef,
+    buildSolicitacaoPublicaAdminPayload(solicitacao, solicitacao.status, respostaNormalizada),
+    { merge: true },
+  );
   batch.set(
     historicoRef,
     buildHistoricoEvento({

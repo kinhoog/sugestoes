@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Check, CheckCircle2, LogOut, Plus } from 'lucide-react';
+import { Check, CheckCircle2, ListChecks, LogOut, Plus } from 'lucide-react';
 
 import { BrandHeader } from '../components/BrandHeader';
+import { PublicHeaderActions } from '../components/PublicHeaderActions';
 import { Button } from '../components/ui/Button';
 import { ButtonLink } from '../components/ui/Button';
 import { ROTAS } from '../lib/constants';
@@ -20,7 +21,9 @@ export function SuccessPage() {
 
   return (
     <div className="app-backdrop min-h-screen">
-      <BrandHeader />
+      <BrandHeader>
+        <PublicHeaderActions />
+      </BrandHeader>
       <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-4xl items-center px-4 py-8 sm:px-6">
         <section className="page-enter relative w-full overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-6 text-center shadow-[0_34px_100px_rgba(15,23,42,0.16)] backdrop-blur sm:p-10 dark:border-slate-700/80 dark:bg-slate-950/90 dark:shadow-[0_34px_100px_rgba(0,0,0,0.48)]">
           <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-cyan-200/30 blur-3xl dark:bg-cyan-500/10" />
@@ -71,6 +74,9 @@ export function SuccessPage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
               <ButtonLink to={ROTAS.formulario} icon={<Plus size={16} />}>
                 Registrar nova demanda
+              </ButtonLink>
+              <ButtonLink to={ROTAS.minhasDemandas} variant="secondary" icon={<ListChecks size={16} />}>
+                Ver minhas demandas
               </ButtonLink>
               <Button
                 type="button"
