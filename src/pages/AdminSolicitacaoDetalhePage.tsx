@@ -72,7 +72,13 @@ function getResponsavelAdminLabel(solicitacao: SolicitacaoAdmin): string {
 }
 
 type DetalheTab = 'resumo' | 'impacto' | 'historico';
-type AdminModalAberto = 'status' | 'observacao' | 'resposta' | 'reatribuicao' | null;
+type AdminModalAberto =
+  | 'status'
+  | 'observacao'
+  | 'resposta'
+  | 'confirmar_resposta'
+  | 'reatribuicao'
+  | null;
 
 const DETALHE_TABS: Array<{ id: DetalheTab; label: string }> = [
   { id: 'resumo', label: 'Resumo' },
@@ -251,6 +257,14 @@ export function AdminSolicitacaoDetalhePage() {
     if (success) {
       setModalAberto(null);
     }
+  }
+
+  function abrirConfirmacaoRespostaPublica() {
+    if (!respostaPublicaAlterada) {
+      return;
+    }
+
+    setModalAberto('confirmar_resposta');
   }
 
   function abrirModalStatus() {
@@ -598,12 +612,60 @@ export function AdminSolicitacaoDetalhePage() {
                     </button>
                     <button
                       type="button"
+                      onClick={abrirConfirmacaoRespostaPublica}
+                      disabled={!respostaPublicaAlterada || Boolean(savingAction)}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(18,95,157,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:bg-brand-600 dark:hover:bg-brand-500"
+                    >
+                      <Save size={16} />
+                      Salvar resposta
+                    </button>
+                  </div>
+                </div>
+              </AdminActionDialog>
+            ) : null}
+
+            {modalAberto === 'confirmar_resposta' ? (
+              <AdminActionDialog
+                title="Confirmar resposta ao colaborador"
+                description="Essa mensagem poderá ser exibida ao colaborador no acompanhamento da demanda. Revise o conteúdo antes de confirmar."
+                isSaving={Boolean(savingAction)}
+                onClose={() => setModalAberto('resposta')}
+              >
+                <div className="grid gap-3">
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-sm font-medium text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+                    Essa resposta não é uma observação interna.
+                  </div>
+
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
+                      Prévia da mensagem
+                    </p>
+                    <div className="mt-1.5 max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50/90 p-3 text-sm leading-6 text-slate-700 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-200">
+                      {respostaPublica.trim() || (
+                        <span className="font-medium text-slate-500 dark:text-slate-400">
+                          Resposta vazia. A resposta ao colaborador será removida.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setModalAberto('resposta')}
+                      disabled={Boolean(savingAction)}
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Voltar e editar
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => void handleSalvarRespostaPublica()}
                       disabled={!respostaPublicaAlterada || Boolean(savingAction)}
                       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(18,95,157,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:bg-brand-600 dark:hover:bg-brand-500"
                     >
                       <Save size={16} />
-                      {savingAction === 'resposta' ? 'Salvando...' : 'Salvar resposta'}
+                      {savingAction === 'resposta' ? 'Salvando...' : 'Confirmar e salvar'}
                     </button>
                   </div>
                 </div>
