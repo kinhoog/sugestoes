@@ -260,7 +260,24 @@ export function AdminSolicitacaoDetalhePage() {
               </div>
             </section>
 
-            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="mt-4">
+              <AdminManagementPanel
+                solicitacao={solicitacao}
+                novoStatus={novoStatus}
+                observacaoStatus={observacaoStatus}
+                observacaoInterna={observacaoInterna}
+                observacaoInternaAlterada={observacaoInternaAlterada}
+                savingAction={savingAction}
+                onStatusChange={setNovoStatus}
+                onObservacaoStatusChange={setObservacaoStatus}
+                onObservacaoInternaChange={setObservacaoInterna}
+                onAtualizarStatus={() => void handleAtualizarStatus()}
+                onAssumirDemanda={() => void handleAssumirDemanda()}
+                onSalvarObservacaoInterna={() => void handleSalvarObservacaoInterna()}
+              />
+            </div>
+
+            <div className="mt-4 grid gap-3.5 xl:grid-cols-2">
               <div className="grid content-start gap-3.5">
                 <DetailSection title="Processo ou atividade alvo">
                   {valorTextoAdmin(solicitacao.processo_alvo)}
@@ -293,21 +310,6 @@ export function AdminSolicitacaoDetalhePage() {
               </div>
 
               <div className="grid content-start gap-3.5">
-                <AdminManagementPanel
-                  solicitacao={solicitacao}
-                  novoStatus={novoStatus}
-                  observacaoStatus={observacaoStatus}
-                  observacaoInterna={observacaoInterna}
-                  observacaoInternaAlterada={observacaoInternaAlterada}
-                  savingAction={savingAction}
-                  onStatusChange={setNovoStatus}
-                  onObservacaoStatusChange={setObservacaoStatus}
-                  onObservacaoInternaChange={setObservacaoInterna}
-                  onAtualizarStatus={() => void handleAtualizarStatus()}
-                  onAssumirDemanda={() => void handleAssumirDemanda()}
-                  onSalvarObservacaoInterna={() => void handleSalvarObservacaoInterna()}
-                />
-
                 <InfoPanel title="Impacto informado">
                   <InfoRow label="Frequência" value={valorTextoAdmin(solicitacao.frequencia)} />
                   <InfoRow
@@ -348,53 +350,56 @@ export function AdminSolicitacaoDetalhePage() {
                   />
                 </InfoPanel>
 
-                <InfoPanel title="Histórico">
-                  {historicoError ? (
-                    <Alert tone="error">{historicoError}</Alert>
-                  ) : historicoLoading ? (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Carregando histórico...
-                    </p>
-                  ) : historico.length === 0 ? (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Nenhum histórico registrado.
-                    </p>
-                  ) : (
-                    <div className="grid gap-2">
-                      {historico.map((item) => (
-                        <div
-                          key={item.id}
-                          className="rounded-xl border border-slate-200 bg-white/76 p-2.5 dark:border-slate-800 dark:bg-slate-900/62"
-                        >
-                          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.13em] text-brand-700 dark:text-cyan-200">
-                            {getHistoricoEventoLabel(item)}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-2">
-                            {item.status_anterior ? (
-                              <StatusBadge status={item.status_anterior} />
-                            ) : (
-                              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
-                                Inicial
-                              </span>
-                            )}
-                            <span className="text-xs text-slate-400">→</span>
-                            <StatusBadge status={item.status_novo} />
-                          </div>
-                          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
-                            {formatarDataHoraAdmin(item.data_alteracao)} ·{' '}
-                            {valorTextoAdmin(item.usuario_email)}
-                          </p>
-                          {item.observacao ? (
-                            <p className="mt-1.5 whitespace-pre-wrap text-sm leading-5 text-slate-600 dark:text-slate-300">
-                              {item.observacao}
-                            </p>
-                          ) : null}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </InfoPanel>
               </div>
+            </div>
+
+            <div className="mt-3.5">
+              <InfoPanel title="Histórico">
+                {historicoError ? (
+                  <Alert tone="error">{historicoError}</Alert>
+                ) : historicoLoading ? (
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Carregando histórico...
+                  </p>
+                ) : historico.length === 0 ? (
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Nenhum histórico registrado.
+                  </p>
+                ) : (
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {historico.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-xl border border-slate-200 bg-white/76 p-2.5 dark:border-slate-800 dark:bg-slate-900/62"
+                      >
+                        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.13em] text-brand-700 dark:text-cyan-200">
+                          {getHistoricoEventoLabel(item)}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {item.status_anterior ? (
+                            <StatusBadge status={item.status_anterior} />
+                          ) : (
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
+                              Inicial
+                            </span>
+                          )}
+                          <span className="text-xs text-slate-400">→</span>
+                          <StatusBadge status={item.status_novo} />
+                        </div>
+                        <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+                          {formatarDataHoraAdmin(item.data_alteracao)} ·{' '}
+                          {valorTextoAdmin(item.usuario_email)}
+                        </p>
+                        {item.observacao ? (
+                          <p className="mt-1.5 whitespace-pre-wrap text-sm leading-5 text-slate-600 dark:text-slate-300">
+                            {item.observacao}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </InfoPanel>
             </div>
           </>
         )}
@@ -442,16 +447,16 @@ function AdminManagementPanel({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
-            Gestão administrativa
+            Gestão da demanda
           </p>
           <h2 className="mt-0.5 text-sm font-semibold text-slate-950 dark:text-white">
-            Workflow da demanda
+            Controle administrativo
           </h2>
         </div>
         <StatusBadge status={solicitacao.status} />
       </div>
 
-      <div className="mt-3 grid gap-3">
+      <div className="mt-3 grid gap-3 lg:grid-cols-2 xl:grid-cols-[minmax(0,1.05fr)_minmax(220px,0.75fr)_minmax(0,1fr)] 2xl:grid-cols-[minmax(0,1.05fr)_minmax(220px,0.75fr)_minmax(0,1fr)_minmax(260px,0.85fr)]">
         <div>
           <label
             htmlFor="novo-status"
@@ -513,7 +518,7 @@ function AdminManagementPanel({
             id="observacao-interna"
             value={observacaoInterna}
             onChange={(event) => onObservacaoInternaChange(event.target.value)}
-            rows={3}
+            rows={2}
             className="mt-1.5 w-full resize-none rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm leading-5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
             placeholder="Registre contexto interno da equipe administrativa"
           />
@@ -528,7 +533,7 @@ function AdminManagementPanel({
           </button>
         </div>
 
-        <div className="grid gap-2 rounded-xl border border-slate-200 bg-white/72 p-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2 dark:border-slate-800 dark:bg-slate-900/58">
+        <div className="grid gap-2 rounded-xl border border-slate-200 bg-white/72 p-3 sm:grid-cols-2 lg:col-span-2 xl:col-span-3 2xl:col-span-1 dark:border-slate-800 dark:bg-slate-900/58">
           <InfoRow
             label="Início da análise"
             value={formatarDataHoraAdmin(solicitacao.data_inicio_analise)}
