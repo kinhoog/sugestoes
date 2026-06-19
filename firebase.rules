@@ -51,6 +51,17 @@ service cloud.firestore {
       ];
     }
 
+    function validStatusPublicoValue(status) {
+      return status in [
+        'Pendente',
+        'Em análise',
+        'Aguardando informações',
+        'Aprovada',
+        'Rejeitada',
+        'Concluída'
+      ];
+    }
+
     function validHistoricoTipoEvento(tipo) {
       return tipo in [
         'criacao',
@@ -127,6 +138,65 @@ service cloud.firestore {
       ]);
     }
 
+    function validSolicitacaoPublicaFields() {
+      return request.resource.data.keys().hasAll([
+        'solicitacao_id',
+        'protocolo',
+        'created_by',
+        'created_by_email',
+        'status_publico',
+        'status_interno',
+        'created_at'
+      ])
+      && request.resource.data.keys().hasOnly([
+        'solicitacao_id',
+        'protocolo',
+        'created_by',
+        'created_by_email',
+        'solicitante_nome',
+        'setor',
+        'cargo',
+        'processo_atividade',
+        'status_publico',
+        'status_interno',
+        'resposta_publica',
+        'created_at',
+        'updated_at'
+      ])
+      && request.resource.data.solicitacao_id is string
+      && request.resource.data.solicitacao_id != ''
+      && request.resource.data.created_by is string
+      && request.resource.data.created_by_email is string
+      && validProtocol()
+      && validStatusPublicoValue(request.resource.data.status_publico)
+      && validStatusValue(request.resource.data.status_interno)
+      && (
+        !request.resource.data.keys().hasAny(['solicitante_nome'])
+        || request.resource.data.solicitante_nome == null
+        || request.resource.data.solicitante_nome is string
+      )
+      && (
+        !request.resource.data.keys().hasAny(['setor'])
+        || request.resource.data.setor == null
+        || request.resource.data.setor is string
+      )
+      && (
+        !request.resource.data.keys().hasAny(['cargo'])
+        || request.resource.data.cargo == null
+        || request.resource.data.cargo is string
+      )
+      && (
+        !request.resource.data.keys().hasAny(['processo_atividade'])
+        || request.resource.data.processo_atividade == null
+        || request.resource.data.processo_atividade is string
+      )
+      && (
+        !request.resource.data.keys().hasAny(['resposta_publica'])
+        || request.resource.data.resposta_publica == null
+        || request.resource.data.resposta_publica is string
+      );
+    }
+
     match /usuarios/{uid} {
       allow get: if isOwner(uid) || isAdmin();
       allow list: if isAdmin();
@@ -169,8 +239,7 @@ service cloud.firestore {
     }
 
     match /solicitacoes/{solicitacaoId} {
-      allow get: if isAdmin() || isOwner(resource.data.created_by);
-      allow list: if isAdmin() || isOwner(resource.data.created_by);
+      allow get, list: if isAdmin();
 
       allow create: if verifiedCorporateUser()
         && request.resource.data.created_by == request.auth.uid
@@ -239,11 +308,49 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /solicitacoes_publicas/{solicitacaoId} {
+      allow get: if isAdmin() || isOwner(resource.data.created_by);
+      allow list: if isAdmin() || isOwner(resource.data.created_by);
+
+      allow create: if validSolicitacaoPublicaFields()
+        && request.resource.data.solicitacao_id == solicitacaoId
+        && (
+          isAdmin()
+          || (
+            verifiedCorporateUser()
+            && request.resource.data.created_by == request.auth.uid
+            && request.resource.data.created_by_email == request.auth.token.email
+            && request.resource.data.status_publico == 'Pendente'
+            && request.resource.data.status_interno == 'Nova'
+            && request.resource.data.resposta_publica == null
+            && getAfter(/databases/$(database)/documents/solicitacoes/$(solicitacaoId)).data.created_by == request.auth.uid
+            && getAfter(/databases/$(database)/documents/solicitacoes/$(solicitacaoId)).data.protocolo == request.resource.data.protocolo
+          )
+        );
+
+      allow update: if isAdmin()
+        && validSolicitacaoPublicaFields()
+        && request.resource.data.solicitacao_id == resource.data.solicitacao_id
+        && request.resource.data.protocolo == resource.data.protocolo
+        && request.resource.data.created_by == resource.data.created_by
+        && request.resource.data.created_by_email == resource.data.created_by_email
+        && onlyChanged([
+          'solicitante_nome',
+          'setor',
+          'cargo',
+          'processo_atividade',
+          'status_publico',
+          'status_interno',
+          'resposta_publica',
+          'created_at',
+          'updated_at'
+        ]);
+
+      allow delete: if false;
+    }
+
     match /historico_status/{historicoId} {
-      allow get: if isAdmin()
-        || isOwner(get(/databases/$(database)/documents/solicitacoes/$(resource.data.solicitacao_id)).data.created_by);
-      allow list: if isAdmin()
-        || isOwner(get(/databases/$(database)/documents/solicitacoes/$(resource.data.solicitacao_id)).data.created_by);
+      allow get, list: if isAdmin();
       allow create: if validHistoricoFields()
         && (
           (

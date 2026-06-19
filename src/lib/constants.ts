@@ -138,6 +138,8 @@ export const PROTEGE_EMAIL_DOMAIN = EMAIL_DOMINIO_PERMITIDO;
 export const ROTAS = {
   formulario: '/',
   sucesso: '/sucesso',
+  minhasDemandas: '/minhas-demandas',
+  minhaDemandaDetalhe: (id: string) => `/minhas-demandas/${id}`,
   login: '/login',
   cadastro: '/cadastro',
   verificarEmail: '/verificar-email',

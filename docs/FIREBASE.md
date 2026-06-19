@@ -44,6 +44,7 @@ Coleções planejadas:
 
 - `usuarios`
 - `solicitacoes`
+- `solicitacoes_publicas`
 - `historico_status`
 - `setores`
 - `cargos`
@@ -58,6 +59,37 @@ referencia_evidencia
 ```
 
 Esse campo pode conter link, caminho interno, observação, referência de documento ou informação complementar.
+
+### `solicitacoes_publicas`
+
+A Fase 7 usa a colecao `solicitacoes_publicas` para a area **Minhas demandas** do colaborador.
+
+Essa colecao e um espelho reduzido e seguro de `solicitacoes`. O colaborador comum nao le a colecao administrativa `solicitacoes`, porque ela contem campos internos como score, prioridade, observacao interna e dados de gestao.
+
+Campos permitidos no espelho publico:
+
+- `solicitacao_id`
+- `protocolo`
+- `created_by`
+- `created_by_email`
+- `solicitante_nome`
+- `setor`
+- `cargo`
+- `processo_atividade`
+- `status_publico`
+- `status_interno`
+- `resposta_publica`
+- `created_at`
+- `updated_at`
+
+Nao incluir em `solicitacoes_publicas`:
+
+- `score`
+- `prioridade_calculada`
+- `observacao_interna`
+- responsavel administrativo
+- historico administrativo
+- qualquer campo sensivel de gestao
 
 ## 4. Protocolo
 
@@ -101,8 +133,10 @@ npm run build
 Se usar Firebase CLI:
 
 ```bash
-firebase deploy --only firestore:rules,firestore:indexes
+firebase deploy --only firestore:rules
 ```
+
+GitHub Pages nao publica Firestore Rules. Sempre que `firebase.rules` mudar, publique as regras manualmente pelo Firebase Console ou pela Firebase CLI.
 
 ## 8. Segurança
 
@@ -113,4 +147,5 @@ firebase deploy --only firestore:rules,firestore:indexes
 - Não permitir dashboard para colaborador.
 - Não permitir alteração de status por colaborador.
 - Não permitir leitura global de solicitações por colaborador.
+- Colaborador le apenas `solicitacoes_publicas` com `created_by` igual ao proprio UID.
 - Não permitir exclusão física.

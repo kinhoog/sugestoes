@@ -19,6 +19,13 @@ export type Frequencia = (typeof FREQUENCIA_OPCOES)[number]['value'];
 export type Urgencia = (typeof URGENCIA_OPCOES)[number]['value'];
 export type StatusSolicitacao = (typeof STATUS_SOLICITACAO)[number];
 export type PrioridadeNivel = (typeof PRIORIDADE_NIVEIS)[number];
+export type StatusPublicoSolicitacao =
+  | 'Pendente'
+  | 'Em análise'
+  | 'Aguardando informações'
+  | 'Aprovada'
+  | 'Rejeitada'
+  | 'Concluída';
 export type HistoricoTipoEvento =
   | 'criacao'
   | 'alteracao_status'
@@ -128,4 +135,21 @@ export interface NovaSolicitacaoPayload {
 export interface CriarSolicitacaoResult {
   id: string;
   protocolo: string;
+}
+
+export interface SolicitacaoPublica {
+  id: string;
+  solicitacao_id: string;
+  protocolo: string;
+  created_by: string;
+  created_by_email: string;
+  solicitante_nome?: string | null;
+  setor?: string | null;
+  cargo?: string | null;
+  processo_atividade?: string | null;
+  status_publico: StatusPublicoSolicitacao;
+  status_interno?: StatusSolicitacao | null;
+  resposta_publica?: string | null;
+  created_at: unknown;
+  updated_at?: unknown;
 }

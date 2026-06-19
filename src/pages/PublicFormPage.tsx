@@ -1,20 +1,18 @@
 import { FormEvent, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
   ClipboardList,
   FileCheck2,
-  LayoutDashboard,
   Loader2,
-  LogOut,
   Send,
 } from 'lucide-react';
 
 import { BrandHeader } from '../components/BrandHeader';
 import { FormStep } from '../components/form/FormStep';
 import { ProgressIndicator } from '../components/form/ProgressIndicator';
-import { ThemeToggle } from '../components/ThemeToggle';
+import { PublicHeaderActions } from '../components/PublicHeaderActions';
 import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { InputField, SelectField, TextareaField } from '../components/ui/Field';
@@ -30,7 +28,6 @@ import {
   type SetorOpcaoId,
 } from '../lib/constants';
 import { getFriendlyFirebaseError } from '../lib/firebase-errors';
-import { isAdminEmail } from '../lib/admin';
 import { calcularPrioridade } from '../lib/priority';
 import { isPreenchido, normalizarReferenciaEvidencia } from '../lib/validators';
 import { useAuth } from '../hooks/useAuth';
@@ -261,7 +258,7 @@ function validateForm(form: FormState): { errors: string[]; firstInvalidStepInde
 
 export function PublicFormPage() {
   const navigate = useNavigate();
-  const { user, email, logout } = useAuth();
+  const { user, email } = useAuth();
   const [stepIndex, setStepIndex] = useState(0);
   const [form, setForm] = useState<FormState>({
     ...emptyForm,
@@ -273,7 +270,6 @@ export function PublicFormPage() {
 
   const currentStep = steps[stepIndex];
   const cargoOptions = useMemo(() => getCargoOptions(form.setor_id), [form.setor_id]);
-  const canAccessAdmin = isAdminEmail(email);
 
   function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -389,29 +385,7 @@ export function PublicFormPage() {
   return (
     <div className="portal-form-shell app-backdrop min-h-screen">
       <BrandHeader>
-        <div className="flex items-center gap-3">
-          <span className="portal-user-chip hidden max-w-[220px] truncate rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-600 sm:block dark:bg-slate-900 dark:text-slate-300">
-            {email}
-          </span>
-          {canAccessAdmin ? (
-            <Link
-              to={ROTAS.adminDashboard}
-              className="portal-admin-entry inline-flex items-center gap-2 rounded-xl border border-brand-100 bg-brand-50/90 px-3 py-2 text-sm font-semibold text-brand-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-white hover:text-brand-900 hover:shadow-[0_12px_30px_rgba(18,95,157,0.12)] motion-reduce:transition-none dark:border-brand-500/30 dark:bg-brand-900/40 dark:text-cyan-100 dark:hover:border-brand-400 dark:hover:bg-slate-900 dark:hover:text-cyan-50"
-            >
-              <LayoutDashboard size={15} />
-              <span className="hidden sm:inline">Área administrativa</span>
-            </Link>
-          ) : null}
-          <ThemeToggle />
-          <button
-            type="button"
-            onClick={() => void logout()}
-            className="portal-logout-button inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:text-cyan-200 dark:hover:shadow-[0_14px_34px_rgba(0,0,0,0.3)]"
-          >
-            <LogOut size={15} />
-            Sair
-          </button>
-        </div>
+        <PublicHeaderActions />
       </BrandHeader>
 
       <main className="page-enter mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
