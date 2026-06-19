@@ -10,7 +10,8 @@ import {
   type Unsubscribe,
 } from '@firebase/auth';
 
-import { ADMIN_EMAILS, PROTEGE_EMAIL_DOMAIN } from '../../lib/constants';
+import { PROTEGE_EMAIL_DOMAIN } from '../../lib/constants';
+import { isAdminEmail } from '../../lib/admin';
 import { requireFirebaseAuth } from './client';
 
 export function normalizarEmail(email: string): string {
@@ -19,14 +20,6 @@ export function normalizarEmail(email: string): string {
 
 export function isEmailCorporativo(email: string): boolean {
   return normalizarEmail(email).endsWith(PROTEGE_EMAIL_DOMAIN);
-}
-
-export function isAdminEmail(email: string | null | undefined): boolean {
-  if (!email) {
-    return false;
-  }
-
-  return ADMIN_EMAILS.includes(normalizarEmail(email) as (typeof ADMIN_EMAILS)[number]);
 }
 
 export async function criarContaComEmailSenha(

@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 import { useAuth } from '../hooks/useAuth';
-import { isAdminEmail } from '../services/firebase/auth.service';
+import { isAdminEmail } from '../lib/admin';
+import { ROTAS } from '../lib/constants';
 import { BrandLogo } from './BrandLogo';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -35,7 +36,7 @@ export function BrandHeader({ children, showAdminLink = true }: BrandHeaderProps
             <ThemeToggle />
             {shouldShowAdminLink ? (
               <Link
-                to="/admin/login"
+                to={ROTAS.adminDashboard}
                 className="rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:text-cyan-200 dark:hover:shadow-[0_14px_34px_rgba(0,0,0,0.3)]"
               >
                 Área administrativa
