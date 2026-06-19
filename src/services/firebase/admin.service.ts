@@ -72,6 +72,12 @@ interface AtualizarObservacaoInternaInput {
   admin: AdminUsuarioInput;
 }
 
+interface AtualizarRespostaPublicaInput {
+  solicitacao: SolicitacaoAdmin;
+  respostaPublica: string;
+  admin: AdminUsuarioInput;
+}
+
 function trimOrNull(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? '';
   return trimmed || null;
@@ -274,6 +280,44 @@ export async function atualizarObservacaoInternaAdmin({
       statusAnterior: solicitacao.status,
       statusNovo: solicitacao.status,
       observacao: observacaoNormalizada ?? 'Observação interna removida.',
+    }),
+  );
+
+  await batch.commit();
+}
+
+export async function atualizarRespostaPublicaAdmin({
+  solicitacao,
+  respostaPublica,
+  admin,
+}: AtualizarRespostaPublicaInput): Promise<void> {
+  const respostaNormalizada = trimOrNull(respostaPublica);
+  const respostaAtual = trimOrNull(solicitacao.resposta_publica);
+
+  if (respostaNormalizada === respostaAtual) {
+    return;
+  }
+
+  const db = requireFirestore();
+  const batch = writeBatch(db);
+  const solicitacaoRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoes, solicitacao.id);
+  const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
+
+  batch.update(solicitacaoRef, {
+    resposta_publica: respostaNormalizada,
+    updated_at: serverTimestamp(),
+    updated_by: admin.uid,
+    updated_by_email: admin.email.toLowerCase(),
+  });
+  batch.set(
+    historicoRef,
+    buildHistoricoEvento({
+      solicitacao,
+      tipo: 'resposta_publica',
+      admin,
+      statusAnterior: solicitacao.status,
+      statusNovo: solicitacao.status,
+      observacao: respostaNormalizada ?? 'Resposta ao colaborador removida.',
     }),
   );
 

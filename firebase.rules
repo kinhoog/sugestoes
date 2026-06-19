@@ -56,7 +56,8 @@ service cloud.firestore {
         'criacao',
         'alteracao_status',
         'atribuicao_responsavel',
-        'observacao_interna'
+        'observacao_interna',
+        'resposta_publica'
       ];
     }
 
@@ -222,6 +223,7 @@ service cloud.firestore {
           'status',
           'parecer_tecnico',
           'observacao_interna',
+          'resposta_publica',
           'responsavel_admin_id',
           'responsavel_admin_email',
           'responsavel_admin_nome',
