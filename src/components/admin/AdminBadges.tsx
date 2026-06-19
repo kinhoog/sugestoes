@@ -37,7 +37,7 @@ interface AdminBadgeProps {
 
 function AdminBadge({ children, className }: AdminBadgeProps) {
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${className}`}>
+    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ring-1 ${className}`}>
       {children}
     </span>
   );

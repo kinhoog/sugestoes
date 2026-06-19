@@ -36,7 +36,7 @@ export function AdminSolicitacaoDetalhePage() {
       <div className="page-enter">
         <Link
           to={ROTAS.adminSolicitacoes}
-          className="mb-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 shadow-[0_10px_28px_rgba(15,23,42,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-800 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:text-cyan-100"
+          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-[0_10px_28px_rgba(15,23,42,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-800 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:text-cyan-100"
         >
           <ArrowLeft size={16} />
           Voltar para solicitações
@@ -50,17 +50,17 @@ export function AdminSolicitacaoDetalhePage() {
           <EmptyDetail text="Solicitação não encontrada ou sem permissão de acesso." />
         ) : (
           <>
-            <section className="overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/88 shadow-[0_28px_84px_rgba(15,23,42,0.1)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_32px_96px_rgba(0,0,0,0.38)]">
-              <div className="border-b border-slate-100 bg-gradient-to-br from-brand-50/90 to-white px-5 py-6 dark:border-slate-800 dark:from-brand-950/42 dark:to-slate-950 sm:px-7">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <section className="overflow-hidden rounded-[1.45rem] border border-white/80 bg-white/88 shadow-[0_24px_70px_rgba(15,23,42,0.1)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_82px_rgba(0,0,0,0.38)]">
+              <div className="border-b border-slate-100 bg-gradient-to-br from-brand-50/90 to-white px-5 py-5 dark:border-slate-800 dark:from-brand-950/42 dark:to-slate-950 sm:px-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700 dark:text-cyan-200">
                       Detalhe da solicitação
                     </p>
-                    <h1 className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">
+                    <h1 className="mt-1.5 text-2xl font-semibold text-slate-950 dark:text-white">
                       {solicitacao.protocolo ?? 'Sem protocolo'}
                     </h1>
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                       {valorTextoAdmin(solicitacao.processo_alvo)}
                     </p>
                   </div>
@@ -74,7 +74,7 @@ export function AdminSolicitacaoDetalhePage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 p-5 sm:p-7 lg:grid-cols-4">
+              <div className="grid gap-3.5 p-5 sm:p-6 lg:grid-cols-4">
                 <SummaryCard
                   icon={<UserRound size={19} />}
                   label="Solicitante"
@@ -102,8 +102,8 @@ export function AdminSolicitacaoDetalhePage() {
               </div>
             </section>
 
-            <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_0.78fr]">
-              <div className="grid gap-6">
+            <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.78fr]">
+              <div className="grid gap-5">
                 <DetailSection title="Processo ou atividade alvo">
                   {valorTextoAdmin(solicitacao.processo_alvo)}
                 </DetailSection>
@@ -134,7 +134,7 @@ export function AdminSolicitacaoDetalhePage() {
                 </DetailSection>
               </div>
 
-              <div className="grid content-start gap-6">
+              <div className="grid content-start gap-5">
                 <InfoPanel title="Impacto informado">
                   <InfoRow label="Frequência" value={valorTextoAdmin(solicitacao.frequencia)} />
                   <InfoRow
@@ -234,11 +234,11 @@ function SummaryCard({
   detail: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white/78 p-4 dark:border-slate-800 dark:bg-slate-900/62">
-      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
+    <div className="rounded-xl border border-slate-200 bg-white/78 p-3.5 dark:border-slate-800 dark:bg-slate-900/62">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
         {icon}
       </div>
-      <p className="mt-3 text-xs font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
+      <p className="mt-2.5 text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
         {label}
       </p>
       <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">{value}</p>
@@ -249,9 +249,9 @@ function SummaryCard({
 
 function DetailSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-[1.5rem] border border-white/80 bg-white/88 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_84px_rgba(0,0,0,0.35)]">
-      <h2 className="text-lg font-semibold text-slate-950 dark:text-white">{title}</h2>
-      <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-600 dark:text-slate-300">
+    <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+      <h2 className="text-base font-semibold text-slate-950 dark:text-white">{title}</h2>
+      <div className="mt-2.5 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
         {children}
       </div>
     </section>
@@ -260,9 +260,9 @@ function DetailSection({ title, children }: { title: string; children: ReactNode
 
 function InfoPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-[1.5rem] border border-white/80 bg-white/88 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_84px_rgba(0,0,0,0.35)]">
-      <h2 className="text-lg font-semibold text-slate-950 dark:text-white">{title}</h2>
-      <div className="mt-4 grid gap-4">{children}</div>
+    <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+      <h2 className="text-base font-semibold text-slate-950 dark:text-white">{title}</h2>
+      <div className="mt-3 grid gap-3.5">{children}</div>
     </section>
   );
 }
@@ -278,12 +278,12 @@ function InfoRow({
 }) {
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
+      <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
         {label}
       </p>
       <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{value}</p>
       {detail ? (
-        <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-500 dark:text-slate-400">
+        <p className="mt-1 whitespace-pre-wrap text-sm leading-5 text-slate-500 dark:text-slate-400">
           {detail}
         </p>
       ) : null}
@@ -293,7 +293,7 @@ function InfoRow({
 
 function EmptyDetail({ text }: { text: string }) {
   return (
-    <div className="rounded-[1.5rem] border border-white/80 bg-white/88 px-5 py-12 text-center text-sm text-slate-500 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:text-slate-400">
+    <div className="rounded-[1.25rem] border border-white/80 bg-white/88 px-5 py-10 text-center text-sm text-slate-500 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:text-slate-400">
       {text}
     </div>
   );

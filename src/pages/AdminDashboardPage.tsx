@@ -88,21 +88,21 @@ export function AdminDashboardPage() {
   return (
     <AdminShell>
       <div className="page-enter">
-        <div className="mb-7 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700 dark:text-cyan-200">
               Administrativo
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">
+            <h1 className="mt-1.5 text-2xl font-semibold text-slate-950 dark:text-white">
               Dashboard de demandas
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
               Visão em tempo real das demandas registradas para análise de automação interna.
             </p>
           </div>
           <Link
             to={ROTAS.adminSolicitacoes}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_16px_34px_rgba(18,95,157,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-800 dark:bg-brand-600 dark:hover:bg-brand-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 px-3.5 py-2 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(18,95,157,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-800 dark:bg-brand-600 dark:hover:bg-brand-500"
           >
             Ver solicitações
             <ArrowRight size={16} />
@@ -115,7 +115,7 @@ export function AdminDashboardPage() {
 
         {!loading && !error ? (
           <>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <KpiCard
                 icon={<ClipboardList size={20} />}
                 label="Total de solicitações"
@@ -143,7 +143,7 @@ export function AdminDashboardPage() {
             </div>
 
             {dashboard.total === 0 ? (
-              <section className="mt-6 rounded-[1.5rem] border border-dashed border-slate-200 bg-white/70 px-5 py-12 text-center shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/70">
+              <section className="mt-5 rounded-[1.25rem] border border-dashed border-slate-200 bg-white/70 px-5 py-10 text-center shadow-[0_16px_42px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/70">
                 <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
                   Nenhuma solicitação encontrada.
                 </h2>
@@ -154,7 +154,7 @@ export function AdminDashboardPage() {
               </section>
             ) : (
               <>
-                <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]">
+                <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr]">
                   <DistributionCard
                     title="Solicitações por status"
                     icon={<Activity size={18} />}
@@ -175,7 +175,7 @@ export function AdminDashboardPage() {
                   />
                 </div>
 
-                <div className="mt-6 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+                <div className="mt-5 grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
                   <DistributionCard
                     title="Solicitações por setor"
                     icon={<Layers3 size={18} />}
@@ -186,13 +186,13 @@ export function AdminDashboardPage() {
                     }))}
                   />
 
-                  <section className="rounded-[1.5rem] border border-white/80 bg-white/88 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_84px_rgba(0,0,0,0.35)]">
+                  <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
                           Tempo real
                         </p>
-                        <h2 className="mt-1 text-lg font-semibold text-slate-950 dark:text-white">
+                        <h2 className="mt-1 text-base font-semibold text-slate-950 dark:text-white">
                           Solicitações recentes
                         </h2>
                       </div>
@@ -204,12 +204,12 @@ export function AdminDashboardPage() {
                       </Link>
                     </div>
 
-                    <div className="mt-5 grid gap-3">
+                    <div className="mt-4 grid gap-2.5">
                       {dashboard.recentes.map((solicitacao) => (
                         <Link
                           key={solicitacao.id}
                           to={ROTAS.adminDetalhe(solicitacao.id)}
-                          className="rounded-2xl border border-slate-200 bg-white/90 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-brand-500"
+                          className="rounded-xl border border-slate-200 bg-white/90 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_14px_34px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-brand-500"
                         >
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
@@ -257,14 +257,14 @@ function KpiCard({
   detail: string;
 }) {
   return (
-    <section className="rounded-[1.35rem] border border-white/80 bg-white/88 p-5 shadow-[0_22px_64px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_84px_rgba(0,0,0,0.35)]">
+    <section className="rounded-[1.2rem] border border-white/80 bg-white/88 p-4 shadow-[0_18px_52px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_72px_rgba(0,0,0,0.35)]">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
           {icon}
         </div>
       </div>
-      <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">{value}</p>
+      <p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-1.5 text-2xl font-semibold text-slate-950 dark:text-white">{value}</p>
       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{detail}</p>
     </section>
   );
@@ -282,15 +282,15 @@ function DistributionCard({
   items: readonly { label: string; value: number }[];
 }) {
   return (
-    <section className="rounded-[1.5rem] border border-white/80 bg-white/88 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_84px_rgba(0,0,0,0.35)]">
+    <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
           {icon}
         </span>
-        <h2 className="text-lg font-semibold text-slate-950 dark:text-white">{title}</h2>
+        <h2 className="text-base font-semibold text-slate-950 dark:text-white">{title}</h2>
       </div>
 
-      <div className="mt-5 grid gap-4">
+      <div className="mt-4 grid gap-3">
         {items.map((item) => (
           <div key={item.label}>
             <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
@@ -316,9 +316,9 @@ function DashboardLoading() {
       {['Total', 'Novas', 'Prioridade', 'Setores'].map((item) => (
         <section
           key={item}
-          className="rounded-[1.35rem] border border-white/80 bg-white/78 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/76"
+          className="rounded-[1.2rem] border border-white/80 bg-white/78 p-4 shadow-[0_16px_42px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/76"
         >
-          <div className="h-11 w-11 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+          <div className="h-10 w-10 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
           <div className="mt-4 h-4 w-28 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
           <div className="mt-3 h-8 w-16 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
           <div className="mt-3 h-3 w-24 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />

@@ -70,7 +70,7 @@ service cloud.firestore {
     }
 
     match /contadores/{contadorId} {
-      allow read: if verifiedCorporateUser();
+      allow get: if verifiedCorporateUser();
       allow create: if verifiedCorporateUser()
         && request.resource.data.keys().hasOnly(['ano', 'ultimo_numero', 'updated_at'])
         && request.resource.data.ultimo_numero == 1;

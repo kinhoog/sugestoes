@@ -50,11 +50,11 @@ export function AdminGuard({ children }: AdminGuardProps) {
               Acesso administrativo restrito
             </h1>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Esta área é reservada aos e-mails autorizados da equipe administrativa. Colaboradores
-              podem continuar registrando demandas pelo formulário público.
+              Esta área é exclusiva para usuários autorizados da equipe de Automações e IA.
+              Colaboradores podem continuar registrando demandas pelo formulário público.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink to={ROTAS.formulario}>Voltar ao formulário</ButtonLink>
+              <ButtonLink to={ROTAS.formulario}>Voltar ao portal público</ButtonLink>
               <Button
                 type="button"
                 variant="secondary"
