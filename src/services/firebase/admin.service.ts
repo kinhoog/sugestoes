@@ -151,6 +151,10 @@ export async function atualizarStatusSolicitacaoAdmin({
   observacao,
   admin,
 }: AtualizarStatusInput): Promise<void> {
+  if (novoStatus === solicitacao.status) {
+    return;
+  }
+
   const db = requireFirestore();
   const batch = writeBatch(db);
   const solicitacaoRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoes, solicitacao.id);
@@ -197,19 +201,31 @@ export async function assumirSolicitacaoAdmin({
   solicitacao,
   admin,
 }: AssumirSolicitacaoInput): Promise<void> {
+  const adminEmail = admin.email.toLowerCase();
+  const responsavelAtualEmail = solicitacao.responsavel_admin_email?.toLowerCase() ?? null;
+
+  if (responsavelAtualEmail === adminEmail) {
+    return;
+  }
+
   const db = requireFirestore();
   const batch = writeBatch(db);
   const solicitacaoRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoes, solicitacao.id);
   const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
-  const responsavelNome = trimOrNull(admin.nome) ?? admin.email.toLowerCase();
+  const responsavelNome = trimOrNull(admin.nome) ?? adminEmail;
+  const responsavelAnterior =
+    trimOrNull(solicitacao.responsavel_admin_nome) ?? responsavelAtualEmail ?? null;
+  const observacaoHistorico = responsavelAnterior
+    ? `Responsável alterado de ${responsavelAnterior} para ${responsavelNome}.`
+    : `Responsável definido como ${responsavelNome}.`;
 
   batch.update(solicitacaoRef, {
     responsavel_admin_id: admin.uid,
-    responsavel_admin_email: admin.email.toLowerCase(),
+    responsavel_admin_email: adminEmail,
     responsavel_admin_nome: responsavelNome,
     updated_at: serverTimestamp(),
     updated_by: admin.uid,
-    updated_by_email: admin.email.toLowerCase(),
+    updated_by_email: adminEmail,
   });
   batch.set(
     historicoRef,
@@ -219,7 +235,7 @@ export async function assumirSolicitacaoAdmin({
       admin,
       statusAnterior: solicitacao.status,
       statusNovo: solicitacao.status,
-      observacao: `Responsável definido como ${responsavelNome}.`,
+      observacao: observacaoHistorico,
     }),
   );
 
@@ -231,11 +247,17 @@ export async function atualizarObservacaoInternaAdmin({
   observacaoInterna,
   admin,
 }: AtualizarObservacaoInternaInput): Promise<void> {
+  const observacaoNormalizada = trimOrNull(observacaoInterna);
+  const observacaoAtual = trimOrNull(solicitacao.observacao_interna);
+
+  if (observacaoNormalizada === observacaoAtual) {
+    return;
+  }
+
   const db = requireFirestore();
   const batch = writeBatch(db);
   const solicitacaoRef = doc(db, FIRESTORE_COLLECTIONS.solicitacoes, solicitacao.id);
   const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
-  const observacaoNormalizada = trimOrNull(observacaoInterna);
 
   batch.update(solicitacaoRef, {
     observacao_interna: observacaoNormalizada,

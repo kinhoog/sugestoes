@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -60,8 +60,14 @@ function getHistoricoEventoLabel(item: HistoricoStatus): string {
   return item.status_anterior ? 'Alteração de status' : 'Criação da solicitação';
 }
 
+function getResponsavelAdminLabel(solicitacao: SolicitacaoAdmin): string {
+  return valorTextoAdmin(
+    solicitacao.responsavel_admin_nome ?? solicitacao.responsavel_admin_email,
+  );
+}
+
 type DetalheTab = 'resumo' | 'impacto' | 'historico';
-type AdminModalAberto = 'status' | 'observacao' | null;
+type AdminModalAberto = 'status' | 'observacao' | 'reatribuicao' | null;
 
 const DETALHE_TABS: Array<{ id: DetalheTab; label: string }> = [
   { id: 'resumo', label: 'Resumo' },
@@ -86,6 +92,7 @@ export function AdminSolicitacaoDetalhePage() {
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<DetalheTab>('resumo');
   const [modalAberto, setModalAberto] = useState<AdminModalAberto>(null);
+  const actionInProgressRef = useRef(false);
 
   useEffect(() => {
     if (!solicitacao) {
@@ -125,6 +132,11 @@ export function AdminSolicitacaoDetalhePage() {
     action: () => Promise<void>,
     success: string,
   ): Promise<boolean> {
+    if (actionInProgressRef.current) {
+      return false;
+    }
+
+    actionInProgressRef.current = true;
     setSavingAction(actionName);
     setActionError(null);
     setActionSuccess(null);
@@ -137,6 +149,7 @@ export function AdminSolicitacaoDetalhePage() {
       setActionError(getActionErrorMessage(actionErrorValue));
       return false;
     } finally {
+      actionInProgressRef.current = false;
       setSavingAction(null);
     }
   }
@@ -164,16 +177,29 @@ export function AdminSolicitacaoDetalhePage() {
     }
   }
 
-  async function handleAssumirDemanda() {
+  async function handleAssumirDemanda(): Promise<boolean> {
     if (!solicitacao || !adminUsuario) {
-      return;
+      return false;
     }
 
-    await runAdminAction(
+    const adminEmail = adminUsuario.email.toLowerCase();
+    const responsavelAtualEmail = solicitacao.responsavel_admin_email?.toLowerCase() ?? null;
+
+    if (responsavelAtualEmail === adminEmail) {
+      return false;
+    }
+
+    const success = await runAdminAction(
       'responsavel',
       () => assumirSolicitacaoAdmin({ solicitacao, admin: adminUsuario }),
       'Responsável administrativo atualizado.',
     );
+
+    if (success) {
+      setModalAberto(null);
+    }
+
+    return success;
   }
 
   async function handleSalvarObservacaoInterna() {
@@ -210,6 +236,26 @@ export function AdminSolicitacaoDetalhePage() {
   function abrirModalObservacao() {
     setObservacaoInterna(solicitacao?.observacao_interna ?? '');
     setModalAberto('observacao');
+  }
+
+  function handleCliqueResponsavel() {
+    if (!solicitacao || !adminUsuario) {
+      return;
+    }
+
+    const adminEmail = adminUsuario.email.toLowerCase();
+    const responsavelAtualEmail = solicitacao.responsavel_admin_email?.toLowerCase() ?? null;
+
+    if (responsavelAtualEmail === adminEmail) {
+      return;
+    }
+
+    if (responsavelAtualEmail) {
+      setModalAberto('reatribuicao');
+      return;
+    }
+
+    void handleAssumirDemanda();
   }
 
   return (
@@ -306,8 +352,9 @@ export function AdminSolicitacaoDetalhePage() {
               <AdminQuickActions
                 solicitacao={solicitacao}
                 savingAction={savingAction}
+                currentAdminEmail={adminUsuario?.email ?? null}
                 onAlterarStatus={abrirModalStatus}
-                onAssumirDemanda={() => void handleAssumirDemanda()}
+                onAssumirDemanda={handleCliqueResponsavel}
                 onObservacaoInterna={abrirModalObservacao}
               />
             </div>
@@ -354,6 +401,11 @@ export function AdminSolicitacaoDetalhePage() {
                         </option>
                       ))}
                     </select>
+                    {novoStatus === solicitacao.status ? (
+                      <p className="mt-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        Selecione um status diferente do atual.
+                      </p>
+                    ) : null}
                   </div>
                   <div>
                     <label
@@ -394,6 +446,46 @@ export function AdminSolicitacaoDetalhePage() {
               </AdminActionDialog>
             ) : null}
 
+            {modalAberto === 'reatribuicao' ? (
+              <AdminActionDialog
+                title="Assumir demanda"
+                description={`Esta demanda está atribuída a ${getResponsavelAdminLabel(
+                  solicitacao,
+                )}. Deseja assumir esta demanda para você?`}
+                isSaving={Boolean(savingAction)}
+                onClose={() => setModalAberto(null)}
+              >
+                <div className="grid gap-3">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/70">
+                    <InfoRow
+                      label="Responsável atual"
+                      value={getResponsavelAdminLabel(solicitacao)}
+                      detail={solicitacao.responsavel_admin_email}
+                    />
+                  </div>
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setModalAberto(null)}
+                      disabled={Boolean(savingAction)}
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleAssumirDemanda()}
+                      disabled={Boolean(savingAction)}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(18,95,157,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:bg-brand-600 dark:hover:bg-brand-500"
+                    >
+                      <UserCheck size={16} />
+                      {savingAction === 'responsavel' ? 'Assumindo...' : 'Confirmar reatribuição'}
+                    </button>
+                  </div>
+                </div>
+              </AdminActionDialog>
+            ) : null}
+
             {modalAberto === 'observacao' ? (
               <AdminActionDialog
                 title="Observação interna"
@@ -410,6 +502,11 @@ export function AdminSolicitacaoDetalhePage() {
                     className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
                     placeholder="Registre contexto interno da equipe administrativa"
                   />
+                  {!observacaoInternaAlterada ? (
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                      Nenhuma alteração para salvar.
+                    </p>
+                  ) : null}
                   <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                     <button
                       type="button"
@@ -442,20 +539,34 @@ export function AdminSolicitacaoDetalhePage() {
 function AdminQuickActions({
   solicitacao,
   savingAction,
+  currentAdminEmail,
   onAlterarStatus,
   onAssumirDemanda,
   onObservacaoInterna,
 }: {
   solicitacao: SolicitacaoAdmin;
   savingAction: string | null;
+  currentAdminEmail: string | null;
   onAlterarStatus: () => void;
   onAssumirDemanda: () => void;
   onObservacaoInterna: () => void;
 }) {
   const isSavingResponsavel = savingAction === 'responsavel';
   const responsavel = solicitacao.responsavel_admin_email
-    ? valorTextoAdmin(solicitacao.responsavel_admin_nome ?? solicitacao.responsavel_admin_email)
+    ? getResponsavelAdminLabel(solicitacao)
     : 'Não atribuído';
+  const responsavelEmail = solicitacao.responsavel_admin_email?.toLowerCase() ?? null;
+  const currentAdminEmailNormalizado = currentAdminEmail?.toLowerCase() ?? null;
+  const isAtribuidaAoAdminAtual =
+    Boolean(responsavelEmail) && responsavelEmail === currentAdminEmailNormalizado;
+  const isAtribuidaAOutroAdmin = Boolean(responsavelEmail) && !isAtribuidaAoAdminAtual;
+  const assumirButtonLabel = isSavingResponsavel
+    ? 'Assumindo...'
+    : isAtribuidaAoAdminAtual
+      ? 'Demanda assumida por você'
+      : isAtribuidaAOutroAdmin
+        ? 'Assumir para mim'
+        : 'Assumir demanda';
 
   return (
     <section className="rounded-2xl border border-brand-100 bg-white/90 p-3.5 shadow-[0_18px_46px_rgba(15,23,42,0.08)] backdrop-blur dark:border-brand-500/20 dark:bg-slate-950/88 dark:shadow-[0_22px_60px_rgba(0,0,0,0.35)]">
@@ -489,11 +600,11 @@ function AdminQuickActions({
         <button
           type="button"
           onClick={onAssumirDemanda}
-          disabled={Boolean(savingAction)}
+          disabled={Boolean(savingAction) || isAtribuidaAoAdminAtual}
           className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-brand-100 bg-white px-3 text-sm font-semibold text-brand-800 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
         >
           <UserCheck size={16} />
-          {isSavingResponsavel ? 'Assumindo...' : 'Assumir demanda'}
+          {assumirButtonLabel}
         </button>
         <button
           type="button"
