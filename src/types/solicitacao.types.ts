@@ -19,6 +19,11 @@ export type Frequencia = (typeof FREQUENCIA_OPCOES)[number]['value'];
 export type Urgencia = (typeof URGENCIA_OPCOES)[number]['value'];
 export type StatusSolicitacao = (typeof STATUS_SOLICITACAO)[number];
 export type PrioridadeNivel = (typeof PRIORIDADE_NIVEIS)[number];
+export type HistoricoTipoEvento =
+  | 'criacao'
+  | 'alteracao_status'
+  | 'atribuicao_responsavel'
+  | 'observacao_interna';
 
 export interface Setor {
   id: string;
@@ -63,6 +68,9 @@ export interface Solicitacao {
   status: StatusSolicitacao;
   parecer_tecnico: string | null;
   observacao_interna: string | null;
+  responsavel_admin_id?: string | null;
+  responsavel_admin_email?: string | null;
+  responsavel_admin_nome?: string | null;
   created_by: string;
   created_by_email: string;
   data_criacao: unknown;
@@ -71,13 +79,18 @@ export interface Solicitacao {
   data_fechamento: unknown | null;
   deleted_at: unknown | null;
   updated_at?: unknown;
+  updated_by?: string | null;
+  updated_by_email?: string | null;
 }
 
 export interface HistoricoStatus {
   id: string;
   solicitacao_id: string;
+  protocolo?: string | null;
+  tipo_evento?: HistoricoTipoEvento;
   status_anterior: StatusSolicitacao | null;
   status_novo: StatusSolicitacao;
+  observacao?: string | null;
   usuario_id: string | null;
   usuario_email: string | null;
   data_alteracao: unknown;

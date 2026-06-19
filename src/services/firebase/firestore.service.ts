@@ -125,8 +125,11 @@ export async function criarSolicitacaoComProtocolo({
     const historicoRef = doc(collection(db, FIRESTORE_COLLECTIONS.historicoStatus));
     transaction.set(historicoRef, {
       solicitacao_id: solicitacaoRef.id,
+      protocolo,
+      tipo_evento: 'criacao',
       status_anterior: null,
       status_novo: 'Nova' satisfies StatusSolicitacao,
+      observacao: null,
       usuario_id: uid,
       usuario_email: email.toLowerCase(),
       data_alteracao: serverTimestamp(),
