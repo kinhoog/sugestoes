@@ -27,7 +27,7 @@ type PrioridadeFilter = '' | PrioridadeNivel;
 type ResponsavelFilter = '' | 'com' | 'sem';
 
 const filterControlClass =
-  'h-10 w-full rounded-xl border border-slate-200 bg-white/90 px-3 text-[13px] text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.04)] outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-brand-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-brand-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50';
+  'h-9 w-full rounded-lg border border-slate-200 bg-white/90 px-2.5 text-[13px] text-slate-900 shadow-[0_8px_20px_rgba(15,23,42,0.04)] outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-brand-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-brand-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50';
 
 function matchesSearch(solicitacao: SolicitacaoAdmin, search: string): boolean {
   if (!search) {
@@ -89,14 +89,14 @@ export function AdminSolicitacoesPage() {
   return (
     <AdminShell>
       <div className="page-enter">
-        <div className="mb-5">
+        <div className="mb-4">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700 dark:text-cyan-200">
             Administrativo
           </p>
-          <h1 className="mt-1.5 text-2xl font-semibold text-slate-950 dark:text-white">
+          <h1 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white">
             Solicitações
           </h1>
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+          <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-600 dark:text-slate-300">
             Consulte demandas registradas, filtre por status, prioridade e setor, e abra o detalhe
             completo para análise.
           </p>
@@ -104,7 +104,7 @@ export function AdminSolicitacoesPage() {
 
         {error ? <Alert tone="error">{error}</Alert> : null}
 
-        <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-3.5 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+        <section className="rounded-2xl border border-white/80 bg-white/88 p-3 shadow-[0_18px_46px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_22px_60px_rgba(0,0,0,0.35)]">
           <div className="grid gap-2.5 lg:grid-cols-[1fr_155px_155px_190px_170px]">
             <label className="relative block">
               <span className="sr-only">Buscar</span>
@@ -194,7 +194,7 @@ export function AdminSolicitacoesPage() {
           </div>
         </section>
 
-        <section className="mt-4 overflow-hidden rounded-[1.25rem] border border-white/80 bg-white/88 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+        <section className="mt-3.5 overflow-hidden rounded-2xl border border-white/80 bg-white/88 shadow-[0_18px_46px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_22px_60px_rgba(0,0,0,0.35)]">
           <div className="hidden overflow-x-auto lg:block">
             <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
               <thead className="bg-slate-50/80 dark:bg-slate-900/60">
@@ -213,7 +213,7 @@ export function AdminSolicitacoesPage() {
                   ].map((header) => (
                     <th
                       key={header}
-                      className="px-3.5 py-2.5 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400"
+                      className="px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400"
                     >
                       {header}
                     </th>
@@ -226,10 +226,10 @@ export function AdminSolicitacoesPage() {
                     key={solicitacao.id}
                     className="transition-colors hover:bg-brand-50/60 dark:hover:bg-slate-900/80"
                   >
-                    <td className="px-3.5 py-3 text-sm font-bold text-brand-800 dark:text-cyan-200">
+                    <td className="px-3 py-2.5 text-sm font-bold text-brand-800 dark:text-cyan-200">
                       {solicitacao.protocolo ?? '—'}
                     </td>
-                    <td className="px-3.5 py-3">
+                    <td className="px-3 py-2.5">
                       <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                         {valorTextoAdmin(solicitacao.nome_completo)}
                       </p>
@@ -237,7 +237,7 @@ export function AdminSolicitacoesPage() {
                         {valorTextoAdmin(solicitacao.email)}
                       </p>
                     </td>
-                    <td className="px-3.5 py-3">
+                    <td className="px-3 py-2.5">
                       <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                         {solicitacao.responsavel_admin_email
                           ? valorTextoAdmin(
@@ -252,25 +252,25 @@ export function AdminSolicitacoesPage() {
                         </p>
                       ) : null}
                     </td>
-                    <td className="px-3.5 py-3 text-sm text-slate-600 dark:text-slate-300">
+                    <td className="px-3 py-2.5 text-sm text-slate-600 dark:text-slate-300">
                       {getSetorNomeAdmin(solicitacao.setor_id)}
                     </td>
-                    <td className="max-w-xs px-3.5 py-3 text-sm text-slate-700 dark:text-slate-200">
+                    <td className="max-w-xs px-3 py-2.5 text-sm text-slate-700 dark:text-slate-200">
                       <span className="line-clamp-2">{valorTextoAdmin(solicitacao.processo_alvo)}</span>
                     </td>
-                    <td className="px-3.5 py-3">
+                    <td className="px-3 py-2.5">
                       <StatusBadge status={solicitacao.status} />
                     </td>
-                    <td className="px-3.5 py-3">
+                    <td className="px-3 py-2.5">
                       <PrioridadeBadge prioridade={solicitacao.prioridade_calculada} />
                     </td>
-                    <td className="px-3.5 py-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <td className="px-3 py-2.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
                       {solicitacao.score ?? '—'}
                     </td>
-                    <td className="px-3.5 py-3 text-sm text-slate-500 dark:text-slate-400">
+                    <td className="px-3 py-2.5 text-sm text-slate-500 dark:text-slate-400">
                       {formatarDataHoraAdmin(solicitacao.updated_at ?? solicitacao.data_criacao)}
                     </td>
-                    <td className="px-3.5 py-3 text-right">
+                    <td className="px-3 py-2.5 text-right">
                       <Link
                         to={ROTAS.adminDetalhe(solicitacao.id)}
                         className="inline-flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-[13px] font-semibold text-brand-700 transition hover:bg-brand-50 hover:text-brand-900 dark:text-cyan-200 dark:hover:bg-slate-800 dark:hover:text-cyan-100"
@@ -285,12 +285,12 @@ export function AdminSolicitacoesPage() {
             </table>
           </div>
 
-          <div className="grid gap-2.5 p-3.5 lg:hidden">
+          <div className="grid gap-2.5 p-3 lg:hidden">
             {!loading && !error ? filteredSolicitacoes.map((solicitacao) => (
               <Link
                 key={solicitacao.id}
                 to={ROTAS.adminDetalhe(solicitacao.id)}
-                className="rounded-xl border border-slate-200 bg-white/90 p-3.5 shadow-[0_12px_34px_rgba(15,23,42,0.06)] transition-all hover:border-brand-200 dark:border-slate-800 dark:bg-slate-900/72 dark:hover:border-brand-500"
+                className="rounded-xl border border-slate-200 bg-white/90 p-3 shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition-all hover:border-brand-200 dark:border-slate-800 dark:bg-slate-900/72 dark:hover:border-brand-500"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>

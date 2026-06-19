@@ -202,31 +202,37 @@ export function AdminSolicitacaoDetalhePage() {
           <EmptyDetail text="Solicitação não encontrada ou sem permissão de acesso." />
         ) : (
           <>
-            <section className="overflow-hidden rounded-[1.45rem] border border-white/80 bg-white/88 shadow-[0_24px_70px_rgba(15,23,42,0.1)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_28px_82px_rgba(0,0,0,0.38)]">
-              <div className="border-b border-slate-100 bg-gradient-to-br from-brand-50/90 to-white px-5 py-5 dark:border-slate-800 dark:from-brand-950/42 dark:to-slate-950 sm:px-6">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700 dark:text-cyan-200">
-                      Detalhe da solicitação
-                    </p>
-                    <h1 className="mt-1.5 text-2xl font-semibold text-slate-950 dark:text-white">
+            <section className="rounded-2xl border border-white/80 bg-white/90 p-4 shadow-[0_18px_48px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_22px_64px_rgba(0,0,0,0.36)]">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-700 dark:text-cyan-200">
+                    Detalhe da solicitação
+                  </p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <h1 className="text-xl font-semibold text-slate-950 dark:text-white">
                       {solicitacao.protocolo ?? 'Sem protocolo'}
                     </h1>
-                    <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      {valorTextoAdmin(solicitacao.processo_alvo)}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
                     <StatusBadge status={solicitacao.status} />
                     <PrioridadeBadge prioridade={solicitacao.prioridade_calculada} />
-                    <span className="inline-flex rounded-full bg-slate-950 px-2.5 py-1 text-xs font-bold text-white ring-1 ring-slate-900 dark:bg-white dark:text-slate-950 dark:ring-white">
+                    <span className="inline-flex rounded-full bg-slate-950 px-2.5 py-0.5 text-xs font-bold text-white ring-1 ring-slate-900 dark:bg-white dark:text-slate-950 dark:ring-white">
                       Score {solicitacao.score ?? '—'}
                     </span>
                   </div>
+                  <p className="mt-1.5 max-w-4xl text-sm leading-5 text-slate-600 dark:text-slate-300">
+                    {valorTextoAdmin(solicitacao.processo_alvo)}
+                  </p>
+                </div>
+
+                <div className="grid gap-1.5 text-xs text-slate-500 lg:min-w-52 lg:text-right dark:text-slate-400">
+                  <span>Criada em {formatarDataHoraAdmin(solicitacao.data_criacao)}</span>
+                  <span>
+                    Atualizada em{' '}
+                    {formatarDataHoraAdmin(solicitacao.updated_at ?? solicitacao.data_criacao)}
+                  </span>
                 </div>
               </div>
 
-              <div className="grid gap-3.5 p-5 sm:p-6 lg:grid-cols-4">
+              <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
                 <SummaryCard
                   icon={<UserRound size={19} />}
                   label="Solicitante"
@@ -254,8 +260,8 @@ export function AdminSolicitacaoDetalhePage() {
               </div>
             </section>
 
-            <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.78fr]">
-              <div className="grid gap-5">
+            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+              <div className="grid content-start gap-3.5">
                 <DetailSection title="Processo ou atividade alvo">
                   {valorTextoAdmin(solicitacao.processo_alvo)}
                 </DetailSection>
@@ -286,7 +292,7 @@ export function AdminSolicitacaoDetalhePage() {
                 </DetailSection>
               </div>
 
-              <div className="grid content-start gap-5">
+              <div className="grid content-start gap-3.5">
                 <AdminManagementPanel
                   solicitacao={solicitacao}
                   novoStatus={novoStatus}
@@ -354,13 +360,13 @@ export function AdminSolicitacaoDetalhePage() {
                       Nenhum histórico registrado.
                     </p>
                   ) : (
-                    <div className="grid gap-3">
+                    <div className="grid gap-2">
                       {historico.map((item) => (
                         <div
                           key={item.id}
-                          className="rounded-2xl border border-slate-200 bg-white/76 p-3 dark:border-slate-800 dark:bg-slate-900/62"
+                          className="rounded-xl border border-slate-200 bg-white/76 p-2.5 dark:border-slate-800 dark:bg-slate-900/62"
                         >
-                          <p className="mb-2 text-xs font-bold uppercase tracking-[0.13em] text-brand-700 dark:text-cyan-200">
+                          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.13em] text-brand-700 dark:text-cyan-200">
                             {getHistoricoEventoLabel(item)}
                           </p>
                           <div className="flex flex-wrap items-center gap-2">
@@ -374,12 +380,12 @@ export function AdminSolicitacaoDetalhePage() {
                             <span className="text-xs text-slate-400">→</span>
                             <StatusBadge status={item.status_novo} />
                           </div>
-                          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
                             {formatarDataHoraAdmin(item.data_alteracao)} ·{' '}
                             {valorTextoAdmin(item.usuario_email)}
                           </p>
                           {item.observacao ? (
-                            <p className="mt-2 whitespace-pre-wrap text-sm leading-5 text-slate-600 dark:text-slate-300">
+                            <p className="mt-1.5 whitespace-pre-wrap text-sm leading-5 text-slate-600 dark:text-slate-300">
                               {item.observacao}
                             </p>
                           ) : null}
@@ -432,24 +438,24 @@ function AdminManagementPanel({
     : 'Não atribuído';
 
   return (
-    <section className="rounded-[1.25rem] border border-brand-100 bg-white/90 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-brand-500/20 dark:bg-slate-950/88 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+    <section className="rounded-2xl border border-brand-100 bg-white/90 p-3.5 shadow-[0_18px_46px_rgba(15,23,42,0.08)] backdrop-blur dark:border-brand-500/20 dark:bg-slate-950/88 dark:shadow-[0_22px_60px_rgba(0,0,0,0.35)]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-cyan-200">
             Gestão administrativa
           </p>
-          <h2 className="mt-1 text-base font-semibold text-slate-950 dark:text-white">
+          <h2 className="mt-0.5 text-sm font-semibold text-slate-950 dark:text-white">
             Workflow da demanda
           </h2>
         </div>
         <StatusBadge status={solicitacao.status} />
       </div>
 
-      <div className="mt-4 grid gap-4">
+      <div className="mt-3 grid gap-3">
         <div>
           <label
             htmlFor="novo-status"
-            className="text-xs font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500"
+            className="text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500"
           >
             Alterar status
           </label>
@@ -457,7 +463,7 @@ function AdminManagementPanel({
             id="novo-status"
             value={novoStatus}
             onChange={(event) => onStatusChange(event.target.value as StatusSolicitacao)}
-            className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
+            className="mt-1.5 h-9 w-full rounded-lg border border-slate-200 bg-white px-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
           >
             {STATUS_SOLICITACAO.map((status) => (
               <option key={status} value={status}>
@@ -468,15 +474,15 @@ function AdminManagementPanel({
           <textarea
             value={observacaoStatus}
             onChange={(event) => onObservacaoStatusChange(event.target.value)}
-            rows={3}
-            className="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
+            rows={2}
+            className="mt-2 w-full resize-none rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm leading-5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
             placeholder="Observação opcional sobre a alteração de status"
           />
           <button
             type="button"
             onClick={onAtualizarStatus}
             disabled={novoStatus === solicitacao.status || Boolean(savingAction)}
-            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-3 py-2 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(18,95,157,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:bg-brand-600 dark:hover:bg-brand-500"
+            className="mt-2 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(18,95,157,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:bg-brand-600 dark:hover:bg-brand-500"
           >
             <CheckCircle2 size={16} />
             {isSavingStatus ? 'Atualizando...' : 'Atualizar status'}
@@ -489,7 +495,7 @@ function AdminManagementPanel({
             type="button"
             onClick={onAssumirDemanda}
             disabled={Boolean(savingAction)}
-            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-brand-100 bg-white px-3 py-2 text-sm font-semibold text-brand-800 shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
+            className="mt-2 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg border border-brand-100 bg-white px-3 py-1.5 text-sm font-semibold text-brand-800 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
           >
             <UserCheck size={16} />
             {isSavingResponsavel ? 'Assumindo...' : 'Assumir demanda'}
@@ -499,7 +505,7 @@ function AdminManagementPanel({
         <div>
           <label
             htmlFor="observacao-interna"
-            className="text-xs font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500"
+            className="text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500"
           >
             Observação interna
           </label>
@@ -507,22 +513,22 @@ function AdminManagementPanel({
             id="observacao-interna"
             value={observacaoInterna}
             onChange={(event) => onObservacaoInternaChange(event.target.value)}
-            rows={5}
-            className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
+            rows={3}
+            className="mt-1.5 w-full resize-none rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm leading-5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:focus:ring-brand-900/50"
             placeholder="Registre contexto interno da equipe administrativa"
           />
           <button
             type="button"
             onClick={onSalvarObservacaoInterna}
             disabled={!observacaoInternaAlterada || Boolean(savingAction)}
-            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-brand-100 bg-white px-3 py-2 text-sm font-semibold text-brand-800 shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
+            className="mt-2 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg border border-brand-100 bg-white px-3 py-1.5 text-sm font-semibold text-brand-800 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-cyan-100 dark:hover:border-brand-500 dark:hover:bg-slate-800"
           >
             <Save size={16} />
             {isSavingObservacao ? 'Salvando...' : 'Salvar observação interna'}
           </button>
         </div>
 
-        <div className="grid gap-3 rounded-xl border border-slate-200 bg-white/72 p-3 dark:border-slate-800 dark:bg-slate-900/58">
+        <div className="grid gap-2 rounded-xl border border-slate-200 bg-white/72 p-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2 dark:border-slate-800 dark:bg-slate-900/58">
           <InfoRow
             label="Início da análise"
             value={formatarDataHoraAdmin(solicitacao.data_inicio_analise)}
@@ -555,11 +561,11 @@ function SummaryCard({
   detail: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white/78 p-3.5 dark:border-slate-800 dark:bg-slate-900/62">
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
+    <div className="rounded-xl border border-slate-200 bg-white/78 p-3 dark:border-slate-800 dark:bg-slate-900/62">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-cyan-200">
         {icon}
       </div>
-      <p className="mt-2.5 text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
+      <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
         {label}
       </p>
       <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">{value}</p>
@@ -570,9 +576,9 @@ function SummaryCard({
 
 function DetailSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
-      <h2 className="text-base font-semibold text-slate-950 dark:text-white">{title}</h2>
-      <div className="mt-2.5 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
+    <section className="rounded-2xl border border-white/80 bg-white/88 p-3.5 shadow-[0_16px_42px_rgba(15,23,42,0.07)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_20px_56px_rgba(0,0,0,0.34)]">
+      <h2 className="text-sm font-semibold text-slate-950 dark:text-white">{title}</h2>
+      <div className="mt-2 whitespace-pre-wrap text-sm leading-5 text-slate-600 dark:text-slate-300">
         {children}
       </div>
     </section>
@@ -581,9 +587,9 @@ function DetailSection({ title, children }: { title: string; children: ReactNode
 
 function InfoPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-[1.25rem] border border-white/80 bg-white/88 p-4 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
-      <h2 className="text-base font-semibold text-slate-950 dark:text-white">{title}</h2>
-      <div className="mt-3 grid gap-3.5">{children}</div>
+    <section className="rounded-2xl border border-white/80 bg-white/88 p-3.5 shadow-[0_16px_42px_rgba(15,23,42,0.07)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:shadow-[0_20px_56px_rgba(0,0,0,0.34)]">
+      <h2 className="text-sm font-semibold text-slate-950 dark:text-white">{title}</h2>
+      <div className="mt-2.5 grid gap-2.5">{children}</div>
     </section>
   );
 }
@@ -599,12 +605,12 @@ function InfoRow({
 }) {
   return (
     <div>
-      <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
+      <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400 dark:text-slate-500">
         {label}
       </p>
       <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{value}</p>
       {detail ? (
-        <p className="mt-1 whitespace-pre-wrap text-sm leading-5 text-slate-500 dark:text-slate-400">
+        <p className="mt-0.5 whitespace-pre-wrap text-xs leading-5 text-slate-500 dark:text-slate-400">
           {detail}
         </p>
       ) : null}
@@ -614,7 +620,7 @@ function InfoRow({
 
 function EmptyDetail({ text }: { text: string }) {
   return (
-    <div className="rounded-[1.25rem] border border-white/80 bg-white/88 px-5 py-10 text-center text-sm text-slate-500 shadow-[0_20px_56px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:text-slate-400">
+    <div className="rounded-2xl border border-white/80 bg-white/88 px-5 py-8 text-center text-sm text-slate-500 shadow-[0_16px_42px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/86 dark:text-slate-400">
       {text}
     </div>
   );
