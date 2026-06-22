@@ -820,6 +820,30 @@ button {
   color: #0b1220 !important;
 }
 
+.auth-hero-character-video {
+  background: transparent;
+  filter: brightness(1.22) contrast(1.32) saturate(1.12);
+  mix-blend-mode: multiply;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-image: radial-gradient(
+    ellipse at 34% 56%,
+    #000 0%,
+    #000 30%,
+    rgba(0, 0, 0, 0.76) 44%,
+    transparent 62%
+  );
+  mask-image: radial-gradient(
+    ellipse at 34% 56%,
+    #000 0%,
+    #000 30%,
+    rgba(0, 0, 0, 0.76) 44%,
+    transparent 62%
+  );
+}
+
 html.theme-dark .auth-public-light,
 html.theme-dark .auth-public-light :is(header, main, section, article, div) {
   color-scheme: light;

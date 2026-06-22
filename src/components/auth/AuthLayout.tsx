@@ -15,7 +15,48 @@ interface AuthLayoutProps {
 const HERO_VIDEO_URL =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260601_110537_3a579fa0-7bbc-4d94-9d25-0e816c7840f5.mp4';
 
+const HERO_TITLE = 'onde há retrabalho,\npode existir automação.';
 const serviceOptions = ['retrabalho', 'planilhas/e-mails', 'gargalo', 'automação', 'outro'] as const;
+
+function useTypewriter(text: string, speed = 38, startDelay = 600): { displayed: string; done: boolean } {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    setDisplayed('');
+    setDone(false);
+
+    let timeoutId: number | undefined;
+    let cancelled = false;
+
+    function typeNext(index: number) {
+      if (cancelled) {
+        return;
+      }
+
+      const nextIndex = index + 1;
+      setDisplayed(text.slice(0, nextIndex));
+
+      if (nextIndex >= text.length) {
+        setDone(true);
+        return;
+      }
+
+      timeoutId = window.setTimeout(() => typeNext(nextIndex), speed);
+    }
+
+    timeoutId = window.setTimeout(() => typeNext(0), startDelay);
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [speed, startDelay, text]);
+
+  return { displayed, done };
+}
 
 function HeroCharacter() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -61,24 +102,29 @@ function HeroCharacter() {
   }
 
   return (
-    <div className="pointer-events-none absolute bottom-[-9%] right-[-5%] z-0 hidden h-[82vh] w-[49vw] overflow-visible lg:block">
-      <div className="absolute right-[12%] top-[22%] h-[420px] w-[420px] rounded-full bg-cyan-300/20 blur-3xl animate-glow-pulse" />
-      <div className={`absolute right-[-2%] bottom-0 h-full w-full will-change-transform ${videoComplete ? '' : 'animate-float-soft'}`}>
+    <div className="pointer-events-none absolute right-[-13vw] top-[88px] z-0 hidden h-[calc(100dvh-100px)] min-h-[540px] w-[54vw] max-w-[840px] overflow-visible bg-transparent lg:block">
+      <div className="absolute left-[22%] top-[18%] h-[390px] w-[390px] rounded-full bg-cyan-300/20 blur-3xl animate-glow-pulse" />
+      <div className={`absolute right-0 top-[-1%] h-full w-full bg-transparent will-change-transform ${videoComplete ? '' : 'animate-float-soft'}`}>
         {videoFailed ? (
-          <div className="absolute bottom-[10%] right-[10%] h-[430px] w-[430px] rounded-full bg-[radial-gradient(circle_at_35%_32%,rgba(255,255,255,0.95),rgba(103,232,249,0.22)_36%,rgba(20,105,168,0.12)_64%,transparent_76%)]" />
+          <div className="absolute right-[3%] top-[16%] h-[430px] w-[430px] rounded-full bg-[radial-gradient(circle_at_40%_34%,rgba(255,255,255,0.95),rgba(103,232,249,0.22)_36%,rgba(20,105,168,0.12)_64%,transparent_76%)]" />
         ) : (
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            autoPlay
-            preload="metadata"
-            onEnded={handleVideoEnded}
-            onError={() => setVideoFailed(true)}
-            className="h-full w-full object-contain object-right-bottom opacity-95 mix-blend-multiply"
-          >
-            <source src={HERO_VIDEO_URL} type="video/mp4" />
-          </video>
+          <>
+            <video
+              ref={videoRef}
+              muted
+              playsInline
+              autoPlay
+              preload="metadata"
+              onEnded={handleVideoEnded}
+              onError={() => setVideoFailed(true)}
+              className="auth-hero-character-video relative z-10 h-full w-full -scale-x-100 object-contain object-right-center opacity-95"
+            >
+              <source src={HERO_VIDEO_URL} type="video/mp4" />
+            </video>
+            <div className="absolute inset-y-0 left-0 z-20 w-[18%] bg-gradient-to-r from-white via-white/80 to-transparent" />
+            <div className="absolute inset-y-0 right-0 z-20 w-[34%] bg-gradient-to-l from-white via-white/78 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 z-20 h-[18%] bg-gradient-to-t from-white via-white/76 to-transparent" />
+          </>
         )}
       </div>
     </div>
@@ -94,6 +140,7 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(initialModalOpen || variant === 'register');
   const [services, setServices] = useState<string[]>([]);
+  const { displayed, done } = useTypewriter(HERO_TITLE);
 
   useEffect(() => {
     if (initialModalOpen || variant === 'register') {
@@ -171,17 +218,18 @@ export function AuthLayout({
         </button>
       </header>
 
-      <main className="relative z-10 mx-auto grid min-h-[calc(100dvh-76px)] w-full max-w-7xl grid-cols-1 items-center px-6 pb-10 pt-8 lg:grid-cols-[1fr_0.95fr] lg:px-16 lg:pb-12 lg:pt-4">
-        <section className="relative z-10 max-w-[620px] lg:pr-16 xl:pr-24">
+      <main className="relative z-10 mx-auto grid min-h-[calc(100dvh-76px)] w-full max-w-7xl grid-cols-1 items-center px-6 pb-10 pt-8 lg:grid-cols-[minmax(600px,0.9fr)_minmax(0,1.1fr)] lg:px-16 lg:pb-10 lg:pt-0">
+        <section className="relative z-10 max-w-[660px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
           >
-            <h1 className="text-5xl font-normal leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-[68px] xl:text-[74px]">
-              onde há retrabalho,
-              <br />
-              pode existir automação.
+            <h1 className="min-h-[2.1em] whitespace-pre-line text-5xl font-normal leading-[1.05] tracking-tight text-black sm:whitespace-pre sm:text-6xl lg:text-[58px] xl:text-[62px]">
+              {displayed}
+              {!done ? (
+                <span className="inline-block h-[1.05em] w-[2px] translate-y-[0.08em] bg-black align-middle ml-1 animate-blink" />
+              ) : null}
             </h1>
           </motion.div>
 
@@ -189,7 +237,7 @@ export function AuthLayout({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.08 }}
-            className="mt-7 max-w-xl text-lg font-normal leading-8 text-[#5A635A] md:text-xl"
+            className="mt-6 max-w-xl text-lg font-normal leading-8 text-[#5A635A] md:text-xl"
           >
             registre gargalos, retrabalhos e processos manuais para análise de oportunidades de
             automação interna e ia aplicada.
@@ -199,7 +247,7 @@ export function AuthLayout({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.16 }}
-            className="mt-10"
+            className="mt-8"
           >
             <h2 className="text-2xl font-medium tracking-tight text-black">qual tipo de demanda?</h2>
             <p className="mt-2 text-sm text-[#738273]">
