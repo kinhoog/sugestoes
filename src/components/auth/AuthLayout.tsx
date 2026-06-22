@@ -1,62 +1,26 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 import { BrandLogo } from '../BrandLogo';
-import { ThemeToggle } from '../ThemeToggle';
 
 interface AuthLayoutProps {
   title: string;
   description: string;
   children: ReactNode;
   variant?: 'default' | 'register';
+  initialModalOpen?: boolean;
 }
 
 const HERO_VIDEO_URL =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260601_110537_3a579fa0-7bbc-4d94-9d25-0e816c7840f5.mp4';
 
-const navItems = ['sistema', 'demandas', 'automação', 'melhorias'] as const;
 const serviceOptions = ['retrabalho', 'planilhas/e-mails', 'gargalo', 'automação', 'outro'] as const;
 
-function useTypewriter(text: string, speed = 38, startDelay = 600): { displayed: string; done: boolean } {
-  const [displayed, setDisplayed] = useState('');
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    setDisplayed('');
-    setDone(false);
-
-    let index = 0;
-    let intervalId: number | undefined;
-
-    const delayId = window.setTimeout(() => {
-      intervalId = window.setInterval(() => {
-        index += 1;
-        setDisplayed(text.slice(0, index));
-
-        if (index >= text.length) {
-          if (intervalId) {
-            window.clearInterval(intervalId);
-          }
-          setDone(true);
-        }
-      }, speed);
-    }, startDelay);
-
-    return () => {
-      window.clearTimeout(delayId);
-      if (intervalId) {
-        window.clearInterval(intervalId);
-      }
-    };
-  }, [speed, startDelay, text]);
-
-  return { displayed, done };
-}
-
-function BackgroundVideo() {
+function HeroCharacter() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [videoComplete, setVideoComplete] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -69,9 +33,11 @@ function BackgroundVideo() {
 
     if (reduceMotion) {
       video.pause();
+      setVideoComplete(true);
       return undefined;
     }
 
+    setVideoComplete(false);
     video.play().catch(() => undefined);
 
     return () => {
@@ -79,28 +45,42 @@ function BackgroundVideo() {
     };
   }, []);
 
+  function handleVideoEnded() {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.pause();
+    setVideoComplete(true);
+
+    if (Number.isFinite(video.duration)) {
+      video.currentTime = Math.max(video.duration - 0.05, 0);
+    }
+  }
+
   return (
-    <div className="pointer-events-none order-last relative h-48 w-full overflow-hidden bg-neutral-50 sm:h-64 lg:order-none lg:absolute lg:inset-y-0 lg:left-0 lg:z-0 lg:h-full lg:w-[58vw] lg:bg-transparent">
-      <div className="absolute left-[-28%] bottom-[2%] h-64 w-64 rounded-full bg-cyan-300/35 blur-3xl animate-glow-pulse sm:h-80 sm:w-80 lg:left-[-22%] lg:bottom-[8%] lg:h-[420px] lg:w-[420px]" />
-      <div className="absolute left-[-16%] bottom-[-16%] h-64 w-[82vw] max-w-[520px] animate-float-soft will-change-transform sm:bottom-[-20%] sm:h-80 lg:left-[-10%] lg:bottom-[4%] lg:h-[66vh] lg:w-[60vw] lg:max-w-[760px]">
+    <div className="pointer-events-none absolute bottom-[-9%] right-[-5%] z-0 hidden h-[82vh] w-[49vw] overflow-visible lg:block">
+      <div className="absolute right-[12%] top-[22%] h-[420px] w-[420px] rounded-full bg-cyan-300/20 blur-3xl animate-glow-pulse" />
+      <div className={`absolute right-[-2%] bottom-0 h-full w-full will-change-transform ${videoComplete ? '' : 'animate-float-soft'}`}>
         {videoFailed ? (
-          <div className="h-full w-full rounded-[48%] bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.9),rgba(103,232,249,0.24)_38%,rgba(20,105,168,0.18)_68%,transparent_78%)]" />
+          <div className="absolute bottom-[10%] right-[10%] h-[430px] w-[430px] rounded-full bg-[radial-gradient(circle_at_35%_32%,rgba(255,255,255,0.95),rgba(103,232,249,0.22)_36%,rgba(20,105,168,0.12)_64%,transparent_76%)]" />
         ) : (
           <video
             ref={videoRef}
             muted
             playsInline
-            loop
             autoPlay
             preload="metadata"
+            onEnded={handleVideoEnded}
             onError={() => setVideoFailed(true)}
-            className="h-full w-full object-contain object-left-bottom opacity-80 lg:opacity-90"
+            className="h-full w-full object-contain object-right-bottom opacity-95 mix-blend-multiply"
           >
             <source src={HERO_VIDEO_URL} type="video/mp4" />
           </video>
         )}
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-white via-white/45 to-transparent lg:bg-gradient-to-r lg:from-white/95 lg:via-white/68 lg:to-transparent" />
     </div>
   );
 }
@@ -110,11 +90,49 @@ export function AuthLayout({
   description,
   children,
   variant = 'default',
+  initialModalOpen = false,
 }: AuthLayoutProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(initialModalOpen || variant === 'register');
   const [services, setServices] = useState<string[]>([]);
-  const { displayed, done } = useTypewriter('registre gargalos\ne transforme rotinas.');
-  const isRegister = variant === 'register';
+
+  useEffect(() => {
+    if (initialModalOpen || variant === 'register') {
+      setIsAuthModalOpen(true);
+    }
+  }, [initialModalOpen, variant]);
+
+  useEffect(() => {
+    if (!isAuthModalOpen) {
+      return undefined;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const focusFirstField = () => {
+      const firstInput = document.querySelector<HTMLElement>(
+        '#auth-modal input[autocomplete="email"], #auth-modal input:not([type="hidden"])',
+      );
+      firstInput?.focus({ preventScroll: true });
+    };
+    const firstFocusTimerId = window.setTimeout(focusFirstField, 80);
+    const secondFocusTimerId = window.setTimeout(focusFirstField, 220);
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsAuthModalOpen(false);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.clearTimeout(firstFocusTimerId);
+      window.clearTimeout(secondFocusTimerId);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAuthModalOpen]);
 
   function toggleService(service: string) {
     setServices((current) =>
@@ -124,239 +142,205 @@ export function AuthLayout({
     );
   }
 
-  function focusAuthForm() {
-    document.getElementById('auth-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  function openAuthModal() {
+    setIsAuthModalOpen(true);
   }
 
   return (
-    <div className="relative bg-white text-neutral-900 font-sans selection:bg-[#EAECE9] selection:text-[#1C2E1E] antialiased overflow-x-hidden flex flex-col lg:block lg:min-h-screen">
-      <BackgroundVideo />
+    <div className="auth-public-light relative min-h-dvh overflow-hidden bg-white font-sans text-black antialiased selection:bg-[#EAECE9] selection:text-[#1C2E1E]">
+      <HeroCharacter />
 
-      <header className="fixed top-0 inset-x-0 z-20 px-5 sm:px-8 py-4 sm:py-5 flex flex-row justify-between items-center bg-transparent">
+      <header className="relative z-20 flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 lg:px-14">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-white/85 shadow-[0_12px_34px_rgba(15,23,42,0.08)] ring-1 ring-black/5 backdrop-blur">
+          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-[0_12px_34px_rgba(15,23,42,0.08)] ring-1 ring-black/5">
             <img src="./logosite.png" alt="eProtege" className="h-8 w-8 object-contain" />
           </span>
-          <span className="text-[21px] sm:text-[26px] tracking-tight text-black font-medium select-none">
+          <span className="text-[21px] font-medium tracking-tight text-black sm:text-[26px]">
             eprotege®
           </span>
-          <span className="text-[25px] sm:text-[30px] text-black select-none tracking-[-0.02em] font-medium leading-none mb-1">
-            &#10033;
-          </span>
-        </div>
-
-        <nav className="hidden md:flex text-[23px] text-black">
-          {navItems.map((item, index) => (
-            <span key={item}>
-              <button type="button" onClick={focusAuthForm} className="hover:opacity-60 transition-opacity">
-                {item}
-              </button>
-              {index < navItems.length - 1 ? <span className="opacity-40">,&nbsp;</span> : null}
-            </span>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-4 md:flex">
-          <button
-            type="button"
-            onClick={focusAuthForm}
-            className="text-[23px] text-black underline underline-offset-2 hover:opacity-60 transition-opacity"
-          >
-            acessar sistema
-          </button>
-          <ThemeToggle />
         </div>
 
         <button
           type="button"
-          onClick={() => setIsMobileMenuOpen((current) => !current)}
-          className="relative z-20 flex h-10 w-10 flex-col items-center justify-center gap-[5px] rounded-full bg-white/85 shadow-[0_10px_28px_rgba(15,23,42,0.08)] md:hidden"
-          aria-label="Abrir menu"
+          aria-haspopup="dialog"
+          aria-expanded={isAuthModalOpen}
+          onClick={openAuthModal}
+          className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_10px_28px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-[#1C6EA4]/25 hover:text-[#1C6EA4] hover:shadow-[0_16px_34px_rgba(28,110,164,0.12)] focus:outline-none focus:ring-4 focus:ring-[#1C6EA4]/10 motion-reduce:transition-none sm:text-base"
         >
-          <span
-            className={`w-6 h-[2px] bg-black transition-all duration-300 ${
-              isMobileMenuOpen ? 'rotate-45 translate-y-[7px]' : ''
-            }`}
-          />
-          <span
-            className={`w-6 h-[2px] bg-black transition-all duration-300 ${
-              isMobileMenuOpen ? 'opacity-0' : ''
-            }`}
-          />
-          <span
-            className={`w-6 h-[2px] bg-black transition-all duration-300 ${
-              isMobileMenuOpen ? '-rotate-45 -translate-y-[7px]' : ''
-            }`}
-          />
+          acessar sistema
         </button>
       </header>
 
-      <div
-        className={`fixed inset-0 z-[9] bg-white/95 backdrop-blur-sm transition-all duration-300 md:hidden ${
-          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <nav className="flex min-h-screen flex-col justify-center px-8 text-4xl font-medium text-black">
-          {[...navItems, 'acessar'].map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                focusAuthForm();
-              }}
-              className="border-b border-black/10 py-5 text-left"
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <main className="relative z-10 mx-auto grid min-h-[calc(100dvh-76px)] w-full max-w-7xl grid-cols-1 items-center px-6 pb-10 pt-8 lg:grid-cols-[1fr_0.95fr] lg:px-16 lg:pb-12 lg:pt-4">
+        <section className="relative z-10 max-w-[620px] lg:pr-16 xl:pr-24">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+          >
+            <h1 className="text-5xl font-normal leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-[68px] xl:text-[74px]">
+              onde há retrabalho,
+              <br />
+              pode existir automação.
+            </h1>
+          </motion.div>
 
-      <div className="relative z-10 flex flex-col order-first lg:order-none w-full bg-white lg:bg-transparent pb-8 lg:pb-0 lg:min-h-screen">
-        <main
-          id="spade-hero"
-          className="w-full max-w-7xl mx-auto px-6 py-12 flex-1 flex flex-col justify-center"
-        >
-          <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 items-center pt-24 lg:pt-16">
-            <section>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <h1 className="text-5xl md:text-6xl lg:text-[76px] font-normal tracking-tight text-black leading-[1.08] mb-8 select-none w-full whitespace-pre-wrap">
-                  {displayed}
-                  {!done ? (
-                    <span className="inline-block w-[2px] h-[1.1em] bg-black align-middle ml-[2px] animate-blink" />
-                  ) : null}
-                </h1>
-              </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.08 }}
+            className="mt-7 max-w-xl text-lg font-normal leading-8 text-[#5A635A] md:text-xl"
+          >
+            registre gargalos, retrabalhos e processos manuais para análise de oportunidades de
+            automação interna e ia aplicada.
+          </motion.p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                <p className="text-lg md:text-xl text-[#5A635A] leading-relaxed font-normal mb-14 max-w-2xl">
-                  registre retrabalhos, gargalos operacionais e rotinas manuais <br />
-                  para análise de oportunidades de automação interna.
-                </p>
-              </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.16 }}
+            className="mt-10"
+          >
+            <h2 className="text-2xl font-medium tracking-tight text-black">qual tipo de demanda?</h2>
+            <p className="mt-2 text-sm text-[#738273]">
+              selecione só para visualizar o tipo de problema
+            </p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.18 }}
-              >
-                <h2 className="text-2xl font-medium tracking-tight mb-2">qual tipo de demanda?</h2>
-                <p className="opacity-85 text-[#738273] mb-8">
-                  selecione só para visualizar o tipo de problema
-                </p>
+            <div className="mt-6 flex max-w-xl flex-wrap gap-3">
+              {serviceOptions.map((service) => {
+                const active = services.includes(service);
 
-                <div className="flex flex-wrap gap-3">
-                  {serviceOptions.map((service) => {
-                    const active = services.includes(service);
-
-                    return (
-                      <motion.button
-                        key={service}
-                        type="button"
-                        whileTap={{ scale: 0.96 }}
-                        onClick={() => toggleService(service)}
-                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all ${
-                          active
-                            ? 'bg-[#1C2E1E] text-white shadow-md shadow-emerald-950/5 transform'
-                            : 'bg-white text-[#1C2E1E] border border-[#F1F3F1] hover:bg-[#F1F3F1]/55'
-                        }`}
+                return (
+                  <motion.button
+                    key={service}
+                    type="button"
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => toggleService(service)}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all motion-reduce:transition-none ${
+                      active
+                        ? 'bg-[#1C2E1E] text-white shadow-md shadow-emerald-950/5'
+                        : 'border border-[#F1F3F1] bg-white text-[#1C2E1E] shadow-[0_8px_22px_rgba(15,23,42,0.04)] hover:bg-[#F1F3F1]/55'
+                    }`}
+                  >
+                    {active ? (
+                      <motion.span
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                       >
-                        {active ? (
-                          <motion.span
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                          >
-                            <Check size={16} />
-                          </motion.span>
-                        ) : null}
-                        {service}
-                      </motion.button>
-                    );
-                  })}
-                </div>
+                        <Check size={16} />
+                      </motion.span>
+                    ) : null}
+                    {service}
+                  </motion.button>
+                );
+              })}
+            </div>
 
-                <div className="mt-6 min-h-[58px]">
-                  <AnimatePresence mode="wait">
-                    {services.length === 0 ? (
-                      <motion.p
-                        key="empty"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="opacity-50 italic text-xs"
-                      >
-                        clique para selecionar os tipos acima.
-                      </motion.p>
-                    ) : (
-                      <motion.div
-                        key="selected"
-                        initial={{ opacity: 0, height: 0, y: 8 }}
-                        animate={{ opacity: 1, height: 'auto', y: 0 }}
-                        exit={{ opacity: 0, height: 0, y: -8 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="flex flex-col gap-3 rounded-2xl border border-[#E8EDE7] bg-[#FAFBF9] p-4 sm:flex-row sm:items-center sm:justify-between">
-                          <p className="text-sm text-[#1C2E1E]">
-                            pronto para registrar: {services.join(', ')}
-                          </p>
-                          <button
-                            type="button"
-                            onClick={focusAuthForm}
-                            className="text-left text-[#4D6D47] uppercase text-xs font-bold tracking-[0.16em]"
-                          >
-                            começar
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            </section>
-
-            <motion.section
-              id="auth-card"
-              initial={{ opacity: 0, y: 24, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.55, delay: 0.14 }}
-              className="relative mx-auto w-full max-w-md"
-            >
-              <div className="relative rounded-[2rem] border border-black/5 bg-white/85 backdrop-blur-xl shadow-2xl shadow-black/10 p-6 sm:p-8">
-                <div className={isRegister ? 'mb-4' : 'mb-6'}>
-                  <div className="mb-4 flex items-center gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white p-2 shadow-[0_12px_30px_rgba(15,23,42,0.08)] ring-1 ring-black/5">
-                      <BrandLogo className="h-8" />
-                    </span>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#4D6D47]">
-                        acesso corporativo
+            <div className="mt-6 min-h-[58px] max-w-xl">
+              <AnimatePresence mode="wait">
+                {services.length === 0 ? (
+                  <motion.p
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs italic text-black/45"
+                  >
+                    clique para selecionar os tipos acima.
+                  </motion.p>
+                ) : (
+                  <motion.div
+                    key="selected"
+                    initial={{ opacity: 0, height: 0, y: 8 }}
+                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex flex-col gap-3 rounded-2xl border border-[#E8EDE7] bg-[#FAFBF9] p-4 shadow-[0_12px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm text-[#1C2E1E]">
+                        pronto para registrar: {services.join(', ')}
                       </p>
-                      <p className="text-sm text-neutral-500">eProtege</p>
+                      <button
+                        type="button"
+                        onClick={openAuthModal}
+                        className="text-left text-xs font-bold uppercase tracking-[0.16em] text-[#4D6D47]"
+                      >
+                        começar
+                      </button>
                     </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </section>
+
+        <section className="hidden lg:block" aria-hidden="true" />
+      </main>
+
+      <AnimatePresence>
+        {isAuthModalOpen ? (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 backdrop-blur-md"
+            role="presentation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                setIsAuthModalOpen(false);
+              }
+            }}
+          >
+            <motion.section
+              id="auth-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="auth-modal-title"
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={{ duration: 0.22 }}
+              className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-[2rem] border border-black/10 bg-white p-6 text-neutral-900 shadow-2xl shadow-black/20 sm:p-8"
+            >
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(false)}
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-500 transition hover:border-[#1C6EA4]/25 hover:text-[#1C6EA4] focus:outline-none focus:ring-4 focus:ring-[#1C6EA4]/10"
+                aria-label="Fechar autenticação"
+              >
+                <X size={17} />
+              </button>
+
+              <div className={variant === 'register' ? 'mb-4 pr-8' : 'mb-6 pr-8'}>
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white p-2 shadow-[0_12px_30px_rgba(15,23,42,0.08)] ring-1 ring-black/5">
+                    <BrandLogo className="h-8" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#4D6D47]">
+                      acesso corporativo
+                    </p>
+                    <p className="text-sm text-neutral-500">eProtege</p>
                   </div>
-                  <h2 className={isRegister ? 'text-xl font-semibold text-black' : 'text-2xl font-semibold text-black'}>
-                    {title}
-                  </h2>
-                  <p className={isRegister ? 'mt-1.5 text-sm leading-5 text-neutral-600' : 'mt-2 text-sm leading-6 text-neutral-600'}>
-                    {description}
-                  </p>
                 </div>
-                {children}
+                <h2
+                  id="auth-modal-title"
+                  className={variant === 'register' ? 'text-xl font-semibold text-black' : 'text-2xl font-semibold text-black'}
+                >
+                  {title}
+                </h2>
+                <p className={variant === 'register' ? 'mt-1.5 text-sm leading-5 text-neutral-600' : 'mt-2 text-sm leading-6 text-neutral-600'}>
+                  {description}
+                </p>
               </div>
+
+              {children}
             </motion.section>
-          </div>
-        </main>
-      </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

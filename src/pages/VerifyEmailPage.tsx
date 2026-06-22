@@ -72,6 +72,7 @@ export function VerifyEmailPage() {
     <AuthLayout
       title="Verifique seu e-mail"
       description="Antes de acessar o formulário, confirme o link enviado para sua caixa de entrada."
+      initialModalOpen
     >
       <div className="rounded-2xl border border-brand-100 bg-brand-50/80 p-4 shadow-[0_14px_36px_rgba(21,120,194,0.08)] dark:border-brand-500/30 dark:bg-brand-900/40 dark:shadow-[0_16px_42px_rgba(0,0,0,0.24)]">
         <div className="flex items-start gap-3">
