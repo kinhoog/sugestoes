@@ -61,7 +61,6 @@ function useTypewriter(text: string, speed = 38, startDelay = 600): { displayed:
 function HeroCharacter() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoFailed, setVideoFailed] = useState(false);
-  const [videoComplete, setVideoComplete] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -74,11 +73,9 @@ function HeroCharacter() {
 
     if (reduceMotion) {
       video.pause();
-      setVideoComplete(true);
       return undefined;
     }
 
-    setVideoComplete(false);
     video.play().catch(() => undefined);
 
     return () => {
@@ -94,7 +91,6 @@ function HeroCharacter() {
     }
 
     video.pause();
-    setVideoComplete(true);
 
     if (Number.isFinite(video.duration)) {
       video.currentTime = Math.max(video.duration - 0.05, 0);
@@ -102,12 +98,9 @@ function HeroCharacter() {
   }
 
   return (
-    <div className="pointer-events-none absolute right-[-13vw] top-[88px] z-0 hidden h-[calc(100dvh-100px)] min-h-[540px] w-[54vw] max-w-[840px] overflow-visible bg-transparent lg:block">
-      <div className="absolute left-[22%] top-[18%] h-[390px] w-[390px] rounded-full bg-cyan-300/20 blur-3xl animate-glow-pulse" />
-      <div className={`absolute right-0 top-[-1%] h-full w-full bg-transparent will-change-transform ${videoComplete ? '' : 'animate-float-soft'}`}>
-        {videoFailed ? (
-          <div className="absolute right-[3%] top-[16%] h-[430px] w-[430px] rounded-full bg-[radial-gradient(circle_at_40%_34%,rgba(255,255,255,0.95),rgba(103,232,249,0.22)_36%,rgba(20,105,168,0.12)_64%,transparent_76%)]" />
-        ) : (
+    <div className="pointer-events-none absolute right-[-38vw] top-[42px] z-0 hidden h-[calc(100dvh-42px)] min-h-[660px] w-[88vw] max-w-[1380px] overflow-visible bg-transparent lg:block xl:right-[-34vw]">
+      <div className="absolute right-0 top-0 h-full w-full bg-transparent">
+        {videoFailed ? null : (
           <>
             <video
               ref={videoRef}
@@ -117,13 +110,14 @@ function HeroCharacter() {
               preload="metadata"
               onEnded={handleVideoEnded}
               onError={() => setVideoFailed(true)}
-              className="auth-hero-character-video relative z-10 h-full w-full -scale-x-100 object-contain object-right-center opacity-95"
+              className="auth-hero-character-video relative z-10 h-full w-full -scale-x-100 object-contain object-right-bottom opacity-100"
             >
               <source src={HERO_VIDEO_URL} type="video/mp4" />
             </video>
-            <div className="absolute inset-y-0 left-0 z-20 w-[18%] bg-gradient-to-r from-white via-white/80 to-transparent" />
-            <div className="absolute inset-y-0 right-0 z-20 w-[34%] bg-gradient-to-l from-white via-white/78 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 z-20 h-[18%] bg-gradient-to-t from-white via-white/76 to-transparent" />
+
+            <div className="absolute inset-y-0 left-0 z-20 w-[4%] bg-gradient-to-r from-white via-white/20 to-transparent" />
+            <div className="absolute inset-y-0 right-0 z-20 w-[4%] bg-gradient-to-l from-white via-white/20 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 z-20 h-[3%] bg-gradient-to-t from-white via-white/20 to-transparent" />
           </>
         )}
       </div>
@@ -203,7 +197,7 @@ export function AuthLayout({
             <img src="./logosite.png" alt="eProtege" className="h-8 w-8 object-contain" />
           </span>
           <span className="text-[21px] font-medium tracking-tight text-black sm:text-[26px]">
-            eprotege®
+            eprotege
           </span>
         </div>
 
@@ -218,7 +212,7 @@ export function AuthLayout({
         </button>
       </header>
 
-      <main className="relative z-10 mx-auto grid min-h-[calc(100dvh-76px)] w-full max-w-7xl grid-cols-1 items-center px-6 pb-10 pt-8 lg:grid-cols-[minmax(600px,0.9fr)_minmax(0,1.1fr)] lg:px-16 lg:pb-10 lg:pt-0">
+      <main className="relative z-10 grid min-h-[calc(100dvh-76px)] w-full grid-cols-1 items-center px-5 pb-10 pt-8 sm:px-8 lg:grid-cols-[minmax(700px,0.95fr)_minmax(0,1.05fr)] lg:pl-14 lg:pr-14 lg:pb-10 lg:pt-0">
         <section className="relative z-10 max-w-[660px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
