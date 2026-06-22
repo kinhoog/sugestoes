@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -76,6 +78,58 @@ textarea {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.44;
+    transform: scale(1.06);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) scale(1.01);
+  }
+}
+
+.animate-float-soft {
+  animation: float-soft 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-soft,
+  .animate-glow-pulse,
+  .animate-blink {
+    animation: none;
   }
 }
 
@@ -758,4 +812,117 @@ button {
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+.auth-public-light {
+  color-scheme: light;
+  background: #ffffff !important;
+  color: #0b1220 !important;
+}
+
+.auth-hero-character-video {
+  filter: brightness(1.22) contrast(1.32) saturate(1.12);
+  mix-blend-mode: multiply;
+
+  -webkit-mask-image: none;
+  mask-image: none;
+  -webkit-mask-repeat: initial;
+  mask-repeat: initial;
+  -webkit-mask-size: initial;
+  mask-size: initial;
+}
+
+html.theme-dark .auth-public-light,
+html.theme-dark .auth-public-light :is(header, main, section, article, div) {
+  color-scheme: light;
+}
+
+html.theme-dark .auth-public-light {
+  background: #ffffff !important;
+  color: #0b1220 !important;
+}
+
+html.theme-dark .auth-public-light :is(h1, h2, h3, p, span, label, button),
+.auth-public-light :is(h1, h2, h3, p, span, label) {
+  color-scheme: light;
+}
+
+html.theme-dark .auth-public-light .portal-field-label {
+  color: #1f2937 !important;
+}
+
+html.theme-dark .auth-public-light .portal-field-helper {
+  color: #64748b !important;
+}
+
+html.theme-dark .auth-public-light .portal-control,
+.auth-public-light .portal-control {
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #111827 !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04) !important;
+}
+
+html.theme-dark .auth-public-light .portal-control::placeholder,
+.auth-public-light .portal-control::placeholder {
+  color: #9ca3af !important;
+}
+
+html.theme-dark .auth-public-light .portal-control:hover,
+.auth-public-light .portal-control:hover {
+  border-color: #bfdbfe !important;
+  background-color: #ffffff !important;
+}
+
+html.theme-dark .auth-public-light .portal-control:focus,
+.auth-public-light .portal-control:focus {
+  border-color: #1c6ea4 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(28, 110, 164, 0.1) !important;
+}
+
+html.theme-dark .auth-public-light :is(a, [class*="dark:text-cyan"], [class*="text-brand"]) {
+  color: #1469a8 !important;
+}
+
+html.theme-dark .auth-public-light [class*="dark:text-slate"],
+html.theme-dark .auth-public-light [class*="dark:text-white"] {
+  color: #475569 !important;
+}
+
+html.theme-dark .auth-public-light [class*="dark:bg-slate"],
+html.theme-dark .auth-public-light [class*="dark:bg-brand"] {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #e5e7eb !important;
+  color: #0f172a !important;
+}
+
+html.theme-dark .auth-public-light .portal-button-primary {
+  background-color: #1469a8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 32px rgba(20, 105, 168, 0.22) !important;
+}
+
+html.theme-dark .auth-public-light .portal-button-secondary {
+  background-color: #ffffff !important;
+  border-color: #dbeafe !important;
+  color: #0e4f81 !important;
+}
+
+html.theme-dark .auth-public-light .portal-alert-error {
+  background-color: #fff7f7 !important;
+  border-color: #fecaca !important;
+  color: #991b1b !important;
+}
+
+html.theme-dark .auth-public-light .portal-alert-info {
+  background-color: #f2f9ff !important;
+  border-color: #c2e4ff !important;
+  color: #0e4f81 !important;
+}
+
+html.theme-dark .auth-public-light .portal-alert-success {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #166534 !important;
 }

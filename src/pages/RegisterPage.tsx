@@ -73,6 +73,7 @@ export function RegisterPage() {
       title="Criar cadastro"
       description="Crie seu acesso corporativo para registrar demandas de automação de rotinas e melhoria de processos."
       variant="register"
+      initialModalOpen
     >
       <form className="space-y-3" onSubmit={handleSubmit}>
         <InputField

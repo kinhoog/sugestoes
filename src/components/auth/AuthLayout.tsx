@@ -1,145 +1,388 @@
-import type { ReactNode } from 'react';
-import { Bot, Cpu, ShieldCheck, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { Check, X } from 'lucide-react';
 
 import { BrandLogo } from '../BrandLogo';
-import { ThemeToggle } from '../ThemeToggle';
 
 interface AuthLayoutProps {
   title: string;
   description: string;
   children: ReactNode;
   variant?: 'default' | 'register';
+  initialModalOpen?: boolean;
 }
 
-const valueCards = [
-  {
-    icon: <Bot size={18} />,
-    title: 'Rotinas automatizáveis',
-    text: 'Aponte controles manuais, retrabalhos e atividades repetitivas do setor.',
-  },
-  {
-    icon: <ShieldCheck size={18} />,
-    title: 'Acesso protegido',
-    text: 'Entrada restrita a colaboradores com e-mail corporativo verificado.',
-  },
-  {
-    icon: <Cpu size={18} />,
-    title: 'Avaliação por Automações e IA',
-    text: 'As demandas são analisadas para identificar sistemas internos e melhorias digitais.',
-  },
-];
+const HERO_VIDEO_URL =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260601_110537_3a579fa0-7bbc-4d94-9d25-0e816c7840f5.mp4';
+
+const HERO_TITLE = 'onde há retrabalho,\npode existir automação.';
+const serviceOptions = ['retrabalho', 'planilhas/e-mails', 'gargalo', 'automação', 'outro'] as const;
+
+function useTypewriter(text: string, speed = 38, startDelay = 600): { displayed: string; done: boolean } {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    setDisplayed('');
+    setDone(false);
+
+    let timeoutId: number | undefined;
+    let cancelled = false;
+
+    function typeNext(index: number) {
+      if (cancelled) {
+        return;
+      }
+
+      const nextIndex = index + 1;
+      setDisplayed(text.slice(0, nextIndex));
+
+      if (nextIndex >= text.length) {
+        setDone(true);
+        return;
+      }
+
+      timeoutId = window.setTimeout(() => typeNext(nextIndex), speed);
+    }
+
+    timeoutId = window.setTimeout(() => typeNext(0), startDelay);
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [speed, startDelay, text]);
+
+  return { displayed, done };
+}
+
+function HeroCharacter() {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return undefined;
+    }
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduceMotion) {
+      video.pause();
+      return undefined;
+    }
+
+    video.play().catch(() => undefined);
+
+    return () => {
+      video.pause();
+    };
+  }, []);
+
+  function handleVideoEnded() {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.pause();
+
+    if (Number.isFinite(video.duration)) {
+      video.currentTime = Math.max(video.duration - 0.05, 0);
+    }
+  }
+
+  return (
+    <div className="pointer-events-none absolute right-[-38vw] top-[42px] z-0 hidden h-[calc(100dvh-42px)] min-h-[660px] w-[88vw] max-w-[1380px] overflow-visible bg-transparent lg:block xl:right-[-34vw]">
+      <div className="absolute right-0 top-0 h-full w-full bg-transparent">
+        {videoFailed ? null : (
+          <>
+            <video
+              ref={videoRef}
+              muted
+              playsInline
+              autoPlay
+              preload="metadata"
+              onEnded={handleVideoEnded}
+              onError={() => setVideoFailed(true)}
+              className="auth-hero-character-video relative z-10 h-full w-full -scale-x-100 object-contain object-right-bottom opacity-100"
+            >
+              <source src={HERO_VIDEO_URL} type="video/mp4" />
+            </video>
+
+            <div className="absolute inset-y-0 left-0 z-20 w-[4%] bg-gradient-to-r from-white via-white/20 to-transparent" />
+            <div className="absolute inset-y-0 right-0 z-20 w-[4%] bg-gradient-to-l from-white via-white/20 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 z-20 h-[3%] bg-gradient-to-t from-white via-white/20 to-transparent" />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function AuthLayout({
   title,
   description,
   children,
   variant = 'default',
+  initialModalOpen = false,
 }: AuthLayoutProps) {
-  const isRegister = variant === 'register';
-  const leftColumnClassName = isRegister
-    ? 'page-enter hidden max-w-2xl lg:mt-4 lg:block xl:mt-6'
-    : 'page-enter hidden max-w-2xl lg:-mt-8 lg:block xl:-mt-10';
-  const brandGroupClassName = isRegister
-    ? 'mt-0 flex items-center gap-4'
-    : 'mt-5 flex items-center gap-4';
-  const cardClassName = isRegister
-    ? 'rounded-[1.5rem] border border-white/80 bg-white/90 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.14)] backdrop-blur sm:p-5 dark:border-slate-700/80 dark:bg-slate-950/90 dark:shadow-[0_28px_80px_rgba(0,0,0,0.45)]'
-    : 'rounded-[1.5rem] border border-white/80 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.14)] backdrop-blur sm:p-6 dark:border-slate-700/80 dark:bg-slate-950/90 dark:shadow-[0_28px_80px_rgba(0,0,0,0.45)]';
-  const cardHeaderClassName = isRegister ? 'mb-3' : 'mb-5';
-  const titleClassName = isRegister
-    ? 'mt-1.5 text-xl font-semibold text-slate-950 dark:text-white'
-    : 'mt-2 text-2xl font-semibold text-slate-950 dark:text-white';
-  const descriptionClassName = isRegister
-    ? 'mt-1.5 text-sm leading-5 text-slate-600 dark:text-slate-300'
-    : 'mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300';
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(initialModalOpen || variant === 'register');
+  const [services, setServices] = useState<string[]>([]);
+  const { displayed, done } = useTypewriter(HERO_TITLE);
+
+  useEffect(() => {
+    if (initialModalOpen || variant === 'register') {
+      setIsAuthModalOpen(true);
+    }
+  }, [initialModalOpen, variant]);
+
+  useEffect(() => {
+    if (!isAuthModalOpen) {
+      return undefined;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const focusFirstField = () => {
+      const firstInput = document.querySelector<HTMLElement>(
+        '#auth-modal input[autocomplete="email"], #auth-modal input:not([type="hidden"])',
+      );
+      firstInput?.focus({ preventScroll: true });
+    };
+    const firstFocusTimerId = window.setTimeout(focusFirstField, 80);
+    const secondFocusTimerId = window.setTimeout(focusFirstField, 220);
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsAuthModalOpen(false);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.clearTimeout(firstFocusTimerId);
+      window.clearTimeout(secondFocusTimerId);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAuthModalOpen]);
+
+  function toggleService(service: string) {
+    setServices((current) =>
+      current.includes(service)
+        ? current.filter((item) => item !== service)
+        : [...current, service],
+    );
+  }
+
+  function openAuthModal() {
+    setIsAuthModalOpen(true);
+  }
 
   return (
-    <div
-      data-auth-variant={variant}
-      className="auth-backdrop relative min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top_left,#e6f7ff_0,#f8fbff_34%,#eef7ff_68%,#f8fafc_100%)] transition-colors duration-300 dark:bg-[radial-gradient(circle_at_top_left,rgba(36,151,227,0.24)_0,rgba(2,6,23,0.98)_38%,#020617_100%)]"
-    >
-      <div className="pointer-events-none absolute -left-20 top-10 h-60 w-60 rounded-full bg-cyan-200/30 blur-3xl dark:bg-cyan-500/10" />
-      <div className="pointer-events-none absolute -right-16 bottom-6 h-64 w-64 rounded-full bg-brand-300/20 blur-3xl dark:bg-brand-600/10" />
-      <div className="absolute right-4 top-4 z-20 sm:right-6">
-        <ThemeToggle />
-      </div>
+    <div className="auth-public-light relative min-h-dvh overflow-hidden bg-white font-sans text-black antialiased selection:bg-[#EAECE9] selection:text-[#1C2E1E]">
+      <HeroCharacter />
 
-      <main className="relative mx-auto grid min-h-dvh w-full max-w-6xl content-center items-start gap-6 px-4 py-4 sm:px-6 lg:grid-cols-[0.95fr_0.82fr] lg:py-5">
-        <section className={leftColumnClassName}>
-          <div className={isRegister ? 'hidden' : 'automation-badge inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-800 shadow-[0_10px_28px_rgba(21,120,194,0.1)] backdrop-blur dark:border-cyan-300/20 dark:bg-slate-900/70 dark:text-cyan-100 dark:shadow-[0_14px_36px_rgba(0,0,0,0.3)]'}>
-            <Sparkles size={12} className="badge-sparkle" />
-            Portal interno de automação
-          </div>
+      <header className="relative z-20 flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 lg:px-14">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-[0_12px_34px_rgba(15,23,42,0.08)] ring-1 ring-black/5">
+            <img src="./logosite.png" alt="eProtege" className="h-8 w-8 object-contain" />
+          </span>
+          <span className="text-[21px] font-medium tracking-tight text-black sm:text-[26px]">
+            eprotege
+          </span>
+        </div>
 
-          <div className={brandGroupClassName}>
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/80 p-2.5 shadow-[0_16px_44px_rgba(15,23,42,0.1)] ring-1 ring-white/80 backdrop-blur dark:bg-white/95 dark:ring-white/20">
-              <BrandLogo className="h-11" />
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={isAuthModalOpen}
+          onClick={openAuthModal}
+          className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-black shadow-[0_10px_28px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-[#1C6EA4]/25 hover:text-[#1C6EA4] hover:shadow-[0_16px_34px_rgba(28,110,164,0.12)] focus:outline-none focus:ring-4 focus:ring-[#1C6EA4]/10 motion-reduce:transition-none sm:text-base"
+        >
+          acessar sistema
+        </button>
+      </header>
+
+      <main className="relative z-10 grid min-h-[calc(100dvh-76px)] w-full grid-cols-1 items-center px-5 pb-10 pt-8 sm:px-8 lg:grid-cols-[minmax(700px,0.95fr)_minmax(0,1.05fr)] lg:pl-14 lg:pr-14 lg:pb-10 lg:pt-0">
+        <section className="relative z-10 max-w-[660px]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+          >
+            <h1 className="min-h-[2.1em] whitespace-pre-line text-5xl font-normal leading-[1.05] tracking-tight text-black sm:whitespace-pre sm:text-6xl lg:text-[58px] xl:text-[62px]">
+              {displayed}
+              {!done ? (
+                <span className="inline-block h-[1.05em] w-[2px] translate-y-[0.08em] bg-black align-middle ml-1 animate-blink" />
+              ) : null}
+            </h1>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.08 }}
+            className="mt-6 max-w-xl text-lg font-normal leading-8 text-[#5A635A] md:text-xl"
+          >
+            registre gargalos, retrabalhos e processos manuais para análise de oportunidades de
+            automação interna e ia aplicada.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.16 }}
+            className="mt-8"
+          >
+            <h2 className="text-2xl font-medium tracking-tight text-black">qual tipo de demanda?</h2>
+            <p className="mt-2 text-sm text-[#738273]">
+              selecione só para visualizar o tipo de problema
+            </p>
+
+            <div className="mt-6 flex max-w-xl flex-wrap gap-3">
+              {serviceOptions.map((service) => {
+                const active = services.includes(service);
+
+                return (
+                  <motion.button
+                    key={service}
+                    type="button"
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => toggleService(service)}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all motion-reduce:transition-none ${
+                      active
+                        ? 'bg-[#1C2E1E] text-white shadow-md shadow-emerald-950/5'
+                        : 'border border-[#F1F3F1] bg-white text-[#1C2E1E] shadow-[0_8px_22px_rgba(15,23,42,0.04)] hover:bg-[#F1F3F1]/55'
+                    }`}
+                  >
+                    {active ? (
+                      <motion.span
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      >
+                        <Check size={16} />
+                      </motion.span>
+                    ) : null}
+                    {service}
+                  </motion.button>
+                );
+              })}
             </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-700 dark:text-cyan-200">
-                eProtege
-              </p>
-              <h1 className="mt-1.5 max-w-2xl text-[1.75rem] font-semibold leading-snug text-slate-950 dark:text-white">
-                Registro de Demandas para Automação Interna
-              </h1>
+
+            <div className="mt-6 min-h-[58px] max-w-xl">
+              <AnimatePresence mode="wait">
+                {services.length === 0 ? (
+                  <motion.p
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs italic text-black/45"
+                  >
+                    clique para selecionar os tipos acima.
+                  </motion.p>
+                ) : (
+                  <motion.div
+                    key="selected"
+                    initial={{ opacity: 0, height: 0, y: 8 }}
+                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex flex-col gap-3 rounded-2xl border border-[#E8EDE7] bg-[#FAFBF9] p-4 shadow-[0_12px_30px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm text-[#1C2E1E]">
+                        pronto para registrar: {services.join(', ')}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={openAuthModal}
+                        className="text-left text-xs font-bold uppercase tracking-[0.16em] text-[#4D6D47]"
+                      >
+                        começar
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
+        </section>
 
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Registre gargalos operacionais, retrabalhos ou rotinas manuais que possam ser avaliados
-            pela equipe de Automações e IA como oportunidades para sistemas internos, automações ou
-            melhorias digitais.
-          </p>
+        <section className="hidden lg:block" aria-hidden="true" />
+      </main>
 
-          <div className="mt-5 grid max-w-2xl gap-2.5">
-            {valueCards.map((card) => (
-              <article
-                key={card.title}
-                className="info-card rounded-2xl border border-white/70 bg-white/75 p-3 shadow-[0_14px_38px_rgba(15,23,42,0.08)] backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(15,23,42,0.1)] motion-reduce:transition-none dark:border-slate-700/70 dark:bg-slate-900/70 dark:shadow-[0_18px_44px_rgba(0,0,0,0.2)] dark:hover:border-slate-600"
+      <AnimatePresence>
+        {isAuthModalOpen ? (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 backdrop-blur-md"
+            role="presentation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                setIsAuthModalOpen(false);
+              }
+            }}
+          >
+            <motion.section
+              id="auth-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="auth-modal-title"
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={{ duration: 0.22 }}
+              className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-[2rem] border border-black/10 bg-white p-6 text-neutral-900 shadow-2xl shadow-black/20 sm:p-8"
+            >
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(false)}
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-500 transition hover:border-[#1C6EA4]/25 hover:text-[#1C6EA4] focus:outline-none focus:ring-4 focus:ring-[#1C6EA4]/10"
+                aria-label="Fechar autenticação"
               >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-700 text-white shadow-[0_12px_30px_rgba(21,120,194,0.22)]">
-                    {card.icon}
-                  </div>
+                <X size={17} />
+              </button>
+
+              <div className={variant === 'register' ? 'mb-4 pr-8' : 'mb-6 pr-8'}>
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white p-2 shadow-[0_12px_30px_rgba(15,23,42,0.08)] ring-1 ring-black/5">
+                    <BrandLogo className="h-8" />
+                  </span>
                   <div>
-                    <h2 className="text-sm font-semibold text-slate-950 dark:text-white">
-                      {card.title}
-                    </h2>
-                    <p className="mt-0.5 text-xs leading-5 text-slate-600 dark:text-slate-300">
-                      {card.text}
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#4D6D47]">
+                      acesso corporativo
                     </p>
+                    <p className="text-sm text-neutral-500">eProtege</p>
                   </div>
                 </div>
-              </article>
-            ))}
-          </div>
-        </section>
+                <h2
+                  id="auth-modal-title"
+                  className={variant === 'register' ? 'text-xl font-semibold text-black' : 'text-2xl font-semibold text-black'}
+                >
+                  {title}
+                </h2>
+                <p className={variant === 'register' ? 'mt-1.5 text-sm leading-5 text-neutral-600' : 'mt-2 text-sm leading-6 text-neutral-600'}>
+                  {description}
+                </p>
+              </div>
 
-        <section className="page-enter mx-auto w-full max-w-md">
-          <div className="mb-4 flex items-center gap-3 lg:hidden">
-            <span className="rounded-2xl bg-white/90 p-2 shadow-[0_12px_30px_rgba(15,23,42,0.08)] dark:bg-white/95">
-              <BrandLogo className="h-9" />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-brand-700 dark:text-cyan-200">eProtege</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Automação de Rotinas e Melhoria de Processos
-              </p>
-            </div>
-          </div>
-
-          <div className={cardClassName}>
-            <div className={cardHeaderClassName}>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-600 dark:text-cyan-200">
-                Acesso corporativo
-              </p>
-              <h2 className={titleClassName}>{title}</h2>
-              <p className={descriptionClassName}>{description}</p>
-            </div>
-            {children}
-          </div>
-        </section>
-      </main>
+              {children}
+            </motion.section>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

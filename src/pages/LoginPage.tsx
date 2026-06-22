@@ -87,6 +87,7 @@ export function LoginPage() {
     <AuthLayout
       title="Entrar no portal"
       description="Acesse com seu e-mail corporativo para registrar demandas de automação interna e melhoria digital."
+      initialModalOpen={Boolean(notice)}
     >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <InputField
